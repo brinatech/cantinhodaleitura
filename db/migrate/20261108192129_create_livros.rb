@@ -5,7 +5,7 @@ class CreateLivros < ActiveRecord::Migration[8.1]
       t.string :autor, limit: 150
       t.text :descricao
       t.string :caminho_arquivo, limit: 255
-      t.references :categoria, null: false, foreign_key: true
+      t.references :categoria, null: false, foreign_key: { to_table: :categorias }
       t.references :usuario_cadastro,
                    null: false,
                    foreign_key: { to_table: :usuarios }
