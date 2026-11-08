@@ -1,0 +1,13 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  livro: one
+  usuario: one
+  tipo_acesso: MyString
+  data_acesso: 2026-11-08 16:22:15
+
+two:
+  livro: two
+  usuario: two
+  tipo_acesso: MyString
+  data_acesso: 2026-11-08 16:22:15

@@ -1,0 +1,11 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  usuario: one
+  livro: one
+  data_favorito: 2026-11-08 16:23:56
+
+two:
+  usuario: two
+  livro: two
+  data_favorito: 2026-11-08 16:23:56
