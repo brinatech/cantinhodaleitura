@@ -1,0 +1,2 @@
+class ListaLeituraLivro < ApplicationRecord
+end
