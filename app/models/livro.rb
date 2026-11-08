@@ -1,4 +1,6 @@
 class Livro < ApplicationRecord
+  validates :categoria, :usuario_cadastro, presence: true
+
   belongs_to :categoria
   belongs_to :usuario_cadastro,
              class_name: "Usuario",
