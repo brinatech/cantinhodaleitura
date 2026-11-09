@@ -1,0 +1,20 @@
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Logs
+/log/*
+!/log/.keep
+
+# Temporary files
+/tmp/*
+!/tmp/.keep
+
+# Database
+/db/*.sqlite3
+/db/*.sqlite3-*
+
+# Storage
+/storage/*
+!/storage/.keep
