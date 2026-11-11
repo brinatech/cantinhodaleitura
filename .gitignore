@@ -21,3 +21,6 @@
 # Storage
 /storage/*
 !/storage/.keep
+# Ignore key files for decrypting credentials and more.
+/config/*.key
+# End of ignored credential keys.

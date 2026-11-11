@@ -7,8 +7,18 @@ module ActiveSupport
     # Run tests in parallel with specified workers
     parallelize(workers: :number_of_processors, with: :threads)
 
-    # Setup all fixtures in test/fixtures/*.yml for all tests in alphabetical order.
-    fixtures :all
+    # Load fixtures in foreign-key dependency order.
+    fixtures :usuarios,
+         :categorias,
+         :livros,
+         :arquivo_materials,
+         :acesso_materials,
+         :favoritos,
+         :lista_leituras,
+         :lista_leitura_livros,
+         :historico_leituras,
+         :marcador_paginas,
+         :classificacaos
 
     # Add more helper methods to be used by all tests here...
   end

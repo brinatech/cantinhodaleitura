@@ -7,6 +7,8 @@ Rails.application.routes.draw do
 
   namespace :api do
     namespace :v1 do
+      resources :usuarios, only: [ :create ]
+      resource :sessao, only: [ :show, :create, :destroy ]
       resources :livros, only: :index
     end
   end
