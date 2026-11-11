@@ -3,6 +3,9 @@
 .env.*
 !.env.example
 
+# Rails credentials
+/config/master.key
+
 # Logs
 /log/*
 !/log/.keep

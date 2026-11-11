@@ -1,0 +1,9 @@
+one:
+  livro: one
+  tipo: texto
+  caminho: livro-texto.pdf
+
+two:
+  livro: two
+  tipo: audio
+  caminho: livro-audio.mp3

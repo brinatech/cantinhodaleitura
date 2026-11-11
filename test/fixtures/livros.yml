@@ -4,7 +4,6 @@ one:
   titulo: MyString
   autor: MyString
   descricao: MyText
-  caminho_arquivo: MyString
   categoria: one
   usuario_cadastro: one
 
@@ -12,6 +11,5 @@ two:
   titulo: MyString
   autor: MyString
   descricao: MyText
-  caminho_arquivo: MyString
   categoria: two
   usuario_cadastro: two

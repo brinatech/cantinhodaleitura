@@ -2,7 +2,7 @@ module Api
   module V1
     class LivrosController < ApplicationController
       def index
-        livros = Livro.includes(:categoria).all
+        livros = Livro.includes(:categoria, :arquivos).all
 
         render json: livros.map { |livro| livro_json(livro) }
       end
@@ -15,7 +15,13 @@ module Api
           titulo: livro.titulo,
           autor: livro.autor,
           descricao: livro.descricao,
-          caminho_arquivo: livro.caminho_arquivo,
+          capa_url: livro.capa_url,
+          formatos: livro.arquivos.map do |arquivo|
+            {
+              tipo: arquivo.tipo,
+              caminho: arquivo.caminho
+            }
+          end,
           categoria: {
             id: livro.categoria.id,
             nome: livro.categoria.nome,

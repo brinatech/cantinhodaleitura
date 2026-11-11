@@ -1,15 +1,15 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
-  nome: MyString
-  email: MyString
+  nome: Leitor Um
+  email: leitor1@example.com
   password_digest: MyString
-  tipo_usuario: MyString
+  tipo_usuario: leitor
   data_cadastro: 2026-11-08 16:08:23
 
 two:
-  nome: MyString
-  email: MyString
+  nome: Leitor Dois
+  email: leitor2@example.com
   password_digest: MyString
-  tipo_usuario: MyString
+  tipo_usuario: leitor
   data_cadastro: 2026-11-08 16:08:23

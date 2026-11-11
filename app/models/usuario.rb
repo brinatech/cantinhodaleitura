@@ -1,10 +1,13 @@
 class Usuario < ApplicationRecord
   has_secure_password
 
+  normalizes :email, with: ->(email) { email.strip.downcase }
+
+  validates :nome, :email, presence: true
   validates :email,
             format: { with: /\A[^@\s]+@[^@\s]+\.[^@\s]+\z/ },
-            uniqueness: true,
-            allow_blank: true
+            uniqueness: { case_sensitive: false }
+  validates :tipo_usuario, inclusion: { in: %w[leitor administrador] }
 
   has_many :livros_cadastrados,
            class_name: "Livro",
