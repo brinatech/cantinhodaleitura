@@ -146,18 +146,84 @@
   color: #526572;
 }
 
-/* Celular / tablet */
-@media (max-width: 900px) {
+/* ===== Responsividade ===== */
+
+/* 2xl */
+@media (max-width: 1536px) {
   .rodape {
-    padding: 30px 20px;
+    padding: 30px 120px 40px;
+  }
+}
+
+/* xl */
+@media (max-width: 1280px) {
+  .rodape {
+    padding: 30px 80px 40px;
+  }
+
+  .rodape-grid {
+    gap: 32px;
+  }
+}
+
+/* lg: 3 colunas, sem a ilustração */
+@media (max-width: 1024px) {
+  .rodape {
+    padding: 30px 40px 40px;
+  }
+
+  .rodape-grid {
+    grid-template-columns: 1.3fr 1fr 1fr;
+  }
+
+  .rodape-ilustracao {
+    display: none;
+  }
+}
+
+/* md: a marca fica em cima e as duas colunas de links embaixo */
+@media (max-width: 768px) {
+  .rodape {
+    padding: 30px 24px 36px;
+  }
+
+  .rodape-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+
+  .rodape-marca {
+    grid-column: 1 / -1;              /* ocupa a linha inteira */
+  }
+
+  .rodape-marca p {
+    max-width: none;
+  }
+
+  .deco-nuvem-rodape {
+    width: 240px;
+  }
+}
+
+/* sm */
+@media (max-width: 640px) {
+  .rodape {
+    padding: 28px 20px 32px;
+  }
+}
+
+/* xs: tudo numa coluna só */
+@media (max-width: 475px) {
+  .rodape {
+    padding: 24px 16px 28px;
   }
 
   .rodape-grid {
     grid-template-columns: 1fr;
   }
 
-  .rodape-ilustracao {
-    display: none;
+  .rodape-marca img {
+    width: 140px;
   }
 }
 </style>

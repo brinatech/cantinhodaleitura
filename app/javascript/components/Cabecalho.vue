@@ -83,4 +83,138 @@
   outline: 3px solid #1d5577;
   outline-offset: 3px;
 }
+
+/* ===== Responsividade ===== */
+
+/* 2xl */
+@media (max-width: 1536px) {
+  .cabecalho-faixa {
+    padding-left: 120px;
+  }
+
+  .cabecalho nav ul {
+    gap: 80px;
+  }
+
+  .entrar-btn {
+    margin-right: 120px;
+  }
+}
+
+/* xl */
+@media (max-width: 1280px) {
+  .cabecalho-faixa {
+    padding-left: 80px;
+  }
+
+  .cabecalho nav ul {
+    gap: 56px;
+  }
+
+  .entrar-btn {
+    margin-right: 80px;
+  }
+}
+
+/* lg */
+@media (max-width: 1024px) {
+  .cabecalho-faixa {
+    padding-left: 40px;
+  }
+
+  .cabecalho nav ul {
+    gap: 32px;
+  }
+
+  .entrar-btn {
+    margin-right: 40px;
+  }
+}
+
+/* md: o próprio header vira a faixa branca na largura toda.
+   Numa linha só: logo à esquerda, menu centralizado, Entrar à direita */
+@media (max-width: 768px) {
+  .cabecalho {
+    gap: 16px;
+    padding: 10px 24px;
+    background-color: white;
+    border-radius: 0 0 24px 24px;
+  }
+
+  .cabecalho-faixa {
+    flex: 1;                          /* ocupa o espaço entre as bordas e o botão */
+    gap: 16px;
+    width: auto;
+    padding: 0;
+    background-color: transparent;    /* o branco agora vem do header */
+    border-radius: 0;
+  }
+
+  .cabecalho-logo {
+    flex-shrink: 0;
+    height: 48px;                     /* logo original: 196 x 62 */
+  }
+
+  .cabecalho nav {
+    flex: 1;
+  }
+
+  .cabecalho nav ul {
+    justify-content: center;          /* menu centralizado no espaço que sobra */
+    gap: 20px;
+  }
+
+  .cabecalho nav a {
+    font-size: 14px;
+  }
+
+  .entrar-btn {
+    flex-shrink: 0;
+    margin-right: 0;
+    padding: 8px 22px;
+    font-size: 14px;
+  }
+}
+
+/* sm */
+@media (max-width: 640px) {
+  .cabecalho {
+    padding: 10px 20px;
+  }
+
+  .cabecalho-logo {
+    height: 40px;
+  }
+
+  .cabecalho nav ul {
+    gap: 16px;
+  }
+
+  .cabecalho nav a {
+    font-size: 13px;
+  }
+
+  .entrar-btn {
+    padding: 8px 18px;
+  }
+}
+
+/* xs: sem o logo, para sobrar espaço para o menu */
+@media (max-width: 475px) {
+  .cabecalho {
+    padding: 12px 16px;
+  }
+
+  .cabecalho-logo {
+    display: none;
+  }
+
+  .cabecalho nav ul {
+    gap: 20px;
+  }
+
+  .cabecalho nav a {
+    font-size: 14px;
+  }
+}
 </style>

@@ -161,6 +161,7 @@ const livrosDestaque = [
   color: #1d5577;
   font-size: 34px;
   line-height: 1.45;
+  text-align: center;
 }
 
 .apresentacao-texto p {
@@ -287,8 +288,10 @@ const livrosDestaque = [
   z-index: 1;
   display: flex;
   justify-content: center;
+  justify-content: safe center;       /* centraliza, mas se não couber começa do 1º card (sem cortar) */
   gap: 16px;
   padding: 10px 160px 24px;
+  scroll-padding-inline: 160px;       /* o "encaixe" da rolagem respeita o espaço lateral */
   overflow-x: auto;                   /* rolagem horizontal */
   scroll-snap-type: x mandatory;
   list-style: none;
@@ -481,45 +484,78 @@ const livrosDestaque = [
   }
 
 
-/* Celular / tablet */
-@media (max-width: 900px) {
-  .chamada {
-    padding: 0 20px 40px;
-  }
+/* ===== Responsividade ===== */
 
-  .chamada-box {
-    flex-direction: column;
-    justify-content: flex-end;
-    align-items: flex-start;
-    aspect-ratio: auto;               /* no celular a imagem fica estreita demais para o texto */
-    min-height: 320px;
-    padding: 24px;
+/* 2xl */
+@media (max-width: 1536px) {
+  .apresentacao {
+    padding: 60px 120px 50px;
   }
-
-  .chamada-box h2 {
-    font-size: 26px;
-  }
-
 
   .livros-lista {
-    padding: 10px 20px 24px;
+    padding: 10px 120px 24px;
+    scroll-padding-inline: 120px;
+  }
+}
+
+/* xl */
+@media (max-width: 1280px) {
+  .apresentacao {
+    padding: 60px 80px 50px;
+  }
+
+  .apresentacao-grid {
+    gap: 40px;
+  }
+
+  .apresentacao-texto h2,
+  .destaque-titulo h2 {
+    font-size: 30px;
+  }
+
+  .card-ouvir {
+    padding: 40px 32px;
+  }
+
+  .card-ouvir-img {
+    width: 190px;
+  }
+
+  .deco-nuvem-arcoiris {
+    width: 520px;
+  }
+
+  .livros-lista {
+    padding: 10px 80px 24px;
+    scroll-padding-inline: 80px;
   }
 
   .deco-coruja {
-    display: none;
+    left: 30px;
+    width: 90px;
   }
 
+  .chamada-box {
+    padding: 0 60px 32px;
+  }
+
+  .chamada-box h2 {
+    font-size: 32px;
+  }
+}
+
+/* lg: apresentação vira uma coluna (texto em cima, card embaixo) */
+@media (max-width: 1024px) {
   .apresentacao {
-    padding: 40px 20px;
+    padding: 50px 40px 40px;
   }
 
   .apresentacao-grid {
     grid-template-columns: 1fr;
   }
 
-  .card-ouvir {
-    flex-direction: column;
-    text-align: center;
+  .apresentacao-texto p {
+    max-width: none;
   }
 
   .card-ouvir p {
@@ -529,6 +565,237 @@ const livrosDestaque = [
   .deco-nuvem,
   .deco-nuvem-roxa {
     display: none;
+  }
+
+  .deco-estrela {
+    width: 130px;
+  }
+
+  .destaque-titulo {
+    margin-top: 70px;
+  }
+
+  .livros-lista {
+    padding: 10px 40px 24px;
+    scroll-padding-inline: 40px;
+  }
+
+  .chamada {
+    padding: 0 32px 40px;
+  }
+
+  .chamada-box {
+    aspect-ratio: 3072 / 1000;        /* um pouco mais alta para o texto caber */
+    padding: 0 40px 28px;
+  }
+
+  .chamada-box h2 {
+    font-size: 28px;
+  }
+}
+
+/* md */
+@media (max-width: 768px) {
+  .apresentacao {
+    padding: 40px 24px;
+  }
+
+  .apresentacao-texto h2,
+  .destaque-titulo h2 {
+    font-size: 28px;
+    
+  }
+
+  .apresentacao-texto p {
+    font-size: 16px;
+  }
+
+  .card-ouvir {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .deco-nuvem-arcoiris {
+    width: 380px;
+  }
+
+  .deco-estrela {
+    width: 100px;
+  }
+
+  .destaque-titulo {
+    margin-top: 56px;
+  }
+
+  .destaque-titulo img {
+    width: 64px;
+  }
+
+  .destaque-titulo p {
+    font-size: 17px;
+  }
+
+  .livros-lista {
+    padding: 10px 24px 24px;
+    scroll-padding-inline: 24px;
+  }
+
+  .deco-coruja {
+    display: none;
+  }
+
+  /* Chamada: texto e botão empilhados, altura fixa em vez da proporção da imagem */
+  .chamada {
+    padding: 0 24px 40px;
+  }
+
+  .chamada-box {
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: flex-start;
+    aspect-ratio: auto;
+    min-height: 300px;
+    padding: 24px;
+  }
+
+  .chamada-box h2 {
+    font-size: 26px;
+  }
+}
+
+/* sm */
+@media (max-width: 640px) {
+  .apresentacao {
+    padding: 36px 20px;
+  }
+
+  .tag-clara {
+    display: block;
+    width: fit-content;
+    margin-inline: auto;
+    text-align: center;
+  }
+
+  .apresentacao-texto h2 {
+    text-align: center;
+  }
+
+  .apresentacao-texto p {
+    text-align: center;
+  }
+
+  .botao-azul {
+    display: block;
+    width: fit-content;
+    margin-inline: auto;
+  }
+
+  .card-ouvir {
+    padding: 32px 20px;
+    border-radius: 28px;
+  }
+
+  .card-ouvir h3 {
+    font-size: 20px;
+  }
+
+  .card-ouvir-img {
+    width: 170px;
+  }
+
+  .livros-lista {
+    padding: 10px 20px 24px;
+    scroll-padding-inline: 20px;
+  }
+
+  .livro-card {
+    flex-basis: 220px;
+  }
+
+  .livro-capa {
+    width: 150px;
+    height: 196px;
+  }
+
+  .chamada {
+    padding: 0 20px 36px;
+  }
+
+  /* Chamada vira um "card": a ilustração inteira em cima (sem cortar a coruja e o dragão)
+     e o texto embaixo, num fundo azul que continua a onda da imagem.
+     A arte colorida ocupa ~21,5% da largura da imagem (467 de 2172px); o resto é bege. */
+  .chamada-box {
+    --altura-arte: calc((100vw - 40px) * 0.215);   /* largura da caixa x proporção da arte */
+    justify-content: flex-start;
+    min-height: 0;
+    padding: calc(var(--altura-arte) + 20px) 20px 24px;
+    background:
+      linear-gradient(#1d5577, #1d5577) bottom / 100% calc(100% - var(--altura-arte)) no-repeat,
+      url('../images/imgs-cima-footer/fundo-cima-footer.png') top / 100% auto no-repeat;
+  }
+}
+
+/* xs */
+@media (max-width: 475px) {
+  .apresentacao {
+    padding: 32px 16px;
+  }
+
+  .apresentacao-texto h2,
+  .destaque-titulo h2 {
+    font-size: 24px;
+  }
+
+  .tag-clara {
+    padding: 6px 20px;
+  }
+
+  .destaque-titulo img {
+    width: 52px;
+  }
+
+  .destaque-titulo p {
+    font-size: 15px;
+  }
+
+  .deco-nuvem-arcoiris {
+    width: 280px;
+  }
+
+  .deco-estrela {
+    display: none;
+  }
+
+  .livros-lista {
+    padding: 10px 16px 24px;
+    scroll-padding-inline: 16px;
+  }
+
+  .livro-card {
+    flex-basis: 200px;
+  }
+
+  .livro-capa {
+    width: 140px;
+    height: 183px;
+  }
+
+  .chamada {
+    padding: 0 16px 32px;
+  }
+
+  .chamada-box {
+    --altura-arte: calc((100vw - 32px) * 0.215);   /* aqui a .chamada tem 16px de cada lado */
+    padding: calc(var(--altura-arte) + 16px) 16px 20px;
+  }
+
+  .chamada-box h2 {
+    font-size: 22px;
+  }
+
+  .chamada-botao {
+    align-self: stretch;              /* botão na largura toda */
+    text-align: center;
   }
 }
 </style>

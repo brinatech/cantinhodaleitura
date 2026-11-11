@@ -20,8 +20,8 @@ bin/dev
 |---|---|
 | `config/routes.rb` | Rota raiz `root "home#index"` |
 | `app/controllers/home_controller.rb` | Controller vazio que só renderiza a página |
-| `app/views/home/index.html.erb` | Página com a `<div id="vue-app">`, onde o Vue é montado |
-| `app/views/layouts/application.html.erb` | Fontes Inter e Host Grotesk do Google Fonts |
+| `app/views/home/index.html.erb` | View vazia. O conteúdo vem todo do Vue |
+| `app/views/layouts/application.html.erb` | Fontes Inter e Host Grotesk do Google Fonts. Já tinha a `<div id="vue-app">`, onde o Vue é montado |
 | `app/assets/stylesheets/application.css` | Reset básico (`margin`, `padding`, `box-sizing`) e fonte Inter no `body` |
 
 ### Vue
@@ -31,7 +31,7 @@ app/javascript/
 ├── components/
 │   ├── App.vue              ← moldura: só mostra a view atual
 │   ├── Cabecalho.vue        ← logo, menu (Início, Sobre, Acervo) e botão Entrar
-│   ├── BannerCarrossel.vue  ← banner do topo com as bolinhas de slide
+│   ├── BannerCarrossel.vue  ← carrossel do topo com 3 slides e bolinhas
 │   └── Rodape.vue           ← colunas Biblioteca/SESFA e ilustração
 ├── views/
 │   └── HomeView.vue         ← tela inicial, monta os componentes acima
@@ -57,12 +57,13 @@ app/javascript/
 ## Decisões
 
 - **Views e componentes:** cada tela é uma view em `views/`, e as peças que se repetem ficam em `components/`. O `App.vue` não tem nada visual, para cada tela poder ter seu próprio layout.
-- **Cabeçalho único:** a tela de login vai usar o mesmo cabeçalho. O `Cabecalho.vue` ocupa seu espaço normal no topo da página. Só a `HomeView` faz ele flutuar sobre o banner, usando a classe `cabecalho-sobre-banner`.
+- **Cabeçalho da tela inicial:** o `Cabecalho.vue` tem o visual da home (faixa branca a 75% com canto arredondado e botão Entrar azul claro). Ele ocupa seu espaço normal no topo da página, e a `HomeView` faz ele flutuar sobre o banner com a classe `cabecalho-sobre-banner`. A tela de login vai ter um cabeçalho diferente, com faixa branca na largura toda e botão Entrar azul escuro.
 - **Livros em destaque:** estão fixos numa lista em `HomeView.vue` e depois devem vir da API.
 
 ## Pendências
 
-- [ ] **Carrossel do banner:** faltam os slides 2 e 3. Hoje existe só 1 slide e as bolinhas não fazem nada.
+- [x] **Carrossel do banner:** feito. Ver [carrossel-e-responsividade.md](carrossel-e-responsividade.md).
+- [ ] **Cabeçalho do login:** criar o visual do cabeçalho da tela de login.
 - [ ] **Rotas no front:** instalar o `vue-router` e criar a `LoginView` (`/login`). No Rails, vai ser preciso uma rota que entregue a mesma página para qualquer caminho do Vue.
 - [ ] **Links provisórios:** os links do menu, do rodapé e dos livros usam âncoras (`#acervo`, `#livro-1`…). Trocar pelas rotas reais.
 - [ ] **Hover dos botões:** os botões azuis deveriam subir um pouco no hover, mas um bloco `prefers-reduced-motion` comentado pela metade deixou ativa uma regra `transform: none`. Fica no final da seção "Hover dos botões azuis" da `HomeView.vue` e também no `BannerCarrossel.vue`.
