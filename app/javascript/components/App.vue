@@ -1,10 +1,5 @@
 <template>
-  <!-- Moldura do app: só mostra a tela atual.
-       Cada view decide seu cabeçalho (variante) e se tem rodapé.
-       Quando tiver o vue-router, trocar <HomeView /> por <RouterView />. -->
-  <HomeView />
+  <!-- Moldura do app: só mostra a tela da rota atual (ver router/index.js).
+       Cada view decide seu cabeçalho (variante) e se tem rodapé. -->
+  <RouterView />
 </template>
-
-<script setup>
-import HomeView from '../views/HomeView.vue'
-</script>

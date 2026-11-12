@@ -26,7 +26,7 @@
 
     <%# Includes all stylesheet files in app/assets/stylesheets %>
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
-    <%= javascript_importmap_tags %>
+    <%# Sem importmap/Turbo: o Turbo troca o <body> por um retrato vazio e apaga o app Vue ao clicar em âncoras. Só o Vite carrega JS. %>
     <%= vite_client_tag %>
     <%= vite_javascript_tag 'application' %>
     <!--
