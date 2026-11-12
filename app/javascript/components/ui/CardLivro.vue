@@ -110,7 +110,7 @@ const rotuloCategoria = computed(() => props.categoria || 'Diversos')
 .card-capa-img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain; /* capas reais são verticais: não corta título nem autor; sobra o fundo da categoria */
 }
 
 .card-capa-icone {
