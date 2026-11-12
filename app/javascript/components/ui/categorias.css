@@ -1,0 +1,36 @@
+/*
+ * Cor da categoria em uso. Um elemento com a classe cat-xxx recebe:
+ *   --cat       cor da categoria (ponto, destaque)
+ *   --cat-suave versão suave
+ *   --cat-capa  fundo da capa do livro (ainda sem imagem)
+ * Usado por ChipFiltro e CardLivro.
+ */
+.cat-neutro {
+  --cat: var(--borda-padrao);
+  --cat-suave: var(--fundo-suave);
+  --cat-capa: var(--fundo-suave);
+}
+
+.cat-aventura {
+  --cat: var(--categoria-aventura);
+  --cat-suave: var(--categoria-aventura-suave);
+  --cat-capa: var(--categoria-aventura);
+}
+
+.cat-fantasia {
+  --cat: var(--categoria-fantasia);
+  --cat-suave: var(--categoria-fantasia-suave);
+  --cat-capa: var(--categoria-fantasia);
+}
+
+.cat-natureza {
+  --cat: var(--categoria-natureza);
+  --cat-suave: var(--categoria-natureza-suave);
+  --cat-capa: var(--categoria-natureza);
+}
+
+.cat-classicos {
+  --cat: var(--categoria-classicos);
+  --cat-suave: var(--categoria-classicos-suave);
+  --cat-capa: var(--categoria-classicos);
+}
