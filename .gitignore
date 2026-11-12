@@ -4,7 +4,7 @@
 !.env.example
 
 # Rails credentials
-/config/master.key
+/config/*.key
 
 # Logs
 /log/*
