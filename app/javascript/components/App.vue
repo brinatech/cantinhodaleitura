@@ -1,4 +1,10 @@
 <template>
-  <h1>Cantinho da Leitura</h1>
-  <p>Vue.js funcionando!</p>
+  <!-- Moldura do app: só mostra a tela atual.
+       Cada view decide seu cabeçalho (variante) e se tem rodapé.
+       Quando tiver o vue-router, trocar <HomeView /> por <RouterView />. -->
+  <HomeView />
 </template>
+
+<script setup>
+import HomeView from '../views/HomeView.vue'
+</script>
