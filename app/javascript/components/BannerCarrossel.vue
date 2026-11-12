@@ -1,355 +1,215 @@
-<script>
-    export default {
-        name: 'BannerCarrossel',
+<!--
+  Banner rotativo da tela inicial (Figma: "HERO" + "Indicador do banner").
+  O Figma só desenha o 1º slide; os outros dois seguem o mesmo molde.
+  Troca sozinho a cada 6s, pausa com mouse ou foco dentro do banner e não troca
+  sozinho para quem pediu menos movimento no sistema.
+-->
+<script setup>
+import { onBeforeUnmount, onMounted, ref } from 'vue'
+import Botao from './ui/Botao.vue'
+import IndicadorBanner from './ui/IndicadorBanner.vue'
+import Selo from './ui/Selo.vue'
+import imagem1 from '../images/imgs-banner/img-banner.png'
+import imagem2 from '../images/imgs-banner/img-banner2 (2).png'
+import imagem3 from '../images/imgs-banner/img-banner3.png'
 
-        data() {
-            return {
-                atual: 0,        // índice do slide que está aparecendo
-                total: 3,        // quantidade de <section class="banner"> no template
-                intervalo: 6000, // tempo de cada slide (ms)
-                timer: null,
-            }
-        },
+const slides = [
+  {
+    selo: 'Leitura que acolhe',
+    titulo: ['Um mundo de histórias.', 'Um cantinho para você.'],
+    texto: 'Leia, ouça e descubra novas possibilidades. No seu tempo, do seu jeito.',
+    acao: 'Explorar o acervo',
+    imagem: imagem1,
+  },
+  {
+    selo: 'Clube do livro',
+    titulo: ['Boas histórias ficam', 'melhores em companhia'],
+    texto: 'Um espaço para conversar sobre livros, trocar ideias e criar novos laços.',
+    acao: 'Conhecer o clube',
+    imagem: imagem2,
+  },
+  {
+    selo: 'Sorteio do livro do mês',
+    titulo: ['Um livro muitas', 'novas descobertas'],
+    texto: 'Um espaço para divulgar o livro do mês e as próximas atividades da biblioteca.',
+    acao: 'Ver atividade do mês',
+    imagem: imagem3,
+  },
+]
 
-        mounted() {
-            this.iniciar()
-        },
+const INTERVALO = 6000
+const atual = ref(0)
+let timer = null
 
-        beforeUnmount() {
-            this.parar()
-        },
+const pausar = () => {
+  clearInterval(timer)
+  timer = null
+}
 
-        methods: {
-            proximo() {
-                this.atual = (this.atual + 1) % this.total   // depois do último, volta ao primeiro
-            },
+const iniciar = () => {
+  pausar()
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+  timer = setInterval(() => (atual.value = (atual.value + 1) % slides.length), INTERVALO)
+}
 
-            irPara(indice) {
-                this.atual = indice
-                this.iniciar()                               // recomeça a contagem depois do clique
-            },
+const irPara = (indice) => {
+  atual.value = indice
+  iniciar() // recomeça a contagem depois do clique
+}
 
-            iniciar() {
-                this.parar()
-                this.timer = setInterval(this.proximo, this.intervalo)
-            },
-
-            parar() {
-                clearInterval(this.timer)
-                this.timer = null
-            },
-        },
-    }
+onMounted(iniciar)
+onBeforeUnmount(pausar)
 </script>
 
 <template>
-  <!-- Pausa a troca automática enquanto o mouse ou o foco do teclado estiver no banner -->
   <div
     class="carrossel"
     aria-roledescription="carrossel"
     aria-label="Destaques"
-    @mouseenter="parar"
+    @mouseenter="pausar"
     @mouseleave="iniciar"
-    @focusin="parar"
+    @focusin="pausar"
     @focusout="iniciar"
   >
-    <!-- O trilho tem os 3 slides lado a lado e desliza para mostrar o atual -->
+    <!-- O trilho tem os slides lado a lado e desliza para mostrar o atual -->
     <div class="carrossel-trilho" :style="{ transform: `translateX(-${atual * 100}%)` }">
-
-      <!-- :inert tira os slides escondidos do Tab e dos leitores de tela -->
-      <section class="banner banner--1" aria-roledescription="slide" aria-label="1 de 3" :inert="atual !== 0">
+      <!-- inert tira os slides escondidos do Tab e dos leitores de tela -->
+      <section
+        v-for="(slide, indice) in slides"
+        :key="slide.selo"
+        class="banner"
+        :style="{ backgroundImage: `url('${slide.imagem}')` }"
+        aria-roledescription="slide"
+        :aria-label="`${indice + 1} de ${slides.length}`"
+        :inert="atual !== indice"
+      >
         <div class="banner-conteudo">
-          <span class="banner-tag">Leitura que acolhe</span>
+          <div class="banner-textos">
+            <Selo>{{ slide.selo }}</Selo>
+            <h1 class="banner-titulo">{{ slide.titulo[0] }}<br>{{ slide.titulo[1] }}</h1>
+            <p class="banner-texto">{{ slide.texto }}</p>
+          </div>
 
-          <h1>Um mundo de histórias.<br>Um cantinho para você.</h1>
-
-          <p>Leia, ouça e descubra novas possibilidades. No seu tempo, do seu jeito.</p>
-
-          <a href="#acervo" class="banner-botao">Explorar o acervo</a>
+          <Botao class="banner-acao" to="/acervo">{{ slide.acao }}</Botao>
         </div>
       </section>
-
-      <section class="banner banner--2" aria-roledescription="slide" aria-label="2 de 3" :inert="atual !== 1">
-        <div class="banner-conteudo">
-          <span class="banner-tag">CLUBE DO LIVRO</span>
-
-          <h1>Boas histórias ficam <br> melhores em companhia</h1>
-
-          <p>Um espaço para conversar sobre livros, trocar ideias e criar novos laços.</p>
-
-          <a href="#acervo" class="banner-botao">Conhecer o clube</a>
-        </div>
-      </section>
-
-      <section class="banner banner--3" aria-roledescription="slide" aria-label="3 de 3" :inert="atual !== 2">
-        <div class="banner-conteudo">
-          <span class="banner-tag">SORTEIO DO LIVRO DO MÊS</span>
-
-          <h1>Um livro muitas <br> novas descobertas</h1>
-
-          <p>Um espaço para divulgar o livro do mês e as próximas atividades da biblioteca.</p>
-
-          <a href="#acervo" class="banner-botao">Ver atividade do mês</a>
-        </div>
-      </section>
-
     </div>
 
-    <!-- Bolinhas: uma só fileira para o carrossel inteiro -->
-    <div class="banner-pontos">
-      <button
-        v-for="indice in total"
-        :key="indice"
-        class="ponto"
-        :class="{ ativo: atual === indice - 1 }"
-        :aria-label="`Ir para o slide ${indice}`"
-        :aria-current="atual === indice - 1"
-        @click="irPara(indice - 1)"
-      ></button>
-    </div>
+    <IndicadorBanner class="banner-indicador" :total="slides.length" :ativo="atual" @ir="irPara" />
   </div>
 </template>
 
 <style scoped>
-/* ===== Carrossel ===== */
 .carrossel {
-  position: relative;                 /* referência para as bolinhas */
-  overflow: hidden;                   /* esconde os slides que estão fora da tela */
-  border-radius: 0 0 30px 30px;       /* cantos de baixo arredondados */
+  position: relative;
+  overflow: hidden; /* esconde os slides que estão fora da tela */
+  border-radius: 0 0 var(--raio-40) var(--raio-40);
 }
 
 .carrossel-trilho {
-  display: flex;                      /* slides lado a lado */
-  transition: transform 0.8s ease-in-out;   /* o deslizar entre os slides */
-}
-
-/* ===== Cada slide ===== */
-.banner {
-  position: relative;                 /* referência para o gradiente (::before) */
-  flex: 0 0 100%;                     /* cada slide ocupa a largura toda */
   display: flex;
-  align-items: flex-end;              /* joga o conteúdo para baixo */
-  height: 615px;
-  padding: 0 0 45px 130px;            /* distância da borda esquerda e de baixo */
-  color: white;
-  background-size: cover;
-  background-position: center;
+  transition: transform 0.8s ease-in-out;
 }
 
-/* Gradiente escuro à esquerda, por cima da imagem (o mesmo para os 3 slides) */
+@media (prefers-reduced-motion: reduce) {
+  .carrossel-trilho {
+    transition: none;
+  }
+}
+
+/* ===== Cada slide: 661px de altura no Figma, texto no canto de baixo à esquerda ===== */
+.banner {
+  position: relative;
+  flex: 0 0 100%;
+  display: flex;
+  align-items: flex-end;
+  min-height: 661px;
+  padding: var(--espaco-64) var(--espaco-48) 48px clamp(var(--espaco-24), 9.8vw, 141px);
+  background-position: center;
+  background-size: cover;
+  color: var(--texto-inverso);
+}
+
+/* Escurece o canto de baixo à esquerda para o texto branco ter contraste (gradiente do Figma) */
 .banner::before {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(to right, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.5) 35%, transparent 65%);
-}
-
-/* Imagem de cada slide */
-.banner--1 {
-  background-image: url('../images/imgs-banner/img-banner.png');
-}
-
-.banner--2 {
-  background-image: url('../images/imgs-banner/img-banner2 (2).png');
-}
-
-.banner--3 {
-  background-image: url('../images/imgs-banner/img-banner3.png');
+  background: linear-gradient(211deg, rgb(213 234 245 / 0%) 6%, rgb(47 47 47 / 60%) 67%);
 }
 
 .banner-conteudo {
-  position: relative;                 /* texto na frente do gradiente */
-  max-width: 520px;
-}
-
-.banner-tag {
-  display: inline-block;
-  padding: 10px 40px;
-  border-radius: 6px;
-  background-color: #5bc8f5;
-  color: #0d3b66;
-  font-size: 12px;
-  font-weight: 700;
-  text-transform: uppercase;
-}
-
-.banner h1 {
-  margin: 10px 0 8px;
-  font-size: 40px;
-  line-height: 1.2;
-}
-
-.banner p {
-  font-size: 16px;
-}
-
-.banner-botao {
-  display: inline-block;
-  margin-top: 40px;
-  padding: 14px 56px;
-  border-radius: 6px;
-  background-color: #5bc8f5;
-  color: #0d3b66;
-  font-weight: 700;
-  text-decoration: none;
-  transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
-}
-
-.banner-botao:hover,
-.banner-botao:focus-visible {
-  transform: translateY(-3px);                      /* sobe um pouquinho */
-  background-color: #3fb8ec;                        /* azul um tom mais forte */
-  box-shadow: 0 8px 18px rgba(29, 85, 119, 0.35);   /* sombra azulada */
-}
-
-.banner-botao:active {
-  transform: translateY(0);                         /* "afunda" ao clicar */
-  box-shadow: 0 3px 8px rgba(29, 85, 119, 0.3);
-}
-
-/* Contorno visível para quem navega pelo teclado */
-.banner-botao:focus-visible {
-  outline: 3px solid #1d5577;
-  outline-offset: 3px;
-}
-
-/* Mesmo comportamento que estava na HomeView: o botão não sobe no hover.
-   Apague este bloco para ele voltar a subir. */
-.banner-botao:hover,
-.banner-botao:focus-visible {
-  transform: none;
-}
-
-/* ===== Bolinhas ===== */
-.banner-pontos {
-  position: absolute;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);        /* centraliza na horizontal */
+  position: relative;
   display: flex;
-  gap: 16px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 34px;
+  max-width: 509px;
 }
 
-.ponto {
-  width: 10px;
-  height: 10px;
-  border: none;
-  border-radius: 50%;
-  background-color: white;
-  cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.3s ease;
+.banner-textos {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--espaco-8);
 }
 
-.ponto:hover {
-  transform: scale(1.3);
+.banner-titulo {
+  font: var(--fonte-display);
 }
 
-.ponto.ativo {
-  background-color: #5bc8f5;
+.banner-texto {
+  font: var(--fonte-corpo);
 }
 
-.ponto:focus-visible {
-  outline: 2px solid white;
-  outline-offset: 3px;
+.banner-acao {
+  min-width: 260px;
 }
 
-/* ===== Responsividade ===== */
-
-/* 2xl */
-@media (max-width: 1536px) {
-  .banner {
-    padding-left: 120px;
-  }
+/* Pontos centralizados, 12px acima da borda de baixo como no Figma */
+.banner-indicador {
+  position: absolute;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
-/* xl */
-@media (max-width: 1280px) {
-  .banner {
-    height: 560px;
-    padding-left: 80px;
-  }
-}
-
-/* lg */
+/* ===== Telas menores: o menu vira uma barra no topo, o banner só precisa de menos altura ===== */
 @media (max-width: 1024px) {
   .banner {
-    height: 520px;
-    padding-left: 40px;
+    min-height: 560px;
   }
 
-  .banner-conteudo {
-    max-width: 460px;
-  }
-
-  .banner h1 {
-    font-size: 34px;
+  .banner-titulo {
+    font: var(--fonte-titulo);
   }
 }
 
-/* md */
 @media (max-width: 768px) {
   .banner {
-    padding: 0 24px 64px;             /* espaço embaixo para as bolinhas */
+    min-height: 520px;
+    padding: var(--espaco-48) var(--espaco-24) 64px;
   }
 
-  /* No celular o texto ocupa a largura toda: o gradiente escurece de baixo para cima */
+  /* O texto ocupa a largura toda: o escuro passa a subir de baixo para cima */
   .banner::before {
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0.55) 45%, transparent 80%);
+    background: linear-gradient(to top, rgb(47 47 47 / 85%) 0%, rgb(47 47 47 / 55%) 45%, transparent 80%);
   }
 
   .banner-conteudo {
     max-width: none;
-  }
-
-  .banner h1 {
-    font-size: 30px;
-  }
-
-  .banner p {
-    font-size: 15px;
-  }
-
-  .banner-tag {
-    padding: 8px 24px;
-  }
-
-  .banner-botao {
-    margin-top: 24px;
-    padding: 12px 36px;
+    gap: var(--espaco-24);
   }
 }
 
-/* sm */
-@media (max-width: 640px) {
-  .banner {
-    height: 500px;
-    padding: 0 20px 60px;
-  }
-
-  .banner h1 {
-    font-size: 26px;
-  }
-}
-
-/* xs */
 @media (max-width: 475px) {
   .banner {
-    height: 480px;
-    padding: 0 16px 56px;
+    padding-inline: var(--espaco-16);
   }
 
-  .banner h1 {
-    font-size: 23px;
-  }
-
-  .banner-tag {
-    font-size: 11px;
-  }
-
-  .banner-botao {
-    display: block;                   /* botão na largura toda, mais fácil de tocar */
-    text-align: center;
-    padding: 12px 20px;
+  .banner-acao {
+    align-self: stretch; /* botão na largura toda, mais fácil de tocar */
+    min-width: 0;
   }
 }
 </style>
