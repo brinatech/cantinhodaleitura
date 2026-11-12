@@ -1,5 +1,6 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
+import AcessoView from '../views/AcessoView.vue'
 
 // Telas que o menu e a home já apontam, mas ainda não existem.
 // Quando uma tela ficar pronta, troque o component dela aqui.
@@ -8,7 +9,7 @@ const telasPendentes = [
   { path: '/sobre', titulo: 'Sobre' },
   { path: '/acervo', titulo: 'Acervo' },
   { path: '/acessibilidade', titulo: 'Acessibilidade' },
-  { path: '/entrar', titulo: 'Entrar' },
+  { path: '/esqueci-senha', titulo: 'Recuperar senha' },
   { path: '/minhas-leituras', titulo: 'Minhas leituras' },
 ].map(({ path, titulo }) => ({ path, component: emBreve, meta: { titulo } }))
 
@@ -16,6 +17,8 @@ const telasPendentes = [
 // shortcut: trocar para createWebHistory junto com o SpaController do backend.
 const routes = [
   { path: '/', component: HomeView },
+  { path: '/entrar', component: AcessoView },
+  { path: '/criar-conta', component: AcessoView },
   ...telasPendentes,
   // Só em desenvolvimento: no build de produção o import abaixo é descartado
   ...(import.meta.env.DEV

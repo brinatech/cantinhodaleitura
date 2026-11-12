@@ -2,7 +2,8 @@
   Ícone em bolha (Figma: "Ícone em bolha"). Ícone dentro de um círculo colorido,
   estilo adesivo. Use no menu lateral, nos destaques de recursos e nas categorias.
   O ícone é sempre azul escuro. "tamanho" é o diâmetro (48 no Figma; 36 e 40 em
-  algumas telas); o ícone ocupa metade dele.
+  algumas telas); o ícone ocupa metade dele, ou "tamanhoIcone" quando o Figma
+  fixa outro (a bolha de 36 leva ícone de 24, por exemplo).
 -->
 <script setup>
 import Icone from './Icone.vue'
@@ -15,12 +16,13 @@ defineProps({
   },
   icone: { type: String, default: 'livro' },
   tamanho: { type: Number, default: 48 },
+  tamanhoIcone: { type: Number, default: null },
 })
 </script>
 
 <template>
   <span class="bolha" :class="`bolha--${cor}`" :style="{ '--tamanho': `${tamanho}px` }">
-    <Icone :nome="icone" :tamanho="tamanho / 2" />
+    <Icone :nome="icone" :tamanho="tamanhoIcone ?? tamanho / 2" />
   </span>
 </template>
 
