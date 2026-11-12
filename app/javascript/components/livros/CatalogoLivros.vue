@@ -5,6 +5,8 @@
   Recebe os livros no mesmo formato da API (GET /api/v1/livros):
     { id, titulo, autor, capa_url, categoria: { nome }, formatos: [{ tipo: 'texto' | 'audio' }] }
   As categorias dos chips saem dos próprios livros: não precisa de endpoint de categorias.
+  A busca por texto vem de fora (prop "busca"), porque o campo fica na barra de cima;
+  o catálogo só avisa com "limpar-busca" quando a pessoa quer tirar a busca.
 -->
 <script setup>
 import { computed, ref } from 'vue'
@@ -12,11 +14,31 @@ import Botao from '../ui/Botao.vue'
 import CardLivro from '../ui/CardLivro.vue'
 import ChipFiltro from '../ui/ChipFiltro.vue'
 import EstadoVazio from '../ui/EstadoVazio.vue'
+import Icone from '../ui/Icone.vue'
 import { chaveCategoria } from '../ui/categorias.js'
 
 const props = defineProps({
   livros: { type: Array, required: true },
+  busca: { type: String, default: '' }, // texto buscado em título e autor
 })
+
+const emit = defineEmits(['limpar-busca'])
+
+// ===== Busca =====
+// Tira acentos e deixa minúsculo: "Dragão" → "dragao". Assim "joao" acha "João".
+const normalizar = (texto = '') =>
+  texto
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
+    .trim()
+
+const termo = computed(() => normalizar(props.busca))
+
+const combinaComBusca = (livro) =>
+  !termo.value ||
+  normalizar(livro.titulo).includes(termo.value) ||
+  normalizar(livro.autor).includes(termo.value)
 
 // ===== Filtros =====
 const categoriaSelecionada = ref(null) // null = "Todas as categorias"
@@ -32,6 +54,7 @@ const temAudio = (livro) => livro.formatos?.some((formato) => formato.tipo === '
 
 const livrosFiltrados = computed(() =>
   props.livros.filter((livro) => {
+    if (!combinaComBusca(livro)) return false
     if (categoriaSelecionada.value && livro.categoria?.nome !== categoriaSelecionada.value) return false
     if (soAudiobook.value && !temAudio(livro)) return false
     return true
@@ -43,16 +66,27 @@ const escolherCategoria = (nome) => {
   categoriaSelecionada.value = categoriaSelecionada.value === nome ? null : nome
 }
 
+// Tira tudo: categoria, audiobook e a busca
 const limparFiltros = () => {
   categoriaSelecionada.value = null
   soAudiobook.value = false
+  if (props.busca) emit('limpar-busca')
 }
 
 // ===== Textos =====
+const buscaVisivel = computed(() => props.busca.trim())
+
 const contagem = computed(() => {
   const total = livrosFiltrados.value.length
-  return total === 1 ? '1 livro' : `${total} livros`
+  const livros = total === 1 ? '1 livro' : `${total} livros`
+  return buscaVisivel.value ? `${livros} para “${buscaVisivel.value}”` : livros
 })
+
+const descricaoVazio = computed(() =>
+  buscaVisivel.value
+    ? `Nada combina com “${buscaVisivel.value}”. Confira a escrita ou tente outro título ou autor.`
+    : 'Tente outra categoria ou tire o filtro de audiobook.',
+)
 
 // Lista de formatos da API → texto da tag do card
 const textoFormato = (livro) => {
@@ -92,8 +126,15 @@ const textoFormato = (livro) => {
       </ChipFiltro>
     </div>
 
-    <!-- aria-live: o leitor de tela anuncia a nova contagem quando um filtro muda -->
-    <p class="catalogo-contagem" aria-live="polite">{{ contagem }}</p>
+    <div class="catalogo-resumo">
+      <!-- aria-live: o leitor de tela anuncia a nova contagem quando um filtro ou a busca muda -->
+      <p class="catalogo-contagem" aria-live="polite">{{ contagem }}</p>
+
+      <Botao v-if="buscaVisivel" tipo="contorno" class="catalogo-limpar-busca" @click="emit('limpar-busca')">
+        <template #icone><Icone nome="fechar" /></template>
+        Limpar busca
+      </Botao>
+    </div>
 
     <ul v-if="livrosFiltrados.length" class="catalogo-grade">
       <li v-for="livro in livrosFiltrados" :key="livro.id">
@@ -112,7 +153,7 @@ const textoFormato = (livro) => {
       v-else
       :nivel="3"
       titulo="Nenhum livro encontrado"
-      descricao="Tente outra categoria ou tire o filtro de audiobook."
+      :descricao="descricaoVazio"
     >
       <template #acao>
         <Botao tipo="contorno" @click="limparFiltros">Limpar filtros</Botao>
@@ -151,6 +192,14 @@ const textoFormato = (livro) => {
   width: 1px;
   height: var(--espaco-24);
   background: var(--borda-padrao);
+}
+
+/* Contagem e, quando há busca, o botão de limpar na mesma linha */
+.catalogo-resumo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--espaco-16);
 }
 
 .catalogo-contagem {

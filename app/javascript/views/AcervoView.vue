@@ -7,8 +7,22 @@
   Trocar por livrosService.listar() quando o banco tiver livros cadastrados.
 -->
 <script setup>
+import { computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import LayoutLogado from '../components/layout/LayoutLogado.vue'
 import CatalogoLivros from '../components/livros/CatalogoLivros.vue'
+
+const rota = useRoute()
+const roteador = useRouter()
+
+// A busca vem da URL (/acervo?busca=lua), que a barra de cima preenche
+const busca = computed(() => (typeof rota.query.busca === 'string' ? rota.query.busca : ''))
+
+// Tira só o ?busca= da URL e mantém o resto; replace: não cria um passo a mais no "voltar"
+const limparBusca = () => {
+  const { busca: _removida, ...resto } = rota.query
+  roteador.replace({ query: resto })
+}
 
 const livros = [
   { id: 1, titulo: 'O jardim das pequenas coisas', autor: 'Clara Ribeiro', capa_url: null, categoria: { nome: 'Natureza' }, formatos: [{ tipo: 'texto' }, { tipo: 'audio' }] },
@@ -30,7 +44,7 @@ const livros = [
         <p class="acervo-subtitulo">Encontre uma história que combine com seu momento.</p>
       </header>
 
-      <CatalogoLivros :livros="livros" />
+      <CatalogoLivros :livros="livros" :busca="busca" @limpar-busca="limparBusca" />
     </div>
   </LayoutLogado>
 </template>
