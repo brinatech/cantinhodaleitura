@@ -120,8 +120,17 @@ const rotuloCategoria = computed(() => props.categoria || 'Diversos')
   gap: var(--espaco-12);
 }
 
+/* Título sempre com a altura de 2 linhas: com cards lado a lado, a barra de progresso
+   e o botão ficam na mesma linha em todos, mesmo que um título seja maior */
+.continuar--vertical .continuar-titulo {
+  min-height: 3em; /* 2 linhas × entrelinha 1,5; reserva para navegadores sem "lh" */
+  min-height: 2lh; /* acompanha também o ajuste "Espaço entre linhas" */
+}
+
+/* Se o card ficar mais alto que o conteúdo (vizinho maior), o botão desce para o fim */
 .continuar--vertical .continuar-acao {
   width: 100%;
+  margin-top: auto;
 }
 
 /* ===== Peças ===== */
