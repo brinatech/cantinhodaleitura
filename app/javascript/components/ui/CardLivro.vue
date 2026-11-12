@@ -19,6 +19,7 @@ const props = defineProps({
   categoria: { type: String, default: '' },
   capaUrl: { type: String, default: null },
   formato: { type: String, default: '' }, // ex.: "Texto e audiobook". Vazio = não mostra a tag
+  iconeFormato: { type: String, default: 'fones' }, // ícone da tag: "fones" com áudio, "livro" só texto
   to: { type: [String, Object], default: null },
   mostrarCategoria: { type: Boolean, default: true },
   mostrarFavoritar: { type: Boolean, default: true },
@@ -62,7 +63,7 @@ const rotuloCategoria = computed(() => props.categoria || 'Diversos')
       <p v-if="autor" class="card-autor">{{ autor }}</p>
     </div>
 
-    <TagFormato v-if="formato">{{ formato }}</TagFormato>
+    <TagFormato v-if="formato" :icone="iconeFormato">{{ formato }}</TagFormato>
   </article>
 </template>
 
