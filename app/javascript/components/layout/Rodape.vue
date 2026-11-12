@@ -1,6 +1,7 @@
 <!--
   Rodapé (Figma: "Rodapé"). Rodapé padrão de todas as páginas públicas.
-  A ilustração lateral da home é opcional e fica fora do componente.
+  As ilustrações (nuvem, leitor) são opcionais e entram no slot "decoracao",
+  posicionadas por quem usa; ficam atrás do texto e fora do alcance do mouse.
   Os textos de contato da SESFA ainda são os do Figma ("a definir pela equipe").
 -->
 <script setup>
@@ -16,6 +17,8 @@ const links = [
 
 <template>
   <footer class="rodape">
+    <div class="rodape-decoracao" aria-hidden="true"><slot name="decoracao" /></div>
+
     <div class="rodape-colunas">
       <div class="rodape-marca">
         <img class="rodape-logo" :src="logo" alt="Cantinho da Leitura" width="220">
@@ -49,6 +52,8 @@ const links = [
 
 <style scoped>
 .rodape {
+  position: relative;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   gap: var(--espaco-32);
@@ -56,6 +61,18 @@ const links = [
   background: var(--fundo-nuvem);
   color: var(--texto-secundario);
   font: var(--fonte-interface);
+}
+
+.rodape-decoracao {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.rodape-colunas,
+.rodape-divisor,
+.rodape-nota {
+  position: relative; /* acima da decoração */
 }
 
 .rodape-colunas {
