@@ -41,7 +41,7 @@ defineProps({
 .cabecalho-secao-ilustracao :slotted(img) {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain; /* a ilustração aparece inteira, qualquer que seja a proporção dela */
 }
 
 .cabecalho-secao-titulo {

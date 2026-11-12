@@ -1,6 +1,7 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import AcessoView from '../views/AcessoView.vue'
+import MinhasLeiturasView from '../views/MinhasLeiturasView.vue'
 
 // Telas que o menu e a home já apontam, mas ainda não existem.
 // Quando uma tela ficar pronta, troque o component dela aqui.
@@ -10,8 +11,12 @@ const telasPendentes = [
   { path: '/acervo', titulo: 'Acervo' },
   { path: '/acessibilidade', titulo: 'Acessibilidade' },
   { path: '/esqueci-senha', titulo: 'Recuperar senha' },
-  { path: '/minhas-leituras', titulo: 'Minhas leituras' },
-].map(({ path, titulo }) => ({ path, component: emBreve, meta: { titulo } }))
+  // Telas da área logada: a página provisória aparece dentro do menu lateral
+  { path: '/favoritos', titulo: 'Favoritos', logada: true },
+  { path: '/listas-de-leitura', titulo: 'Listas de leitura', logada: true },
+  { path: '/historico', titulo: 'Histórico', logada: true },
+  { path: '/meu-perfil', titulo: 'Meu perfil', logada: true },
+].map(({ path, titulo, logada }) => ({ path, component: emBreve, meta: { titulo, logada } }))
 
 // Modo hash (/#/rota): não precisa de rota no config/routes.rb do Rails.
 // shortcut: trocar para createWebHistory junto com o SpaController do backend.
@@ -19,6 +24,7 @@ const routes = [
   { path: '/', component: HomeView },
   { path: '/entrar', component: AcessoView },
   { path: '/criar-conta', component: AcessoView },
+  { path: '/minhas-leituras', component: MinhasLeiturasView },
   ...telasPendentes,
   // Só em desenvolvimento: no build de produção o import abaixo é descartado
   ...(import.meta.env.DEV
