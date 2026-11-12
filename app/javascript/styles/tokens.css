@@ -1,0 +1,88 @@
+/*
+ * Tokens do design system do Cantinho da Leitura.
+ * Cópia 1:1 das variáveis do Figma (arquivo PROJETO-PI): mesmos nomes, mesmos valores.
+ * Se mudar no Figma, muda aqui — e só aqui. Nenhum componente deve ter cor, medida
+ * ou fonte soltas: sempre var(--...).
+ */
+:root {
+  /* ===== Cores · texto ===== */
+  --texto-principal: #184e6a;
+  --texto-corpo: #203642;
+  --texto-secundario: #526572;
+  --texto-inverso: #ffffff;
+  --texto-erro: #b8381f;
+
+  /* ===== Cores · fundos ===== */
+  --fundo-pagina: #faf9f6;
+  --fundo-superficie: #ffffff;
+  --fundo-suave: #ebf4f7;
+  --fundo-nuvem: #f0f9ff;
+
+  /* ===== Cores · bordas ===== */
+  --borda-padrao: #dfe6e9;
+  --borda-forte: #184e6a;
+  --borda-foco: #184e6a;
+  --borda-erro: #b8381f;
+
+  /* ===== Cores · destaques (botões) ===== */
+  --destaque-ceu: #64c8ff;
+  --destaque-escuro: #184e6a;
+  --destaque-laranja: #ffa92c;
+
+  /* ===== Cores · apoio (cada uma com versão suave) ===== */
+  --apoio-coral: #ff6243;
+  --apoio-coral-suave: #fff0ec;
+  --apoio-laranja: #ffa92c;
+  --apoio-laranja-suave: #fff4e3;
+  --apoio-rosa: #ffaeae;
+  --apoio-rosa-suave: #fff1f1;
+
+  /* ===== Cores · categorias (sempre com o nome escrito, nunca só a cor) ===== */
+  --categoria-aventura: #ffa92c;
+  --categoria-aventura-suave: #fff4e3;
+  --categoria-fantasia: #ffaeae;
+  --categoria-fantasia-suave: #fff1f1;
+  --categoria-natureza: #64c8ff;
+  --categoria-natureza-suave: #f0f9ff;
+  --categoria-classicos: #ff6243;
+  --categoria-classicos-suave: #fff0ec;
+
+  /* ===== Espaçamento ===== */
+  --espaco-4: 4px;
+  --espaco-8: 8px;
+  --espaco-12: 12px;
+  --espaco-16: 16px;
+  --espaco-24: 24px;
+  --espaco-32: 32px;
+  --espaco-48: 48px;
+  --espaco-64: 64px;
+
+  /* ===== Raios ===== */
+  --raio-8: 8px;    /* botões e campos */
+  --raio-12: 12px;  /* capas */
+  --raio-20: 20px;  /* cards */
+  --raio-40: 40px;  /* banners */
+  --raio-total: 999px; /* selos e chips */
+
+  /* ===== Tipografia (Inter) =====
+   * Em rem para o ajuste de texto (A, A+, A++) poder mudar o font-size da página.
+   * Uso: font: var(--fonte-corpo);  (já inclui peso, tamanho, entrelinha e família) */
+  --fonte-familia: "Inter", sans-serif;
+  --fonte-display: 700 2.75rem/1.18 var(--fonte-familia);        /* 44 */
+  --fonte-titulo: 700 2rem/1.3 var(--fonte-familia);             /* 32 */
+  --fonte-titulo-cartao: 700 1.5rem/1.4 var(--fonte-familia);    /* 24 */
+  --fonte-subtitulo: 700 1.25rem/1.5 var(--fonte-familia);       /* 20 */
+  --fonte-leitura: 400 1.25rem/1.7 var(--fonte-familia);         /* 20 · só para o texto dos livros */
+  --fonte-corpo: 400 1.125rem/1.5 var(--fonte-familia);          /* 18 */
+  --fonte-interface: 400 1rem/1.5 var(--fonte-familia);          /* 16 */
+  --fonte-botao: 700 1rem/1.5 var(--fonte-familia);              /* 16 */
+  --fonte-legenda: 400 0.875rem/1.5 var(--fonte-familia);        /* 14 */
+  --fonte-rotulo: 700 0.75rem/1.5 var(--fonte-familia);          /* 12 · caixa alta */
+  --fonte-selo: 700 0.625rem/1.5 var(--fonte-familia);           /* 10 · caixa alta */
+  --letras-rotulo: 0.04em; /* Figma: 4 → 0,48px a 12px (confirmado) */
+  --letras-selo: 0.3em;    /* Figma: 30 — mesma unidade (%), inferido */
+
+  /* ===== Sombras ===== */
+  --sombra-cartao: -4px 8px 10px #184e6a2e;
+  --sombra-flutuante: 0 12px 24px #184e6a38;
+}
