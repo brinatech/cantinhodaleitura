@@ -15,7 +15,6 @@ import Icone from '../components/ui/Icone.vue'
 import IconeBolha from '../components/ui/IconeBolha.vue'
 import Selo from '../components/ui/Selo.vue'
 import globo from '../images/ilustracoes/globo-livros.png'
-import gato from '../images/ilustracoes/gato-dormindo.png'
 import lamparina from '../images/imgs-baixo-banner/lamparina.png'
 import nuvem from '../images/imgs-baixo-banner/nuvem.png'
 import menina from '../images/imgs-baixo-banner/garota-com-fone.png'
@@ -83,8 +82,6 @@ const novidades = [
       </section>
 
       <section class="secao secao--novidades" aria-labelledby="titulo-novidades">
-        <img class="secao-gato" :src="gato" alt="" aria-hidden="true">
-
         <div class="secao-topo">
           <CabecalhoSecao id="titulo-novidades" titulo="Novidades no acervo" subtitulo="Livros que acabaram de chegar no cantinho.">
             <template #ilustracao><img :src="lamparina" alt=""></template>
@@ -196,15 +193,6 @@ const novidades = [
   gap: var(--espaco-16);
 }
 
-.secao-gato {
-  position: absolute;
-  top: 54px;
-  left: 61%;
-  z-index: 1;
-  width: 140px;
-  pointer-events: none;
-}
-
 .grade {
   display: grid;
   gap: 20px;
@@ -231,8 +219,7 @@ const novidades = [
 /* ===== Telas menores ===== */
 @media (max-width: 1000px) {
   .boas-vindas-nuvem,
-  .boas-vindas-menina,
-  .secao-gato {
+  .boas-vindas-menina {
     display: none;
   }
 }
