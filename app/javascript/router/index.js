@@ -2,6 +2,7 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import AcessoView from '../views/AcessoView.vue'
 import MinhasLeiturasView from '../views/MinhasLeiturasView.vue'
+import LivroDetalheView from '../views/LivroDetalheView.vue'
 
 // Telas que o menu e a home já apontam, mas ainda não existem.
 // Quando uma tela ficar pronta, troque o component dela aqui.
@@ -24,7 +25,8 @@ const routes = [
   { path: '/', component: HomeView },
   { path: '/entrar', component: AcessoView },
   { path: '/criar-conta', component: AcessoView },
-  { path: '/minhas-leituras', component: MinhasLeiturasView },
+  { path: '/minhas-leituras', component: MinhasLeiturasView },  
+  { path: '/livros/:id', component: LivroDetalheView },
   ...telasPendentes,
   // Só em desenvolvimento: no build de produção o import abaixo é descartado
   ...(import.meta.env.DEV
