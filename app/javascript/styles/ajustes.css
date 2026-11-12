@@ -1,0 +1,29 @@
+/*
+ * Efeito dos "Ajustes de leitura" (stores/ajustes.js). O tamanho do texto não
+ * precisa de regra aqui: o store muda o font-size do <html> e as fontes são em rem.
+ */
+
+/* Espaço entre linhas: "Amplo". !important porque cada componente define a
+   entrelinha no próprio atalho "font:" (var(--fonte-...)). */
+html[data-linhas="amplo"] :is(p, li, h1, h2, h3, h4, label) {
+  line-height: 1.8 !important;
+}
+
+/* Alto contraste: texto secundário vira texto de corpo e as bordas ficam fortes */
+html[data-contraste-alto] {
+  --texto-secundario: var(--texto-corpo);
+  --borda-padrao: var(--borda-forte);
+}
+
+/* Modo calmo: nenhuma animação e sem ilustrações decorativas */
+html[data-calmo] *,
+html[data-calmo] *::before,
+html[data-calmo] *::after {
+  animation: none !important;
+  transition: none !important;
+}
+
+html[data-calmo] img[aria-hidden="true"],
+html[data-calmo] [aria-hidden="true"] > img {
+  display: none;
+}
