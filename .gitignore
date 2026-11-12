@@ -5,6 +5,7 @@
 
 # Rails credentials
 /config/master.key
+/config/*.key
 
 # Logs
 /log/*
@@ -21,6 +22,9 @@
 # Storage
 /storage/*
 !/storage/.keep
-# Ignore key files for decrypting credentials and more.
-/config/*.key
-# End of ignored credential keys.
+
+# JavaScript dependencies and Vite build output
+/node_modules
+/public/vite
+/public/vite-dev
+/public/vite-test

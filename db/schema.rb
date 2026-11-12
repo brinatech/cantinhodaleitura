@@ -34,7 +34,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_11_120100) do
     t.index ["livro_id", "tipo"], name: "index_arquivo_materials_on_livro_id_and_tipo", unique: true
     t.index ["livro_id"], name: "index_arquivo_materials_on_livro_id"
   end
-
   create_table "categorias", force: :cascade do |t|
     t.string "nome", limit: 100, null: false
     t.text "descricao"

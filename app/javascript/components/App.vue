@@ -1,4 +1,5 @@
 <template>
-  <h1>Cantinho da Leitura</h1>
-  <p>Vue.js funcionando!</p>
+  <!-- Moldura do app: só mostra a tela da rota atual (ver router/index.js).
+       Cada view decide seu cabeçalho (variante) e se tem rodapé. -->
+  <RouterView />
 </template>

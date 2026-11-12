@@ -70,6 +70,11 @@ O comando prepara o banco de dados da aplicação, criando-o e executando as mig
 
 > **Observação:** Caso seja necessário, configure as credenciais de acesso ao PostgreSQL no arquivo `config/database.yml`.
 
+Por padrão, o projeto usa o usuário `postgres`, o host `localhost`, a porta `5432` e os bancos
+`cantinhodaleitura_development` e `cantinhodaleitura_test`. Esses valores podem ser sobrescritos
+pelas variáveis `DATABASE_HOST`, `DATABASE_PORT`, `DATABASE_USERNAME`, `DATABASE_PASSWORD`,
+`DATABASE_NAME` e `DATABASE_TEST_NAME`.
+
 ## ▶️ Executando o projeto
 
 Para executar a aplicação em ambiente de desenvolvimento, é necessário iniciar o servidor Backend (Rails) e o servidor Frontend (Vite).
