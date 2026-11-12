@@ -7,6 +7,16 @@
 <script setup>
 import { onMounted, ref } from 'vue'
 import Botao from '../components/ui/Botao.vue'
+import CabecalhoSecao from '../components/ui/CabecalhoSecao.vue'
+import CardLivro from '../components/ui/CardLivro.vue'
+import CardLivroCarregando from '../components/ui/CardLivroCarregando.vue'
+import ChipFiltro from '../components/ui/ChipFiltro.vue'
+import Icone from '../components/ui/Icone.vue'
+import Selo from '../components/ui/Selo.vue'
+import TagFormato from '../components/ui/TagFormato.vue'
+import { icones } from '../components/ui/icones.js'
+import lamparina from '../images/imgs-baixo-banner/lamparina.png'
+import capaJardim from '../images/imgs-livros-destaque/o jardim das pequenas coisas.png'
 
 const grupos = [
   { titulo: 'Texto', nomes: ['texto-principal', 'texto-corpo', 'texto-secundario', 'texto-inverso', 'texto-erro'] },
@@ -39,6 +49,26 @@ const estados = [
   { nome: 'Hover', classe: 'estado-hover' },
   { nome: 'Foco', classe: 'estado-foco' },
   { nome: 'Desabilitado', desabilitado: true },
+]
+
+const nomesIcones = Object.keys(icones)
+const rotuloIcone = (nome) => nome.charAt(0).toUpperCase() + nome.slice(1).replace('-', ' ')
+
+const tons = ['ceu', 'suave', 'coral', 'laranja', 'rosa']
+
+const coresChip = ['neutro', 'aventura', 'fantasia', 'natureza', 'classicos']
+const estadosChip = [
+  { nome: 'Padrão' },
+  { nome: 'Selecionado', selecionado: true },
+  { nome: 'Foco', classe: 'estado-foco' },
+]
+
+const categoriasCard = [
+  { nome: 'Neutro', categoria: '' },
+  { nome: 'Aventura', categoria: 'Aventura' },
+  { nome: 'Fantasia', categoria: 'Fantasia' },
+  { nome: 'Natureza', categoria: 'Natureza' },
+  { nome: 'Clássicos', categoria: 'Clássicos' },
 ]
 
 // Lê o valor real de cada variável do tokens.css para mostrar o hex ao lado da cor
@@ -119,6 +149,27 @@ onMounted(() => {
       </ul>
     </section>
 
+    <section aria-labelledby="ds-icones">
+      <h2 id="ds-icones">Ícones</h2>
+      <p class="vitrine-nota">
+        {{ nomesIcones.length }} ícones, 24px, traço 2px, cantos arredondados. Herdam a cor do texto ao redor.
+        Sempre acompanhados de texto ou de um rótulo acessível.
+      </p>
+      <ul class="icones-grade">
+        <li v-for="nome in nomesIcones" :key="nome" class="icone-celula">
+          <Icone :nome="nome" />
+          <span>{{ rotuloIcone(nome) }}</span>
+        </li>
+      </ul>
+      <h3>Tamanhos usados no design</h3>
+      <ul class="icones-tamanhos">
+        <li v-for="t in [16, 20, 24, 48]" :key="t">
+          <Icone nome="livro" :tamanho="t" />
+          <span class="cor-valor">{{ t }}px</span>
+        </li>
+      </ul>
+    </section>
+
     <section aria-labelledby="ds-botao">
       <h2 id="ds-botao">Botão</h2>
       <p class="vitrine-nota">
@@ -133,6 +184,97 @@ onMounted(() => {
             <span class="botao-estado">{{ estado.nome }}</span>
           </div>
         </template>
+      </div>
+    </section>
+
+    <section aria-labelledby="ds-selo">
+      <h2 id="ds-selo">Selo</h2>
+      <p class="vitrine-nota">Rótulo curto em caixa alta acima de títulos de seção e para categorias.</p>
+      <ul class="linha-lista">
+        <li v-for="tom in tons" :key="tom" class="botao-celula">
+          <Selo :tom="tom">Leitura que acolhe</Selo>
+          <span class="botao-estado">{{ tom }}</span>
+        </li>
+      </ul>
+    </section>
+
+    <section aria-labelledby="ds-tag">
+      <h2 id="ds-tag">Tag de formato</h2>
+      <p class="vitrine-nota">Só mostrar formatos que realmente existem para o material.</p>
+      <ul class="linha-lista">
+        <li class="botao-celula">
+          <TagFormato>Texto e audiobook</TagFormato>
+          <span class="botao-estado">ícone padrão (fones)</span>
+        </li>
+        <li class="botao-celula">
+          <TagFormato icone="livro">Texto</TagFormato>
+          <span class="botao-estado">outro ícone</span>
+        </li>
+      </ul>
+    </section>
+
+    <section aria-labelledby="ds-chip">
+      <h2 id="ds-chip">Chip de filtro</h2>
+      <p class="vitrine-nota">
+        Neutro para filtros gerais; a cor da categoria para categorias de livro. Selecionado sempre mostra o check.
+        Clássicos selecionado usa o coral suave por contraste. Aperte Tab para ver o foco.
+      </p>
+      <div class="chips-grade" role="group" aria-label="Todas as cores e estados do chip">
+        <template v-for="cor in coresChip" :key="cor">
+          <span class="botoes-tipo">{{ cor }}</span>
+          <div v-for="estado in estadosChip" :key="estado.nome" class="botao-celula">
+            <ChipFiltro :cor="cor" :selecionado="estado.selecionado" :class="estado.classe">Com audiobook</ChipFiltro>
+            <span class="botao-estado">{{ estado.nome }}</span>
+          </div>
+        </template>
+      </div>
+    </section>
+
+    <section aria-labelledby="ds-card">
+      <h2 id="ds-card">Card de livro</h2>
+      <p class="vitrine-nota">
+        A categoria define a cor da capa e o selo. Título com até 2 linhas. Cada categoria aparece no estado padrão e
+        no estado Foco. O último usa uma capa real, e o título é um link (Tab para focar).
+      </p>
+      <div class="cards-grade">
+        <template v-for="c in categoriasCard" :key="c.nome">
+          <CardLivro
+            titulo="O jardim das pequenas coisas"
+            autor="Clara Ribeiro"
+            :categoria="c.categoria"
+            formato="Texto e audiobook"
+          />
+          <CardLivro
+            class="estado-foco"
+            titulo="O jardim das pequenas coisas"
+            autor="Clara Ribeiro"
+            :categoria="c.categoria"
+            formato="Texto e audiobook"
+          />
+        </template>
+        <CardLivro
+          titulo="O jardim das pequenas coisas"
+          autor="Clara Ribeiro"
+          categoria="Natureza"
+          :capa-url="capaJardim"
+          formato="Texto e audiobook"
+          to="/design-system"
+        />
+      </div>
+      <h3>Carregando</h3>
+      <div class="cards-grade" aria-busy="true">
+        <CardLivroCarregando />
+      </div>
+    </section>
+
+    <section aria-labelledby="ds-cabecalho-secao">
+      <h2 id="ds-cabecalho-secao">Cabeçalho de seção</h2>
+      <p class="vitrine-nota">Abre cada seção de conteúdo. A ilustração é decorativa (alt vazio).</p>
+      <div class="cabecalhos-lista">
+        <CabecalhoSecao titulo="Livros em destaque" subtitulo="Uma boa história pode ser seu próximo começo.">
+          <template #ilustracao><img :src="lamparina" alt=""></template>
+        </CabecalhoSecao>
+        <CabecalhoSecao titulo="Novidades no acervo" subtitulo="Livros que acabaram de chegar no cantinho." />
       </div>
     </section>
   </main>
@@ -302,5 +444,77 @@ ul {
 .botao-estado {
   font: var(--fonte-legenda);
   color: var(--texto-secundario);
+}
+
+/* Ícones */
+.icones-grade {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espaco-24);
+  margin-top: var(--espaco-24);
+}
+
+.icone-celula {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--espaco-8);
+  width: 104px;
+  padding: var(--espaco-16) var(--espaco-12);
+  border-radius: var(--raio-12);
+  background: var(--fundo-superficie);
+  color: var(--texto-principal);
+}
+
+.icone-celula span {
+  font: var(--fonte-legenda);
+  color: var(--texto-secundario);
+  text-align: center;
+}
+
+.icones-tamanhos {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--espaco-24);
+  color: var(--texto-principal);
+}
+
+.icones-tamanhos li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--espaco-8);
+}
+
+/* Selo, tag, chip, cards, cabeçalho */
+.linha-lista {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espaco-24);
+  margin-top: var(--espaco-24);
+}
+
+.chips-grade {
+  display: grid;
+  grid-template-columns: 96px repeat(3, max-content);
+  align-items: center;
+  gap: var(--espaco-24);
+  margin-top: var(--espaco-24);
+  overflow-x: auto;
+  padding: var(--espaco-8) 0;
+}
+
+.cards-grade {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 272px);
+  gap: var(--espaco-24);
+  margin-top: var(--espaco-24);
+}
+
+.cabecalhos-lista {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-32);
+  margin-top: var(--espaco-24);
 }
 </style>
