@@ -34,4 +34,46 @@ class Api::V1::LivrosControllerTest < ActionDispatch::IntegrationTest
     assert_nil livro_json["password_digest"]
     assert_nil livro_json["usuario_cadastro"]
   end
+
+  test "exibe os detalhes de um livro com suas classificações" do
+    categoria = Categoria.create!(nome: "Detalhes", descricao: "Categoria de detalhes")
+    usuario = Usuario.create!(
+      nome: "Usuário dos detalhes",
+      email: "detalhes-api@example.com",
+      tipo_usuario: "leitor",
+      password: "password123"
+    )
+    livro = Livro.create!(
+      titulo: "Livro detalhado",
+      autor: "Autor detalhado",
+      descricao: "Descrição detalhada",
+      categoria: categoria,
+      usuario_cadastro: usuario
+    )
+    Classificacao.create!(
+      livro: livro,
+      tipo: "formato",
+      nome: "PDF",
+      descricao: "Documento portátil"
+    )
+
+    get api_v1_livro_url(livro)
+
+    assert_response :success
+    resposta = JSON.parse(response.body)
+
+    assert_equal livro.id, resposta["id"]
+    assert_equal livro.titulo, resposta["titulo"]
+    assert_equal categoria.nome, resposta.dig("categoria", "nome")
+    assert_equal "PDF", resposta.dig("classificacoes", 0, "nome")
+    assert_nil resposta["password_digest"]
+    assert_nil resposta["usuario_cadastro"]
+  end
+
+  test "retorna 404 quando o livro não existe" do
+    get api_v1_livro_url(id: -1)
+
+    assert_response :not_found
+    assert_equal "Livro não encontrado", JSON.parse(response.body)["erro"]
+  end
 end

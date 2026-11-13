@@ -9,7 +9,7 @@ Rails.application.routes.draw do
     namespace :v1 do
       resources :usuarios, only: [ :create ]
       resource :sessao, only: [ :show, :create, :destroy ]
-      resources :livros, only: :index
+        resources :livros, only: [ :index, :show ]
     end
   end
 
