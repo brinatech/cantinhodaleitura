@@ -37,8 +37,11 @@ const roteador = useRouter()
 const menuAberto = ref(false)
 watch(() => rota.fullPath, () => (menuAberto.value = false))
 
-const busca = ref('')
-const buscar = () => roteador.push({ path: '/acervo', query: busca.value.trim() ? { busca: busca.value.trim() } : {} })
+// O campo mostra o que está buscado na URL (/acervo?busca=...) e acompanha quando ela muda
+const buscaDaRota = () => (typeof rota.query.busca === 'string' ? rota.query.busca : '')
+const busca = ref(buscaDaRota())
+watch(() => rota.query.busca, () => (busca.value = buscaDaRota()))
+const buscar =() => roteador.push({ path: '/acervo', query: busca.value.trim() ? { busca: busca.value.trim() } : {} })
 
 const painel = ref(null)
 </script>
