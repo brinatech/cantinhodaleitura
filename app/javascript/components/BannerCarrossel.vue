@@ -90,7 +90,7 @@ onBeforeUnmount(pausar)
             <p class="banner-texto">{{ slide.texto }}</p>
           </div>
 
-          <Botao class="banner-acao" to="/acervo">{{ slide.acao }}</Botao>
+          <Botao class="banner-acao" to="/acervo-publico">{{ slide.acao }}</Botao>
         </div>
       </section>
     </div>

@@ -99,14 +99,14 @@ const livrosDestaque = [
               :autor="livro.autor"
               :capa-url="livro.capa"
               formato="Texto e audiobook"
-              to="/acervo"
+              to="/acervo-publico"
               :mostrar-categoria="false"
               :mostrar-favoritar="false"
             />
           </li>
         </ul>
 
-        <Botao class="livros-acao" to="/acervo">Explorar acervo →</Botao>
+        <Botao class="livros-acao" to="/acervo-publico">Explorar acervo →</Botao>
       </section>
 
       <section class="chamada" aria-labelledby="titulo-chamada">

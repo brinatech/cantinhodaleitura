@@ -9,6 +9,8 @@ import AcervoView from '../views/AcervoView.vue'
 const emBreve = () => import('../views/EmBreveView.vue')
 const telasPendentes = [
   { path: '/sobre', titulo: 'Sobre' },
+  // shortcut: acervo do visitante (links da home). Some quando a AcervoView escolher a moldura pelo login
+  { path: '/acervo-publico', titulo: 'Acervo' },
   { path: '/acessibilidade', titulo: 'Acessibilidade' },
   { path: '/esqueci-senha', titulo: 'Recuperar senha' },
   // Telas da área logada: a página provisória aparece dentro do menu lateral
