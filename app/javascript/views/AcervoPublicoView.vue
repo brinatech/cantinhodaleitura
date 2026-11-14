@@ -11,6 +11,7 @@ import MenuSuperior from '../components/layout/MenuSuperior.vue'
 import Rodape from '../components/layout/Rodape.vue'
 import CatalogoLivros from '../components/livros/CatalogoLivros.vue'
 import Botao from '../components/ui/Botao.vue'
+import CampoBusca from '../components/ui/CampoBusca.vue'
 import EstadoVazio from '../components/ui/EstadoVazio.vue'
 import { listarLivros } from '../services/livrosService.js'
 
@@ -26,21 +27,20 @@ watch(busca, (novoValor) => {
   termoInput.value = novoValor
 })
 
-// Atualiza a URL conforme o visitante digita (sem poluir o histórico)
+// Atualiza a URL conforme o visitante digita (replace: sem poluir o histórico)
 function atualizarBusca() {
-  const query = { ...rota.query }
-  if (termoInput.value.trim()) {
-    query.busca = termoInput.value.trim()
-  } else {
-    delete query.busca
-  }
-  roteador.replace({ query })
+  const termo = termoInput.value.trim()
+  if (termo === busca.value) return // nada mudou (ex.: só um espaço no fim)
+
+  const { busca: _anterior, ...resto } = rota.query
+  roteador.replace({ query: termo ? { ...resto, busca: termo } : resto })
 }
 
+watch(termoInput, atualizarBusca)
+
+// "Limpar busca" do CatalogoLivros: esvaziar o campo já tira o ?busca= da URL (watch acima)
 const limparBusca = () => {
   termoInput.value = ''
-  const { busca: _removida, ...resto } = rota.query
-  roteador.replace({ query: resto })
 }
 
 const livros = ref([])
@@ -71,34 +71,16 @@ onMounted(carregarLivros)
     <main class="acervo-container">
       <header class="acervo-topo">
         <div class="acervo-cabecalho-texto">
-          <h1 class="acervo-titulo">Acervo Público</h1>
+          <h1 class="acervo-titulo">Acervo</h1>
           <p class="acervo-subtitulo">
             Explore histórias e materiais liberados gratuitamente para leitura e audição.
           </p>
         </div>
 
-        <!-- Campo de pesquisa exigido na HU-02 (Task 2) para visitantes sem LayoutLogado -->
-        <form class="acervo-busca-form" role="search" @submit.prevent="atualizarBusca">
-          <label for="busca-acervo-publico" class="sr-only">
-            Pesquisar livros por título ou autor
-          </label>
-          <input
-            id="busca-acervo-publico"
-            v-model="termoInput"
-            type="search"
-            class="acervo-busca-input"
-            placeholder="Buscar por título ou autor..."
-            @input="atualizarBusca"
-          />
-          <button
-            v-if="termoInput"
-            type="button"
-            class="acervo-busca-limpar"
-            aria-label="Limpar pesquisa"
-            @click="limparBusca"
-          >
-            ✕
-          </button>
+        <!-- Campo de busca do design system (o mesmo da barra de cima da área logada).
+             O visitante não tem essa barra, então a busca fica aqui, ao lado do título. -->
+        <form class="acervo-busca" role="search" @submit.prevent="atualizarBusca">
+          <CampoBusca v-model="termoInput" />
         </form>
       </header>
 
@@ -137,18 +119,19 @@ onMounted(carregarLivros)
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: var(--fundo-pagina, #f8fafc);
+  background-color: var(--fundo-pagina);
 }
 
+/* Mesma largura e espaçamento do acervo logado (AcervoView) */
 .acervo-container {
   flex: 1;
   width: 100%;
   max-width: 1096px;
   margin-inline: auto;
-  padding: var(--espaco-32, 32px) var(--espaco-24, 24px);
+  padding: var(--espaco-32) var(--espaco-24);
   display: flex;
   flex-direction: column;
-  gap: var(--espaco-32, 32px);
+  gap: var(--espaco-32);
 }
 
 .acervo-topo {
@@ -156,13 +139,13 @@ onMounted(carregarLivros)
   flex-wrap: wrap;
   justify-content: space-between;
   align-items: flex-end;
-  gap: var(--espaco-24, 24px);
+  gap: var(--espaco-24);
 }
 
 .acervo-cabecalho-texto {
   display: flex;
   flex-direction: column;
-  gap: var(--espaco-8, 8px);
+  gap: var(--espaco-8);
 }
 
 .acervo-titulo {
@@ -175,37 +158,10 @@ onMounted(carregarLivros)
   font: var(--fonte-corpo);
 }
 
-.acervo-busca-form {
-  position: relative;
-  display: flex;
-  align-items: center;
-  width: 100%;
-  max-width: 360px;
-}
-
-.acervo-busca-input {
-  width: 100%;
-  padding: 10px 36px 10px 14px;
-  border: 1px solid var(--borda-padrao, #cbd5e1);
-  border-radius: var(--raio-medio, 8px);
-  font: var(--fonte-corpo);
-  color: var(--texto-principal);
-  background: #ffffff;
-}
-
-.acervo-busca-input:focus {
-  outline: 2px solid var(--cor-primaria, #38bdf8);
-  outline-offset: 2px;
-}
-
-.acervo-busca-limpar {
-  position: absolute;
-  right: 10px;
-  background: none;
-  border: none;
-  color: var(--texto-secundario);
-  cursor: pointer;
-  padding: 4px;
+/* Mesma largura máxima da busca da barra de cima (LayoutLogado) */
+.acervo-busca {
+  flex: 1 1 320px;
+  max-width: 440px;
 }
 
 .acervo-aviso {
@@ -215,18 +171,5 @@ onMounted(carregarLivros)
 
 .acervo-erro {
   align-self: center;
-}
-
-/* Classe utilitária para acessibilidade (leitores de tela - HU-16) */
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
 }
 </style>
