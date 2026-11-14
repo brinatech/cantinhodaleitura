@@ -3,14 +3,17 @@
   A busca por texto fica na barra de cima (LayoutLogado), que manda para /acervo?busca=...;
   esta tela lê a URL e mostra os livros que combinam (HU-02, Task 2 do backlog).
   A estante (filtros + cards) é o CatalogoLivros, que também servirá ao acervo do visitante.
-  shortcut: livros de exemplo fixos, no mesmo formato do GET /api/v1/livros.
-  Trocar por livrosService.listar() quando o banco tiver livros cadastrados.
+  Os livros vêm do GET /api/v1/livros (services/livrosService.js); a busca e os
+  filtros ainda são feitos no navegador.
 -->
 <script setup>
-import { computed } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import LayoutLogado from '../components/layout/LayoutLogado.vue'
 import CatalogoLivros from '../components/livros/CatalogoLivros.vue'
+import Botao from '../components/ui/Botao.vue'
+import EstadoVazio from '../components/ui/EstadoVazio.vue'
+import { listarLivros } from '../services/livrosService.js'
 
 const rota = useRoute()
 const roteador = useRouter()
@@ -24,16 +27,23 @@ const limparBusca = () => {
   roteador.replace({ query: resto })
 }
 
-const livros = [
-  { id: 1, titulo: 'O jardim das pequenas coisas', autor: 'Clara Ribeiro', capa_url: null, categoria: { nome: 'Natureza' }, formatos: [{ tipo: 'texto' }, { tipo: 'audio' }] },
-  { id: 2, titulo: 'A menina que conversava com a Lua', autor: 'Ana Martins', capa_url: null, categoria: { nome: 'Fantasia' }, formatos: [{ tipo: 'texto' }, { tipo: 'audio' }] },
-  { id: 3, titulo: 'Caminhos de casa', autor: 'Pedro Almeida', capa_url: null, categoria: { nome: 'Aventura' }, formatos: [{ tipo: 'texto' }] },
-  { id: 4, titulo: 'O mar que mora em mim', autor: 'Luiza Costa', capa_url: null, categoria: { nome: 'Natureza' }, formatos: [{ tipo: 'texto' }, { tipo: 'audio' }] },
-  { id: 5, titulo: 'Sementes de amanhã', autor: 'Marina Santos', capa_url: null, categoria: { nome: 'Natureza' }, formatos: [{ tipo: 'texto' }] },
-  { id: 6, titulo: 'As cartas do vento', autor: 'João Oliveira', capa_url: null, categoria: { nome: 'Clássicos' }, formatos: [{ tipo: 'texto' }, { tipo: 'audio' }] },
-  { id: 7, titulo: 'O dragão que tinha medo do escuro', autor: 'Lucas Prado', capa_url: null, categoria: { nome: 'Fantasia' }, formatos: [{ tipo: 'audio' }] },
-  { id: 8, titulo: 'O mapa do quintal', autor: 'Rita Souza', capa_url: null, categoria: { nome: 'Aventura' }, formatos: [{ tipo: 'texto' }, { tipo: 'audio' }] },
-]
+const livros = ref([]) // começa vazia; enche quando a API responder
+const carregando = ref(true) // true enquanto espera a resposta
+const erro = ref(false) // true se a API falhar
+
+async function carregarLivros() {
+  carregando.value = true
+  erro.value = false
+  try {
+    livros.value = await listarLivros()
+  } catch {
+    erro.value = true
+  } finally {
+    carregando.value = false // "finally" roda dando certo ou errado
+  }
+}
+
+onMounted(carregarLivros) // quando a tela abrir, busca os livros
 </script>
 
 <template>
@@ -44,7 +54,20 @@ const livros = [
         <p class="acervo-subtitulo">Encontre uma história que combine com seu momento.</p>
       </header>
 
-      <CatalogoLivros :livros="livros" :busca="busca" @limpar-busca="limparBusca" />
+      <p v-if="carregando" class="acervo-aviso" role="status">Carregando livros…</p>
+
+      <EstadoVazio
+        v-else-if="erro"
+        class="acervo-erro"
+        titulo="Não conseguimos carregar o acervo"
+        descricao="Verifique sua conexão e tente de novo."
+      >
+        <template #acao>
+          <Botao tipo="contorno" @click="carregarLivros">Tentar de novo</Botao>
+        </template>
+      </EstadoVazio>
+
+      <CatalogoLivros v-else :livros="livros" :busca="busca" @limpar-busca="limparBusca" />
     </div>
   </LayoutLogado>
 </template>
@@ -72,5 +95,14 @@ const livros = [
 .acervo-subtitulo {
   color: var(--texto-secundario);
   font: var(--fonte-corpo);
+}
+
+.acervo-aviso {
+  color: var(--texto-secundario);
+  font: var(--fonte-corpo);
+}
+
+.acervo-erro {
+  align-self: center;
 }
 </style>
