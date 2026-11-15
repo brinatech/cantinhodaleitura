@@ -2,7 +2,7 @@ module Api
   module V1
     class LivrosController < ApplicationController
       def index
-        livros = Livro.includes(:categoria, :arquivos, :classificacoes).all
+        livros = LivrosQuery.new(params).call.includes(:categoria, :arquivos, :classificacoes)
 
         render json: livros.map { |livro| livro_json(livro) }
       end
