@@ -3,20 +3,21 @@
   à esquerda, barra com busca, Acessibilidade e perfil em cima, e o conteúdo da
   página no slot. Em telas menores o menu lateral vira uma gaveta aberta pelo
   botão de menu. O painel "Ajustes de leitura" abre pelo botão Acessibilidade.
-  shortcut: o leitor ("Maria") é fixo porque ainda não há login; ligar ao usuário
-  quando o backend tiver autenticação.
+  O nome do leitor vem da sessão (stores/auth.js); "Sair" encerra a sessão.
 -->
 <script setup>
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import Botao from '../ui/Botao.vue'
 import CampoBusca from '../ui/CampoBusca.vue'
 import Icone from '../ui/Icone.vue'
 import ItemMenuLateral from '../ui/ItemMenuLateral.vue'
 import PainelAcessibilidade from './PainelAcessibilidade.vue'
+import { useAuthStore } from '../../stores/auth.js'
 import logo from '../../images/logo-header.png'
 
-const leitor = { nome: 'Maria' }
+const auth = useAuthStore()
+const leitor = computed(() => ({ nome: auth.usuario?.nome ?? '' }))
 
 const principais = [
   { texto: 'Minhas leituras', to: '/minhas-leituras', icone: 'livro' },
@@ -28,11 +29,16 @@ const principais = [
 const secundarios = [
   { texto: 'Meu perfil', to: '/meu-perfil', icone: 'usuario' },
   { texto: 'Sobre o projeto', to: '/sobre', icone: 'info' },
-  { texto: 'Sair', to: '/', icone: 'sair' }, // shortcut: sem sessão para encerrar ainda; só volta ao início
+  { texto: 'Sair', icone: 'sair', acao: sair }, // sem "to": vira botão
 ]
 
 const rota = useRoute()
 const roteador = useRouter()
+
+async function sair() {
+  await auth.sair()
+  roteador.push('/')
+}
 
 const menuAberto = ref(false)
 watch(() => rota.fullPath, () => (menuAberto.value = false))
@@ -61,7 +67,7 @@ const painel = ref(null)
 
         <hr class="lateral-divisor">
 
-        <ItemMenuLateral v-for="item in secundarios" :key="item.texto" :to="item.to" :icone="item.icone" :ativo="rota.path === item.to">
+        <ItemMenuLateral v-for="item in secundarios" :key="item.texto" :to="item.to" :icone="item.icone" :ativo="rota.path === item.to" @click="item.acao?.()">
           {{ item.texto }}
         </ItemMenuLateral>
       </nav>

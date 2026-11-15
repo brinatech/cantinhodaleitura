@@ -4,7 +4,9 @@ import AcessoView from '../views/AcessoView.vue'
 import MinhasLeiturasView from '../views/MinhasLeiturasView.vue'
 import LivroDetalheView from '../views/LivroDetalheView.vue'
 import AcervoView from '../views/AcervoView.vue'
+import MeuPerfilView from '../views/MeuPerfilView.vue'
 import AcervoPublicoView from '../views/AcervoPublicoView.vue' //importa o acervo publico
+import { useAuthStore } from '../stores/auth.js'
 
 // Telas que o menu e a home já apontam, mas ainda não existem.
 // Quando uma tela ficar pronta, troque o component dela aqui.
@@ -14,25 +16,27 @@ const telasPendentes = [
   // shortcut: acervo do visitante (links da home). Some quando a AcervoView escolher a moldura pelo login
   // { path: '/acervo-publico', titulo: 'Acervo' }, 
   { path: '/acessibilidade', titulo: 'Acessibilidade' },
-  { path: '/esqueci-senha', titulo: 'Recuperar senha' },
   // Telas da área logada: a página provisória aparece dentro do menu lateral
   { path: '/favoritos', titulo: 'Favoritos', logada: true },
   { path: '/listas-de-leitura', titulo: 'Listas de leitura', logada: true },
   { path: '/historico', titulo: 'Histórico', logada: true },
-  { path: '/meu-perfil', titulo: 'Meu perfil', logada: true },
 ].map(({ path, titulo, logada }) => ({ path, component: emBreve, meta: { titulo, logada } }))
 
 // Modo hash (/#/rota): não precisa de rota no config/routes.rb do Rails.
 // shortcut: trocar para createWebHistory junto com o SpaController do backend.
 const routes = [
   { path: '/', component: HomeView },
-  { path: '/entrar', component: AcessoView },
-  { path: '/criar-conta', component: AcessoView },
-  { path: '/minhas-leituras', component: MinhasLeiturasView },
+  // visitante: quem já está logado não precisa destas telas (vai para as minhas leituras)
+  { path: '/entrar', component: AcessoView, meta: { visitante: true } },
+  { path: '/criar-conta', component: AcessoView, meta: { visitante: true } },
+  { path: '/esqueci-senha', component: AcessoView },
+  { path: '/redefinir-senha', component: AcessoView },
+  { path: '/minhas-leituras', component: MinhasLeiturasView, meta: { logada: true } },
+  { path: '/meu-perfil', component: MeuPerfilView, meta: { logada: true } },
   { path: '/livros/:id', name: 'livro-detalhe', component: LivroDetalheView },
   // Mesma tela, na moldura da área logada (menu lateral). O acervo logado (/acervo) leva a esta.
   { path: '/acervo/:id', name: 'livro-detalhe-logado', component: LivroDetalheView, meta: { logada: true } },
-  { path: '/acervo', component: AcervoView }, // busca chega pela barra de cima: /acervo?busca=...
+  { path: '/acervo', component: AcervoView, meta: { logada: true } }, // busca chega pela barra de cima: /acervo?busca=...
   { path: '/acervo-publico', component: AcervoPublicoView }, //rota para chamar o acero publico
   ...telasPendentes,
   // Só em desenvolvimento: no build de produção o import abaixo é descartado
@@ -43,8 +47,17 @@ const routes = [
   { path: '/:pathMatch(.*)*', component: emBreve },
 ]
 
-export default createRouter({
+const router = createRouter({
   history: createWebHashHistory(),
   routes,
   scrollBehavior: () => ({ top: 0 }), // cada página nova abre no topo
 })
+
+// Área logada exige sessão: sem ela, vai para o login e volta para cá depois (?redirect=)
+router.beforeEach((para) => {
+  const { usuario } = useAuthStore()
+  if (para.meta.logada && !usuario) return { path: '/entrar', query: { redirect: para.fullPath } }
+  if (para.meta.visitante && usuario) return '/minhas-leituras'
+})
+
+export default router

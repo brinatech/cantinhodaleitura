@@ -1,8 +1,9 @@
 <!--
-  Tela de acesso (Figma: "Acesso · Entrar", "Entrar com erro" e "Criar conta").
-  As duas telas são uma só: as abas trocam a rota (/entrar e /criar-conta).
-  Validação feita aqui, no navegador. O envio ao servidor ainda não existe
-  (o backend não tem API de login/cadastro): ver "enviar".
+  Telas de acesso (Figma: "Acesso · Entrar", "Entrar com erro" e "Criar conta").
+  Entrar e Criar conta são abas da mesma tela (rotas /entrar e /criar-conta). Esqueci a senha
+  (/esqueci-senha) e Redefinir senha (/redefinir-senha, aberta pelo link do email) usam a mesma
+  moldura e os mesmos campos: o Figma ainda não desenhou essas duas, então seguem o design system.
+  A validação do navegador é só para ajudar; quem decide é o servidor (erros por campo do Rails).
 -->
 <script setup>
 import { computed, nextTick, reactive, ref, watch } from 'vue'
@@ -14,14 +15,21 @@ import Botao from '../components/ui/Botao.vue'
 import CampoFormulario from '../components/ui/CampoFormulario.vue'
 import DestaquePalavra from '../components/ui/DestaquePalavra.vue'
 import Icone from '../components/ui/Icone.vue'
+import { ErroApi } from '../services/api.js'
+import { redefinirSenha, solicitarRecuperacao } from '../services/authService.js'
+import { useAuthStore } from '../stores/auth.js'
 import logo from '../images/logo-header.png'
 import nuvem from '../images/ilustracoes/acesso-nuvem.png'
 import meninaLendo from '../images/ilustracoes/acesso-menina-lendo.png'
 
 const rota = useRoute()
 const roteador = useRouter()
+const auth = useAuthStore()
 
-const criando = computed(() => rota.path === '/criar-conta')
+const modo = computed(() => ({ '/criar-conta': 'criar', '/esqueci-senha': 'esqueci', '/redefinir-senha': 'redefinir' })[rota.path] ?? 'entrar')
+const criando = computed(() => modo.value === 'criar')
+const comAbas = computed(() => modo.value === 'entrar' || modo.value === 'criar')
+const senhaRedefinida = computed(() => modo.value === 'entrar' && rota.query.aviso === 'senha-redefinida')
 const aba = computed({
   get: () => (criando.value ? 'criar-conta' : 'entrar'),
   set: (valor) => roteador.push(`/${valor}`),
@@ -30,34 +38,95 @@ const aba = computed({
 const campos = reactive({ nome: '', email: '', senha: '' })
 const erros = reactive({ nome: '', email: '', senha: '' })
 const avisoDoServidor = ref('')
+const avisoDeSucesso = ref('')
+const enviando = ref(false)
 
-// Trocar de aba começa um formulário limpo de erros (o que foi digitado fica)
-watch(criando, () => {
+// Trocar de tela começa sem erros (o que foi digitado fica)
+watch(modo, () => {
   Object.keys(erros).forEach((chave) => (erros[chave] = ''))
   avisoDoServidor.value = ''
+  avisoDeSucesso.value = ''
 })
 
 const emailValido = (texto) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(texto.trim())
 
 function validar() {
-  erros.nome = criando.value && !campos.nome.trim() ? 'Diga como você quer ser chamado.' : ''
-  erros.email = emailValido(campos.email) ? '' : 'Digite um e-mail válido, como maria@email.com.'
-  if (!campos.senha) erros.senha = criando.value ? 'Crie uma senha.' : 'Digite sua senha.'
-  else if (criando.value && campos.senha.length < 8) erros.senha = 'Use pelo menos 8 caracteres.'
+  const m = modo.value
+  erros.nome = m === 'criar' && !campos.nome.trim() ? 'Diga como você quer ser chamado.' : ''
+  erros.email = m === 'redefinir' || emailValido(campos.email) ? '' : 'Digite um e-mail válido, como maria@email.com.'
+  if (m === 'esqueci') erros.senha = ''
+  else if (!campos.senha) erros.senha = m === 'entrar' ? 'Digite sua senha.' : 'Crie uma senha.'
+  else if (m !== 'entrar' && campos.senha.length < 8) erros.senha = 'Use pelo menos 8 caracteres.'
   else erros.senha = ''
   return !Object.values(erros).some(Boolean)
 }
 
-async function enviar() {
-  avisoDoServidor.value = ''
-  if (!validar()) {
-    await nextTick()
-    document.querySelector('[aria-invalid="true"]')?.focus() // leva o foco ao primeiro erro
+// O Rails devolve { campo: [mensagens] } com os nomes da API; aqui o campo de senha se chama "senha"
+const CAMPOS_DA_API = { nome: ['nome', 'Nome'], email: ['email', 'E-mail'], password: ['senha', 'Senha'] }
+
+function mostrarErroDoServidor(erro) {
+  if (!(erro instanceof ErroApi)) {
+    avisoDoServidor.value = 'Não conseguimos conectar ao servidor. Tente de novo.'
     return
   }
-  // shortcut: o backend ainda não tem login nem cadastro. Quando existir, trocar por
-  // uma chamada à API; erro de credencial vira erros.senha + avisoDoServidor (Figma "Entrar com erro").
-  avisoDoServidor.value = 'Ainda não conseguimos conectar ao servidor. Tente de novo mais tarde.'
+  const doCampo = Object.entries(erro.erros ?? {}).filter(([campo]) => CAMPOS_DA_API[campo])
+  doCampo.forEach(([campo, mensagens]) => {
+    const [local, rotulo] = CAMPOS_DA_API[campo]
+    erros[local] = `${rotulo} ${mensagens[0]}.`
+  })
+  if (doCampo.length) return
+
+  if (erro.status === 401) {
+    // Mesma mensagem para e-mail desconhecido e senha errada, como o servidor faz
+    erros.senha = 'E-mail ou senha incorretos.'
+    avisoDoServidor.value = 'Não encontramos uma conta com esses dados. Confira e tente de novo.'
+  } else if (erro.erros?.token) {
+    avisoDoServidor.value = 'Este link venceu ou já foi usado. Peça um novo em "Esqueci minha senha".'
+  } else {
+    avisoDoServidor.value = erro.message
+  }
+}
+
+function irParaAreaLogada() {
+  const destino = rota.query.redirect
+  roteador.push(typeof destino === 'string' && destino.startsWith('/') ? destino : '/minhas-leituras')
+}
+
+async function enviarAoServidor() {
+  const { nome, email, senha } = campos
+  switch (modo.value) {
+    case 'entrar':
+      await auth.entrar(email, senha)
+      return irParaAreaLogada()
+    case 'criar':
+      await auth.cadastrar({ nome, email, senha })
+      return irParaAreaLogada()
+    case 'esqueci':
+      await solicitarRecuperacao(email)
+      avisoDeSucesso.value = 'Se existe uma conta com esse e-mail, enviamos o link para criar uma senha nova. Ele vale por 15 minutos.'
+      return
+    case 'redefinir':
+      await redefinirSenha(rota.query.token ?? '', senha)
+      campos.senha = '' // a senha nova não deve ficar escrita no campo do login
+      return roteador.push({ path: '/entrar', query: { aviso: 'senha-redefinida' } })
+  }
+}
+
+async function enviar() {
+  avisoDoServidor.value = ''
+  avisoDeSucesso.value = ''
+  if (validar()) {
+    enviando.value = true
+    try {
+      await enviarAoServidor()
+    } catch (erro) {
+      mostrarErroDoServidor(erro)
+    } finally {
+      enviando.value = false
+    }
+  }
+  await nextTick()
+  document.querySelector('[aria-invalid="true"]')?.focus() // leva o foco ao primeiro erro
 }
 </script>
 
@@ -80,22 +149,27 @@ async function enviar() {
       <main class="acesso-centro">
         <img class="acesso-logo" :src="logo" alt="Cantinho da Leitura" width="160">
 
-        <form id="painel-acesso" class="acesso-campos" role="tabpanel" aria-label="Acesso" novalidate @submit.prevent="enviar">
-          <AbasAcesso v-model="aba" painel="painel-acesso" />
+        <form id="painel-acesso" class="acesso-campos" :role="comAbas ? 'tabpanel' : undefined" aria-label="Acesso" novalidate @submit.prevent="enviar">
+          <AbasAcesso v-if="comAbas" v-model="aba" painel="painel-acesso" />
 
           <div class="acesso-titulo">
             <h1 class="acesso-titulo-linha">
-              <template v-if="criando">Crie sua <DestaquePalavra>conta</DestaquePalavra></template>
+              <template v-if="modo === 'criar'">Crie sua <DestaquePalavra>conta</DestaquePalavra></template>
+              <template v-else-if="modo === 'esqueci'">Recupere sua <DestaquePalavra cor="laranja">senha</DestaquePalavra></template>
+              <template v-else-if="modo === 'redefinir'">Crie uma nova <DestaquePalavra cor="laranja">senha</DestaquePalavra></template>
               <template v-else>Entrar no seu <DestaquePalavra cor="laranja">cantinho</DestaquePalavra></template>
             </h1>
             <p class="acesso-subtitulo">
-              {{ criando
-                ? 'É rápido e gratuito. Só precisamos do básico para guardar suas leituras.'
-                : 'Use seu e-mail e senha para continuar suas leituras.' }}
+              <template v-if="modo === 'criar'">É rápido e gratuito. Só precisamos do básico para guardar suas leituras.</template>
+              <template v-else-if="modo === 'esqueci'">Digite o e-mail da sua conta. Vamos enviar um link para você criar uma senha nova.</template>
+              <template v-else-if="modo === 'redefinir'">Escolha uma senha nova para voltar ao seu cantinho.</template>
+              <template v-else>Use seu e-mail e senha para continuar suas leituras.</template>
             </p>
           </div>
 
           <Alerta v-if="avisoDoServidor" tipo="erro">{{ avisoDoServidor }}</Alerta>
+          <Alerta v-if="avisoDeSucesso" tipo="sucesso">{{ avisoDeSucesso }}</Alerta>
+          <Alerta v-if="senhaRedefinida" tipo="sucesso">Senha nova salva. Agora é só entrar.</Alerta>
 
           <div class="acesso-entradas">
             <CampoFormulario
@@ -110,53 +184,61 @@ async function enviar() {
               @input="erros.nome = ''"
             />
             <CampoFormulario
+              v-if="modo !== 'redefinir'"
               v-model="campos.email"
               label="E-mail"
               type="email"
               placeholder="seu@email.com"
-              ajuda="Usaremos só para entrar na sua conta."
+              :ajuda="modo === 'esqueci' ? 'O e-mail que você usou para criar a conta.' : 'Usaremos só para entrar na sua conta.'"
               :erro="erros.email"
               name="email"
               autocomplete="email"
               @input="erros.email = ''"
             />
             <CampoFormulario
+              v-if="modo !== 'esqueci'"
               v-model="campos.senha"
-              :label="criando ? 'Crie uma senha' : 'Senha'"
+              :label="modo === 'entrar' ? 'Senha' : modo === 'redefinir' ? 'Nova senha' : 'Crie uma senha'"
               type="password"
-              :placeholder="criando ? 'Crie uma senha' : ''"
-              ajuda="Mínimo de 8 caracteres."
+              :placeholder="modo === 'entrar' ? '' : 'Crie uma senha'"
+              :ajuda="modo === 'entrar' ? '' : 'Mínimo de 8 caracteres.'"
               :erro="erros.senha"
               name="senha"
-              :autocomplete="criando ? 'new-password' : 'current-password'"
+              :autocomplete="modo === 'entrar' ? 'current-password' : 'new-password'"
               @input="erros.senha = ''"
             />
           </div>
 
-          <RouterLink v-if="!criando" class="acesso-esqueci" to="/esqueci-senha">Esqueci minha senha</RouterLink>
+          <RouterLink v-if="modo === 'entrar'" class="acesso-esqueci" to="/esqueci-senha">Esqueci minha senha</RouterLink>
 
           <Alerta v-if="criando">Tem menos de 18 anos? Peça a um responsável para criar a conta com você.</Alerta>
 
-          <Botao v-if="criando" tipo="destaque" type="submit">
+          <Botao v-if="criando" tipo="destaque" type="submit" :disabled="enviando">
             <template #icone><Icone nome="estrela" /></template>
             Criar minha conta
           </Botao>
-          <Botao v-else type="submit">
+          <Botao v-else type="submit" :disabled="enviando">
             <template #icone><Icone nome="seta-direita" /></template>
-            Entrar
+            {{ modo === 'esqueci' ? 'Enviar link' : modo === 'redefinir' ? 'Salvar nova senha' : 'Entrar' }}
           </Botao>
 
-          <div class="acesso-ou"><span>ou</span></div>
-
-          <p v-if="criando" class="acesso-ja-tem">
-            Já tem conta? <RouterLink to="/entrar">Entrar</RouterLink>
+          <p v-if="modo === 'esqueci' || modo === 'redefinir'" class="acesso-ja-tem">
+            <RouterLink to="/entrar">Voltar para entrar</RouterLink>
           </p>
+
           <template v-else>
-            <Botao tipo="contorno" to="/acervo">
-              <template #icone><Icone nome="bussola" /></template>
-              Explorar o acervo sem conta
-            </Botao>
-            <p class="acesso-nota">Visitantes leem os livros abertos. Com conta você guarda favoritos, listas e marcadores.</p>
+            <div class="acesso-ou"><span>ou</span></div>
+
+            <p v-if="criando" class="acesso-ja-tem">
+              Já tem conta? <RouterLink to="/entrar">Entrar</RouterLink>
+            </p>
+            <template v-else>
+              <Botao tipo="contorno" to="/acervo-publico">
+                <template #icone><Icone nome="bussola" /></template>
+                Explorar o acervo sem conta
+              </Botao>
+              <p class="acesso-nota">Visitantes leem os livros abertos. Com conta você guarda favoritos, listas e marcadores.</p>
+            </template>
           </template>
         </form>
       </main>

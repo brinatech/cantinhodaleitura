@@ -8,7 +8,7 @@ module Api
         if usuario.save
           render json: usuario_json(usuario), status: :created
         else
-          render json: { erros: usuario.errors.full_messages }, status: :unprocessable_entity
+          render json: { erros: usuario.errors.to_hash }, status: :unprocessable_entity
         end
       end
 

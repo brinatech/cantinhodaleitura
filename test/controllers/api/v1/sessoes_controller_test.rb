@@ -68,4 +68,15 @@ class Api::V1::SessoesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :unauthorized
   end
+
+  test "devolve o token CSRF novo no header, inclusive depois do login" do
+    usuario = Usuario.create!(nome: "Leitor do token", email: "token@example.com", password: "password123")
+
+    get api_v1_sessao_url
+    assert_response :unauthorized
+    assert response.headers["X-CSRF-Token"].present?
+
+    post api_v1_sessao_url, params: { email: usuario.email, password: "password123" }
+    assert response.headers["X-CSRF-Token"].present?
+  end
 end

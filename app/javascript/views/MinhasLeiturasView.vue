@@ -5,6 +5,7 @@
   (histórico e marcadores) e do acervo quando o backend tiver essas APIs.
 -->
 <script setup>
+import { computed } from 'vue'
 import LayoutLogado from '../components/layout/LayoutLogado.vue'
 import Botao from '../components/ui/Botao.vue'
 import CabecalhoSecao from '../components/ui/CabecalhoSecao.vue'
@@ -14,12 +15,13 @@ import DestaquePalavra from '../components/ui/DestaquePalavra.vue'
 import Icone from '../components/ui/Icone.vue'
 import IconeBolha from '../components/ui/IconeBolha.vue'
 import Selo from '../components/ui/Selo.vue'
+import { useAuthStore } from '../stores/auth.js'
 import globo from '../images/ilustracoes/globo-livros.png'
 import lamparina from '../images/imgs-baixo-banner/lamparina.png'
 import nuvem from '../images/imgs-baixo-banner/nuvem.png'
 import menina from '../images/imgs-baixo-banner/garota-com-fone.png'
 
-const nome = 'Maria'
+const nome = computed(() => useAuthStore().usuario?.nome ?? '')
 
 const resumo = [
   { texto: '3 em andamento', icone: 'livro', cor: 'laranja' },

@@ -1,0 +1,31 @@
+# Só o que o app usa hoje (erros de validação devolvidos pela API). Sem a gem rails-i18n.
+pt-BR:
+  activerecord:
+    errors:
+      messages:
+        blank: "não pode ficar em branco"
+        invalid: "não é válido"
+        taken: "já está em uso"
+        too_short:
+          one: "é muito curto (mínimo de 1 caractere)"
+          other: "é muito curto (mínimo de %{count} caracteres)"
+        too_long:
+          one: "é muito longo (máximo de 1 caractere)"
+          other: "é muito longo (máximo de %{count} caracteres)"
+        confirmation: "não confere com a senha"
+        inclusion: "não está na lista"
+        password_too_long: "é muito longa (máximo de 72 caracteres)"
+  errors:
+    messages:
+      blank: "não pode ficar em branco"
+      invalid: "não é válido"
+      taken: "já está em uso"
+      too_short:
+        one: "é muito curto (mínimo de 1 caractere)"
+        other: "é muito curto (mínimo de %{count} caracteres)"
+      too_long:
+        one: "é muito longo (máximo de 1 caractere)"
+        other: "é muito longo (máximo de %{count} caracteres)"
+      confirmation: "não confere com a senha"
+      inclusion: "não está na lista"
+      password_too_long: "é muito longa (máximo de 72 caracteres)"

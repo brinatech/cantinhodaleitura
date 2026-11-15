@@ -3,10 +3,12 @@ class Usuario < ApplicationRecord
 
   normalizes :email, with: ->(email) { email.strip.downcase }
 
-  validates :nome, :email, presence: true
+  validates :nome, presence: true, length: { in: 2..100 }
+  validates :email, presence: true, length: { maximum: 150 }
   validates :email,
             format: { with: /\A[^@\s]+@[^@\s]+\.[^@\s]+\z/ },
             uniqueness: { case_sensitive: false }
+  validates :password, length: { minimum: 8 }, allow_nil: true
   validates :tipo_usuario, inclusion: { in: %w[leitor administrador] }
 
   has_many :livros_cadastrados,

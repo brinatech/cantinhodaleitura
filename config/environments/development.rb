@@ -31,6 +31,9 @@ Rails.application.configure do
   # Store uploaded files on the local file system (see config/storage.yml for options).
   config.active_storage.service = :local
 
+  # Sem servidor de email no dev: o email (com o link de recuperar senha) aparece em log/development.log.
+  config.action_mailer.delivery_method = :test
+
   # Don't care if the mailer can't send.
   config.action_mailer.raise_delivery_errors = false
 
