@@ -103,6 +103,29 @@ Após iniciar os dois servidores, acesse a aplicação pelo navegador:
 
 > **Importante:** Os dois servidores precisam permanecer em execução durante o desenvolvimento da aplicação.
 
+## Autenticação da API
+
+A API usa sessão Rails em cookie assinado e criptografado. O cookie é `HttpOnly`, não
+fica disponível em `localStorage` e usa `Secure` automaticamente em produção. Por
+padrão, `SameSite=Lax` protege a sessão; se o Vue e a API estiverem em sites diferentes,
+configure `SESSION_COOKIE_SAME_SITE=none` e sirva a aplicação exclusivamente por HTTPS.
+
+O frontend deve enviar o cookie nas requisições:
+
+```js
+fetch("/api/v1/sessao", {
+	method: "POST",
+	credentials: "include",
+	headers: { "Content-Type": "application/json" },
+	body: JSON.stringify({ email, password })
+})
+```
+
+`POST /api/v1/sessao` inicia a sessão, `GET /api/v1/sessao` retorna o usuário
+autenticado e `DELETE /api/v1/sessao` encerra a sessão. Rotas protegidas respondem
+`401 Unauthorized` quando o cookie está ausente, inválido ou associado a um usuário
+inativo.
+
 ## 📁 Estrutura do projeto
 
 A aplicação segue a estrutura padrão do Ruby on Rails, com a organização dos arquivos do Frontend integrada ao projeto.

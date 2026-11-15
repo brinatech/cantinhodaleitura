@@ -1,7 +1,7 @@
 module Api
   module V1
     class SessoesController < ApplicationController
-      before_action :require_usuario!, only: :show
+      before_action :exigir_autenticacao, only: :show
 
       def show
         render json: usuario_json(current_usuario)
