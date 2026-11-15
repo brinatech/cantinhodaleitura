@@ -30,6 +30,8 @@ const routes = [
   { path: '/criar-conta', component: AcessoView },
   { path: '/minhas-leituras', component: MinhasLeiturasView },
   { path: '/livros/:id', name: 'livro-detalhe', component: LivroDetalheView },
+  // Mesma tela, na moldura da área logada (menu lateral). O acervo logado (/acervo) leva a esta.
+  { path: '/acervo/:id', name: 'livro-detalhe-logado', component: LivroDetalheView, meta: { logada: true } },
   { path: '/acervo', component: AcervoView }, // busca chega pela barra de cima: /acervo?busca=...
   { path: '/acervo-publico', component: AcervoPublicoView }, //rota para chamar o acero publico
   ...telasPendentes,

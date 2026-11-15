@@ -20,6 +20,7 @@ import { chaveCategoria } from '../ui/categorias.js'
 const props = defineProps({
   livros: { type: Array, required: true },
   busca: { type: String, default: '' }, // texto buscado em título e autor
+  detalhe: { type: String, default: 'livro-detalhe' }, // nome da rota aberta ao clicar num card
 })
 
 const emit = defineEmits(['limpar-busca'])
@@ -145,7 +146,7 @@ const textoFormato = (livro) => {
           :capa-url="livro.capa_url"
           :formato="textoFormato(livro)"
           :icone-formato="temAudio(livro) ? 'fones' : 'livro'"
-          :to="{ name: 'livro-detalhe', params: { id: livro.id } }"
+          :to="{ name: detalhe, params: { id: livro.id } }"
         />
       </li>
     </ul>
