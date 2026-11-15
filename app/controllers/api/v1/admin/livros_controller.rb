@@ -9,12 +9,18 @@ module Api
         end
 
         def create
+          arquivo = arquivo_attributes
           livro = Livro.new(livro_attributes)
           livro.usuario_cadastro = current_usuario
+          if arquivo.blank?
+            livro.valid?
+            livro.errors.add(:arquivo, "deve ser informado")
+            return render_erros(livro.errors.to_hash)
+          end
 
           Livro.transaction do
             livro.save!
-            criar_arquivo(livro)
+            criar_arquivo(livro, arquivo)
           end
 
           render json: livro_json(livro), status: :created
@@ -27,7 +33,8 @@ module Api
 
           Livro.transaction do
             livro.update!(livro_attributes)
-            criar_arquivo(livro) if arquivo_attributes.present?
+            arquivo = arquivo_attributes
+            criar_arquivo(livro, arquivo) if arquivo.present?
           end
 
           render json: livro_json(livro)
@@ -51,21 +58,18 @@ module Api
         private
 
         def livro_attributes
-          attributes = params.require(:livro).permit(:titulo, :autor, :descricao, :id_categoria, arquivo: [ :tipo, :caminho ])
+          attributes = params.require(:livro).permit(:titulo, :autor, :descricao, :id_categoria)
           attributes[:categoria_id] = attributes.delete(:id_categoria)
-          attributes.except(:arquivo)
+          attributes
         end
 
         def arquivo_attributes
-          params.require(:livro).permit(arquivo: [ :tipo, :caminho ])["arquivo"]
+          params.require(:livro).permit(arquivo: [ :tipo, :arquivo ])["arquivo"]
         end
 
-        def criar_arquivo(livro)
-          arquivo = arquivo_attributes
-          return if arquivo.blank?
-
+        def criar_arquivo(livro, arquivo)
           material = livro.arquivos.find_or_initialize_by(tipo: arquivo[:tipo])
-          material.caminho = arquivo[:caminho]
+          material.arquivo.attach(arquivo[:arquivo]) if arquivo[:arquivo].present?
           material.save!
         end
 
@@ -76,7 +80,16 @@ module Api
             autor: livro.autor,
             descricao: livro.descricao,
             id_categoria: livro.categoria_id,
-            arquivos: livro.arquivos.map { |arquivo| { tipo: arquivo.tipo, caminho: arquivo.caminho } }
+            arquivos: livro.arquivos.filter_map do |arquivo|
+              next unless arquivo.arquivo.attached?
+
+              {
+                id: arquivo.id,
+                tipo: arquivo.tipo,
+                nome: arquivo.arquivo.filename.to_s,
+                url: api_v1_livro_arquivo_path(livro, arquivo)
+              }
+            end
           }
         end
 

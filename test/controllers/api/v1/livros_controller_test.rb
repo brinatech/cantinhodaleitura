@@ -17,8 +17,12 @@ class Api::V1::LivrosControllerTest < ActionDispatch::IntegrationTest
       categoria: categoria,
       usuario_cadastro: usuario
     )
-    ArquivoMaterial.create!(livro: livro, tipo: "texto", caminho: "livro-publico.pdf")
-    ArquivoMaterial.create!(livro: livro, tipo: "audio", caminho: "livro-publico.mp3")
+    arquivo_texto = ArquivoMaterial.new(livro: livro, tipo: "texto")
+    arquivo_texto.arquivo.attach(io: StringIO.new("%PDF-1.4"), filename: "livro-publico.pdf", content_type: "application/pdf")
+    arquivo_texto.save!
+    arquivo_audio = ArquivoMaterial.new(livro: livro, tipo: "audio")
+    arquivo_audio.arquivo.attach(io: StringIO.new("audio"), filename: "livro-publico.mp3", content_type: "audio/mpeg")
+    arquivo_audio.save!
 
     get api_v1_livros_url
 
@@ -33,7 +37,8 @@ class Api::V1::LivrosControllerTest < ActionDispatch::IntegrationTest
     assert_equal livro.descricao, livro_json["descricao"]
     assert_equal livro.capa_url, livro_json["capa_url"]
     assert_equal [ "audio", "texto" ], livro_json["formatos"].map { |formato| formato["tipo"] }.sort
-    assert_equal [ "livro-publico.mp3", "livro-publico.pdf" ], livro_json["formatos"].map { |formato| formato["caminho"] }.sort
+    assert_equal [ "livro-publico.mp3", "livro-publico.pdf" ], livro_json["formatos"].map { |formato| formato["nome"] }.sort
+    assert livro_json["formatos"].all? { |formato| formato["url"].include?("/api/v1/livros/") }
     assert_equal categoria.nome, livro_json.dig("categoria", "nome")
     assert_equal categoria.id, livro_json.dig("categoria", "id")
     assert_equal categoria.descricao, livro_json.dig("categoria", "descricao")
