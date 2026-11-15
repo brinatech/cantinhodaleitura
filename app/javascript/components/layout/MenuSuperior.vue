@@ -32,7 +32,7 @@ const linksPadrao = computed(() =>
     : [
         { texto: 'Início', to: '/' },
         { texto: 'Sobre', to: '/sobre' },
-        { texto: 'Acervo', to: '/acervo' },
+        { texto: 'Acervo', to: '/acervo-publico' }, // shortcut: visitante ainda não tem o acervo (ver router)
       ],
 )
 const linksDoMenu = computed(() => props.links ?? linksPadrao.value)

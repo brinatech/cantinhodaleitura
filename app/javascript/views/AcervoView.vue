@@ -3,17 +3,17 @@
   A busca por texto fica na barra de cima (LayoutLogado), que manda para /acervo?busca=...;
   esta tela lê a URL e mostra os livros que combinam (HU-02, Task 2 do backlog).
   A estante (filtros + cards) é o CatalogoLivros, que também servirá ao acervo do visitante.
-  Os livros vêm do GET /api/v1/livros para que os IDs dos cards correspondam aos
-  registros usados pela página de detalhes.
+  Os livros vêm do GET /api/v1/livros (services/livrosService.js); a busca e os
+  filtros ainda são feitos no navegador.
 -->
 <script setup>
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import LayoutLogado from '../components/layout/LayoutLogado.vue'
 import CatalogoLivros from '../components/livros/CatalogoLivros.vue'
-import Alerta from '../components/ui/Alerta.vue'
 import Botao from '../components/ui/Botao.vue'
-import { listarLivros, ErroApiLivros } from '../services/livros.js'
+import EstadoVazio from '../components/ui/EstadoVazio.vue'
+import { listarLivros } from '../services/livrosService.js'
 
 const rota = useRoute()
 const roteador = useRouter()
@@ -27,30 +27,23 @@ const limparBusca = () => {
   roteador.replace({ query: resto })
 }
 
-const livros = ref([])
-const carregando = ref(true)
-const erro = ref(null)
-let controladorAtual = null
+const livros = ref([]) // começa vazia; enche quando a API responder
+const carregando = ref(true) // true enquanto espera a resposta
+const erro = ref(false) // true se a API falhar
 
-const carregarLivros = async () => {
-  controladorAtual?.abort()
-  const controlador = new AbortController()
-  controladorAtual = controlador
+async function carregarLivros() {
   carregando.value = true
-  erro.value = null
-
+  erro.value = false
   try {
-    livros.value = await listarLivros({ signal: controlador.signal })
-  } catch (falha) {
-    if (falha.name === 'AbortError') return
-    erro.value = falha instanceof ErroApiLivros ? falha : new Error('Não foi possível carregar o acervo.')
+    livros.value = await listarLivros()
+  } catch {
+    erro.value = true
   } finally {
-    if (controladorAtual === controlador) carregando.value = false
+    carregando.value = false // "finally" roda dando certo ou errado
   }
 }
 
-onMounted(carregarLivros)
-onBeforeUnmount(() => controladorAtual?.abort())
+onMounted(carregarLivros) // quando a tela abrir, busca os livros
 </script>
 
 <template>
@@ -61,14 +54,18 @@ onBeforeUnmount(() => controladorAtual?.abort())
         <p class="acervo-subtitulo">Encontre uma história que combine com seu momento.</p>
       </header>
 
-      <div v-if="carregando" class="acervo-estado" role="status" aria-live="polite">
-        Carregando acervo...
-      </div>
+      <p v-if="carregando" class="acervo-aviso" role="status">Carregando livros…</p>
 
-      <div v-else-if="erro" class="acervo-estado">
-        <Alerta tipo="erro">Não foi possível carregar o acervo. Tente novamente.</Alerta>
-        <Botao tipo="contorno" @click="carregarLivros">Tentar novamente</Botao>
-      </div>
+      <EstadoVazio
+        v-else-if="erro"
+        class="acervo-erro"
+        titulo="Não conseguimos carregar o acervo"
+        descricao="Verifique sua conexão e tente de novo."
+      >
+        <template #acao>
+          <Botao tipo="contorno" @click="carregarLivros">Tentar de novo</Botao>
+        </template>
+      </EstadoVazio>
 
       <CatalogoLivros v-else :livros="livros" :busca="busca" @limpar-busca="limparBusca" />
     </div>
@@ -100,15 +97,12 @@ onBeforeUnmount(() => controladorAtual?.abort())
   font: var(--fonte-corpo);
 }
 
-.acervo-estado {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--espaco-16);
-  min-height: 180px;
-  padding: var(--espaco-32);
+.acervo-aviso {
   color: var(--texto-secundario);
-  font: var(--fonte-interface);
-  text-align: center;
+  font: var(--fonte-corpo);
+}
+
+.acervo-erro {
+  align-self: center;
 }
 </style>

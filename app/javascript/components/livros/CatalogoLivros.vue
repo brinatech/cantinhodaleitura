@@ -152,6 +152,7 @@ const textoFormato = (livro) => {
 
     <EstadoVazio
       v-else
+      class="catalogo-vazio"
       :nivel="3"
       titulo="Nenhum livro encontrado"
       :descricao="descricaoVazio"
@@ -222,6 +223,11 @@ const textoFormato = (livro) => {
 
 .catalogo-grade > li > * {
   flex: 1;
+}
+
+/* Nenhum resultado: o quadro fica no meio da página, não colado à esquerda */
+.catalogo-vazio {
+  align-self: center;
 }
 
 /* Celular: o divisor some quando os chips quebram em várias linhas */

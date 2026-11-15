@@ -140,6 +140,20 @@ class Api::V1::LivrosControllerTest < ActionDispatch::IntegrationTest
     assert_nil classificacao_json["descricao"]
   end
 
+  test "pesquisa livros por texto e formato" do
+    categoria = Categoria.create!(nome: "Busca pela API")
+    usuario = Usuario.create!(nome: "Responsável", email: "busca-api@example.com", password: "password123")
+    com_audio = Livro.create!(titulo: "Lua Cheia", autor: "Ana", categoria: categoria, usuario_cadastro: usuario)
+    sem_audio = Livro.create!(titulo: "Lua Nova", autor: "Rita", categoria: categoria, usuario_cadastro: usuario)
+    ArquivoMaterial.create!(livro: com_audio, tipo: "audio", caminho: "lua-cheia.mp3")
+    ArquivoMaterial.create!(livro: sem_audio, tipo: "texto", caminho: "lua-nova.pdf")
+
+    get api_v1_livros_url, params: { q: "lua", formato: "audio" }
+
+    assert_response :success
+    assert_equal [ com_audio.id ], JSON.parse(response.body).map { |livro| livro["id"] }
+  end
+
   test "retorna 404 quando o livro não existe" do
     get api_v1_livro_url(id: -1)
 

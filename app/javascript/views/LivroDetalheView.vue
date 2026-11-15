@@ -9,7 +9,7 @@ import EstadoVazio from '../components/ui/EstadoVazio.vue'
 import Icone from '../components/ui/Icone.vue'
 import TagFormato from '../components/ui/TagFormato.vue'
 import { chaveCategoria } from '../components/ui/categorias.js'
-import { buscarLivro, ErroApiLivros } from '../services/livros.js'
+import { buscarLivro, ErroApiLivros } from '../services/livrosService.js'
 
 const rota = useRoute()
 const livro = ref(null)

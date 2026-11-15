@@ -4,12 +4,15 @@ import AcessoView from '../views/AcessoView.vue'
 import MinhasLeiturasView from '../views/MinhasLeiturasView.vue'
 import LivroDetalheView from '../views/LivroDetalheView.vue'
 import AcervoView from '../views/AcervoView.vue'
+import AcervoPublicoView from '../views/AcervoPublicoView.vue' //importa o acervo publico
 
 // Telas que o menu e a home já apontam, mas ainda não existem.
 // Quando uma tela ficar pronta, troque o component dela aqui.
 const emBreve = () => import('../views/EmBreveView.vue')
 const telasPendentes = [
   { path: '/sobre', titulo: 'Sobre' },
+  // shortcut: acervo do visitante (links da home). Some quando a AcervoView escolher a moldura pelo login
+  // { path: '/acervo-publico', titulo: 'Acervo' }, 
   { path: '/acessibilidade', titulo: 'Acessibilidade' },
   { path: '/esqueci-senha', titulo: 'Recuperar senha' },
   // Telas da área logada: a página provisória aparece dentro do menu lateral
@@ -28,6 +31,7 @@ const routes = [
   { path: '/minhas-leituras', component: MinhasLeiturasView },
   { path: '/livros/:id', name: 'livro-detalhe', component: LivroDetalheView },
   { path: '/acervo', component: AcervoView }, // busca chega pela barra de cima: /acervo?busca=...
+  { path: '/acervo-publico', component: AcervoPublicoView }, //rota para chamar o acero publico
   ...telasPendentes,
   // Só em desenvolvimento: no build de produção o import abaixo é descartado
   ...(import.meta.env.DEV
