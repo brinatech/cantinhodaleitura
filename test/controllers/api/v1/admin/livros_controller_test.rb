@@ -10,6 +10,13 @@ class Api::V1::Admin::LivrosControllerTest < ActionDispatch::IntegrationTest
       tipo_usuario: "administrador",
       password: "password123"
     )
+    @upload = Tempfile.new([ "livro", ".pdf" ])
+    @upload.write("%PDF-1.4\n")
+    @upload.close
+  end
+
+  teardown do
+    @upload.close!
   end
 
   test "apenas administrador pode criar livro" do
@@ -27,14 +34,18 @@ class Api::V1::Admin::LivrosControllerTest < ActionDispatch::IntegrationTest
         descricao: "Descrição",
         id_categoria: @categoria.id,
         usuario_cadastro_id: @leitor.id,
-        arquivo: { tipo: "texto", caminho: "livro.pdf" }
+        arquivo: {
+          tipo: "texto",
+          arquivo: Rack::Test::UploadedFile.new(@upload.path, "application/pdf")
+        }
       }
     }
 
     assert_response :created
     livro = Livro.find(JSON.parse(response.body)["id"])
     assert_equal @administrador.id, livro.usuario_cadastro_id
-    assert_equal "livro.pdf", livro.arquivos.first.caminho
+    assert livro.arquivos.first.arquivo.attached?
+    assert_equal ".pdf", File.extname(livro.arquivos.first.arquivo.filename.to_s)
   end
 
   test "retorna 422 para livro inválido" do

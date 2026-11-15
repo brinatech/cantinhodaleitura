@@ -13,7 +13,9 @@ Rails.application.routes.draw do
       resource :perfil, only: [ :show, :update ], controller: "perfil" do
         patch :senha
       end
-      resources :livros, only: [ :index, :show ]
+      resources :livros, only: [ :index, :show ] do
+        resources :arquivos, only: :show, controller: "arquivos"
+      end
 
       namespace :admin do
         resources :livros, only: [ :index, :create, :update, :destroy ]

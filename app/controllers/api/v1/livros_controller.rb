@@ -24,10 +24,12 @@ module Api
           autor: livro.autor,
           descricao: livro.descricao,
           capa_url: livro.capa_url,
-          formatos: livro.arquivos.map do |arquivo|
+          formatos: livro.arquivos.select { |arquivo| arquivo.arquivo.attached? }.map do |arquivo|
             {
               tipo: arquivo.tipo,
-              caminho: arquivo.caminho
+              id: arquivo.id,
+              nome: arquivo.arquivo.filename.to_s,
+              url: api_v1_livro_arquivo_path(livro, arquivo)
             }
           end,
           categoria: {

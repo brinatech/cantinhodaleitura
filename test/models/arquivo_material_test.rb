@@ -24,4 +24,17 @@ class ArquivoMaterialTest < ActiveSupport::TestCase
 
     assert_not arquivo.valid?
   end
+
+  test "recusa MIME e extensão não permitidos" do
+    arquivo = ArquivoMaterial.new(livro: livros(:one), tipo: "texto")
+    arquivo.arquivo.attach(
+      io: StringIO.new("executável"),
+      filename: "livro.exe",
+      content_type: "application/x-msdownload"
+    )
+
+    assert_not arquivo.valid?
+    assert_includes arquivo.errors[:arquivo], "possui um tipo não permitido"
+    assert_includes arquivo.errors[:arquivo], "possui uma extensão não permitida"
+  end
 end
