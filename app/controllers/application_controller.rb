@@ -1,5 +1,6 @@
 class ApplicationController < ActionController::Base
   include Autenticavel
+  include AutorizacaoPerfil
 
   # Only allow modern browsers supporting webp images, web push, badges, import maps, CSS nesting, and CSS :has.
   allow_browser versions: :modern
@@ -8,17 +9,6 @@ class ApplicationController < ActionController::Base
   stale_when_importmap_changes
 
   private
-
-  def require_administrador!
-    unless current_usuario
-      exigir_autenticacao
-      return
-    end
-
-    return if current_usuario.tipo_usuario == "administrador"
-
-    render json: { erro: "Acesso restrito a administradores" }, status: :forbidden
-  end
 
   def usuario_json(usuario)
     {
