@@ -107,6 +107,7 @@ async function enviarAoServidor() {
       return
     case 'redefinir':
       await redefinirSenha(rota.query.token ?? '', senha)
+      campos.senha = '' // a senha nova não deve ficar escrita no campo do login
       return roteador.push({ path: '/entrar', query: { aviso: 'senha-redefinida' } })
   }
 }
