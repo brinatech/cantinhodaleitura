@@ -9,6 +9,10 @@ Rails.application.routes.draw do
     namespace :v1 do
       resources :usuarios, only: [ :create ]
       resource :sessao, only: [ :show, :create, :destroy ]
+      resource :recuperacao_senha, only: [ :create, :update ], controller: "recuperacoes_senha"
+      resource :perfil, only: [ :show, :update ], controller: "perfil" do
+        patch :senha
+      end
         resources :livros, only: [ :index, :show ]
     end
   end
