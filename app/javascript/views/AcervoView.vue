@@ -67,7 +67,7 @@ onMounted(carregarLivros) // quando a tela abrir, busca os livros
         </template>
       </EstadoVazio>
 
-      <CatalogoLivros v-else :livros="livros" :busca="busca" @limpar-busca="limparBusca" />
+      <CatalogoLivros v-else :livros="livros" :busca="busca" detalhe="livro-detalhe-logado" @limpar-busca="limparBusca" />
     </div>
   </LayoutLogado>
 </template>

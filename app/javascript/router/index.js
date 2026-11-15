@@ -2,6 +2,7 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import AcessoView from '../views/AcessoView.vue'
 import MinhasLeiturasView from '../views/MinhasLeiturasView.vue'
+import LivroDetalheView from '../views/LivroDetalheView.vue'
 import AcervoView from '../views/AcervoView.vue'
 import AcervoPublicoView from '../views/AcervoPublicoView.vue' //importa o acervo publico
 
@@ -28,6 +29,9 @@ const routes = [
   { path: '/entrar', component: AcessoView },
   { path: '/criar-conta', component: AcessoView },
   { path: '/minhas-leituras', component: MinhasLeiturasView },
+  { path: '/livros/:id', name: 'livro-detalhe', component: LivroDetalheView },
+  // Mesma tela, na moldura da área logada (menu lateral). O acervo logado (/acervo) leva a esta.
+  { path: '/acervo/:id', name: 'livro-detalhe-logado', component: LivroDetalheView, meta: { logada: true } },
   { path: '/acervo', component: AcervoView }, // busca chega pela barra de cima: /acervo?busca=...
   { path: '/acervo-publico', component: AcervoPublicoView }, //rota para chamar o acero publico
   ...telasPendentes,
