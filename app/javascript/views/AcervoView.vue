@@ -3,14 +3,17 @@
   A busca por texto fica na barra de cima (LayoutLogado), que manda para /acervo?busca=...;
   esta tela lê a URL e mostra os livros que combinam (HU-02, Task 2 do backlog).
   A estante (filtros + cards) é o CatalogoLivros, que também servirá ao acervo do visitante.
-  shortcut: livros de exemplo fixos, no mesmo formato do GET /api/v1/livros.
-  Trocar por livrosService.listar() quando o banco tiver livros cadastrados.
+  Os livros vêm do GET /api/v1/livros para que os IDs dos cards correspondam aos
+  registros usados pela página de detalhes.
 -->
 <script setup>
-import { computed } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import LayoutLogado from '../components/layout/LayoutLogado.vue'
 import CatalogoLivros from '../components/livros/CatalogoLivros.vue'
+import Alerta from '../components/ui/Alerta.vue'
+import Botao from '../components/ui/Botao.vue'
+import { listarLivros, ErroApiLivros } from '../services/livros.js'
 
 const rota = useRoute()
 const roteador = useRouter()
@@ -24,16 +27,30 @@ const limparBusca = () => {
   roteador.replace({ query: resto })
 }
 
-const livros = [
-  { id: 1, titulo: 'O jardim das pequenas coisas', autor: 'Clara Ribeiro', capa_url: null, categoria: { nome: 'Natureza' }, formatos: [{ tipo: 'texto' }, { tipo: 'audio' }] },
-  { id: 2, titulo: 'A menina que conversava com a Lua', autor: 'Ana Martins', capa_url: null, categoria: { nome: 'Fantasia' }, formatos: [{ tipo: 'texto' }, { tipo: 'audio' }] },
-  { id: 3, titulo: 'Caminhos de casa', autor: 'Pedro Almeida', capa_url: null, categoria: { nome: 'Aventura' }, formatos: [{ tipo: 'texto' }] },
-  { id: 4, titulo: 'O mar que mora em mim', autor: 'Luiza Costa', capa_url: null, categoria: { nome: 'Natureza' }, formatos: [{ tipo: 'texto' }, { tipo: 'audio' }] },
-  { id: 5, titulo: 'Sementes de amanhã', autor: 'Marina Santos', capa_url: null, categoria: { nome: 'Natureza' }, formatos: [{ tipo: 'texto' }] },
-  { id: 6, titulo: 'As cartas do vento', autor: 'João Oliveira', capa_url: null, categoria: { nome: 'Clássicos' }, formatos: [{ tipo: 'texto' }, { tipo: 'audio' }] },
-  { id: 7, titulo: 'O dragão que tinha medo do escuro', autor: 'Lucas Prado', capa_url: null, categoria: { nome: 'Fantasia' }, formatos: [{ tipo: 'audio' }] },
-  { id: 8, titulo: 'O mapa do quintal', autor: 'Rita Souza', capa_url: null, categoria: { nome: 'Aventura' }, formatos: [{ tipo: 'texto' }, { tipo: 'audio' }] },
-]
+const livros = ref([])
+const carregando = ref(true)
+const erro = ref(null)
+let controladorAtual = null
+
+const carregarLivros = async () => {
+  controladorAtual?.abort()
+  const controlador = new AbortController()
+  controladorAtual = controlador
+  carregando.value = true
+  erro.value = null
+
+  try {
+    livros.value = await listarLivros({ signal: controlador.signal })
+  } catch (falha) {
+    if (falha.name === 'AbortError') return
+    erro.value = falha instanceof ErroApiLivros ? falha : new Error('Não foi possível carregar o acervo.')
+  } finally {
+    if (controladorAtual === controlador) carregando.value = false
+  }
+}
+
+onMounted(carregarLivros)
+onBeforeUnmount(() => controladorAtual?.abort())
 </script>
 
 <template>
@@ -44,7 +61,16 @@ const livros = [
         <p class="acervo-subtitulo">Encontre uma história que combine com seu momento.</p>
       </header>
 
-      <CatalogoLivros :livros="livros" :busca="busca" @limpar-busca="limparBusca" />
+      <div v-if="carregando" class="acervo-estado" role="status" aria-live="polite">
+        Carregando acervo...
+      </div>
+
+      <div v-else-if="erro" class="acervo-estado">
+        <Alerta tipo="erro">Não foi possível carregar o acervo. Tente novamente.</Alerta>
+        <Botao tipo="contorno" @click="carregarLivros">Tentar novamente</Botao>
+      </div>
+
+      <CatalogoLivros v-else :livros="livros" :busca="busca" @limpar-busca="limparBusca" />
     </div>
   </LayoutLogado>
 </template>
@@ -72,5 +98,17 @@ const livros = [
 .acervo-subtitulo {
   color: var(--texto-secundario);
   font: var(--fonte-corpo);
+}
+
+.acervo-estado {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--espaco-16);
+  min-height: 180px;
+  padding: var(--espaco-32);
+  color: var(--texto-secundario);
+  font: var(--fonte-interface);
+  text-align: center;
 }
 </style>

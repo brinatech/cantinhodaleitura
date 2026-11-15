@@ -38,7 +38,7 @@ const termo = computed(() => normalizar(props.busca))
 const combinaComBusca = (livro) =>
   !termo.value ||
   normalizar(livro.titulo).includes(termo.value) ||
-  normalizar(livro.autor).includes(termo.value)
+  normalizar(livro.autor ?? '').includes(termo.value)
 
 // ===== Filtros =====
 const categoriaSelecionada = ref(null) // null = "Todas as categorias"
@@ -145,6 +145,7 @@ const textoFormato = (livro) => {
           :capa-url="livro.capa_url"
           :formato="textoFormato(livro)"
           :icone-formato="temAudio(livro) ? 'fones' : 'livro'"
+          :to="{ name: 'livro-detalhe', params: { id: livro.id } }"
         />
       </li>
     </ul>

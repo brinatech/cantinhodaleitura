@@ -26,7 +26,7 @@ const routes = [
   { path: '/entrar', component: AcessoView },
   { path: '/criar-conta', component: AcessoView },
   { path: '/minhas-leituras', component: MinhasLeiturasView },
-  { path: '/livros/:id', component: LivroDetalheView },
+  { path: '/livros/:id', name: 'livro-detalhe', component: LivroDetalheView },
   { path: '/acervo', component: AcervoView }, // busca chega pela barra de cima: /acervo?busca=...
   ...telasPendentes,
   // Só em desenvolvimento: no build de produção o import abaixo é descartado
