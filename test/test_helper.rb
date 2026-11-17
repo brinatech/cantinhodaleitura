@@ -4,8 +4,11 @@ require "rails/test_help"
 
 module ActiveSupport
   class TestCase
-    # Run tests in parallel with specified workers
-    parallelize(workers: :number_of_processors, with: :threads)
+    # Testes em sequência. Em paralelo com threads, todas usam o mesmo banco de teste
+    # e o carregamento das fixtures entra em deadlock no PostgreSQL. No Windows não
+    # há fork, então o modo :processes (um banco por worker) não está disponível.
+    # A suíte é pequena e roda em poucos segundos sem paralelismo.
+    parallelize(workers: 1)
 
     # Load fixtures in foreign-key dependency order.
     fixtures :usuarios,
