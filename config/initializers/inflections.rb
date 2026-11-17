@@ -2,6 +2,8 @@
 
 ActiveSupport::Inflector.inflections(:en) do |inflect|
 	inflect.irregular "sessao", "sessoes"
+	inflect.irregular "classificacao", "classificacoes"
+
 end
 
 # Add new inflection rules using the following format. Inflections
