@@ -61,7 +61,7 @@ function validar() {
   return !Object.values(erros).some(Boolean)
 }
 
-// O Rails devolve { campo: [mensagens] } com os nomes da API; aqui o campo de senha se chama "senha"
+// O Rails devolve { campo: [mensagens] } ou { erros: ["Email já está em uso", ...] }
 const CAMPOS_DA_API = { nome: ['nome', 'Nome'], email: ['email', 'E-mail'], password: ['senha', 'Senha'] }
 
 function mostrarErroDoServidor(erro) {
@@ -69,6 +69,22 @@ function mostrarErroDoServidor(erro) {
     avisoDoServidor.value = 'Não conseguimos conectar ao servidor. Tente de novo.'
     return
   }
+
+  // Caso 1: Rails devolveu array de mensagens completas (ex: ["Email já está em uso"])
+  if (Array.isArray(erro.erros) && erro.erros.length) {
+    const gerais = []
+    for (const msg of erro.erros) {
+      const texto = msg.toLowerCase()
+      if (texto.includes('nome')) erros.nome = msg
+      else if (texto.includes('e-mail') || texto.includes('email')) erros.email = msg
+      else if (texto.includes('senha') || texto.includes('password')) erros.senha = msg
+      else gerais.push(msg)
+    }
+    if (gerais.length) avisoDoServidor.value = gerais.join(' ')
+    return
+  }
+
+  // Caso 2: Rails devolveu objeto { campo: [mensagens] }
   const doCampo = Object.entries(erro.erros ?? {}).filter(([campo]) => CAMPOS_DA_API[campo])
   doCampo.forEach(([campo, mensagens]) => {
     const [local, rotulo] = CAMPOS_DA_API[campo]
@@ -77,7 +93,6 @@ function mostrarErroDoServidor(erro) {
   if (doCampo.length) return
 
   if (erro.status === 401) {
-    // Mesma mensagem para e-mail desconhecido e senha errada, como o servidor faz
     erros.senha = 'E-mail ou senha incorretos.'
     avisoDoServidor.value = 'Não encontramos uma conta com esses dados. Confira e tente de novo.'
   } else if (erro.erros?.token) {
