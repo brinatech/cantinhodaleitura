@@ -15,6 +15,9 @@ pt-BR:
         confirmation: "não confere com a senha"
         inclusion: "não está na lista"
         password_too_long: "é muito longa (máximo de 72 caracteres)"
+        restrict_dependent_destroy:
+          has_one: "Não é possível excluir o registro pois existe um %{record} dependente"
+          has_many: "Não é possível excluir o registro pois existem %{record} dependentes"
   errors:
     messages:
       blank: "não pode ficar em branco"

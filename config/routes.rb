@@ -18,10 +18,10 @@ Rails.application.routes.draw do
       end
 
       namespace :admin do
-          resources :livros, only: [ :index, :create, :update, :destroy ] do
+        resources :livros, only: [ :index, :create, :update, :destroy ] do
           resources :classificacoes, only: [ :index, :create, :destroy ]
         end
-
+        resources :categorias, only: [ :index, :show, :create, :update, :destroy ]
       end
     end
   end

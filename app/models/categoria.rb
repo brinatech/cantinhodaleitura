@@ -1,7 +1,11 @@
 class Categoria < ApplicationRecord
   self.table_name = "categorias"
 
-  validates :nome, presence: true, uniqueness: true
+  normalizes :nome, with: ->(nome) { nome.squish }
 
-  has_many :livros
+  validates :nome, presence: true,
+                   length: { maximum: 100 },
+                   uniqueness: { case_sensitive: false }
+
+  has_many :livros, dependent: :restrict_with_error
 end
