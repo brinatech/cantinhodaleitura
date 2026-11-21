@@ -11,6 +11,7 @@ import Alerta from '../../components/ui/Alerta.vue'
 import Botao from '../../components/ui/Botao.vue'
 import CampoFormulario from '../../components/ui/CampoFormulario.vue'
 import EstadoVazio from '../../components/ui/EstadoVazio.vue'
+import ModalConfirmacao from '../../components/ui/ModalConfirmacao.vue'
 import { ErroApi } from '../../services/api.js'
 import {
   criarCategoria,
@@ -29,6 +30,9 @@ const formulario = reactive({ nome: '', descricao: '' })
 const erros = reactive({ nome: '', descricao: '' })
 const aviso = reactive({ tipo: 'sucesso', texto: '' })
 const campoNome = ref(null)
+const modalExclusao = ref(null)
+const paraExcluir = ref(null) // categoria escolhida no botão "Excluir"
+const erroExclusao = ref('')
 
 const SEM_SERVIDOR = 'Não conseguimos conectar ao servidor. Tente de novo.'
 const ROTULOS = { nome: 'Nome', descricao: 'Descrição' }
@@ -113,25 +117,40 @@ async function salvar() {
   }
 }
 
-async function excluir(categoria) {
-  if (!window.confirm(`Excluir a categoria "${categoria.nome}"?`)) return
+// "Excluir" na lista só abre o modal; a exclusão acontece no botão do modal
+function pedirExclusao(categoria) {
   limparMensagens()
+  paraExcluir.value = categoria
+  erroExclusao.value = ''
+  modalExclusao.value.abrir()
+}
+
+async function confirmarExclusao() {
+  const categoria = paraExcluir.value
   excluindo.value = categoria.id
+  erroExclusao.value = ''
   const tirarDaLista = () => (categorias.value = categorias.value.filter((item) => item.id !== categoria.id))
   try {
     await excluirCategoria(categoria.id)
     tirarDaLista()
     if (editando.value?.id === categoria.id) limparFormulario()
     Object.assign(aviso, { tipo: 'sucesso', texto: `Categoria "${categoria.nome}" excluída.` })
-  } catch (erro) {
-    if (erro instanceof ErroApi && erro.status === 404) tirarDaLista() // alguém já tinha excluído
-    const texto =
-      erro instanceof ErroApi && erro.status === 409
-        ? `A categoria "${categoria.nome}" tem livros e não pode ser excluída. Mude esses livros de categoria antes.`
-        : mensagemDoErro(erro)
-    Object.assign(aviso, { tipo: 'erro', texto })
-  } finally {
     excluindo.value = null
+    modalExclusao.value.fechar()
+  } catch (erro) {
+    excluindo.value = null
+    if (erro instanceof ErroApi && erro.status === 404) {
+      // alguém já tinha excluído: tira da lista e avisa fora do modal
+      tirarDaLista()
+      modalExclusao.value.fechar()
+      Object.assign(aviso, { tipo: 'erro', texto: `A categoria "${categoria.nome}" já tinha sido excluída.` })
+      return
+    }
+    // 409 e outros erros ficam dentro do modal, perto de quem tentou excluir
+    erroExclusao.value =
+      erro instanceof ErroApi && erro.status === 409
+        ? 'Esta categoria tem livros e não pode ser excluída. Mude esses livros de categoria antes.'
+        : mensagemDoErro(erro)
   }
 }
 </script>
@@ -216,15 +235,30 @@ async function excluir(categoria) {
                 tipo="contorno"
                 :disabled="excluindo === categoria.id"
                 :aria-label="`Excluir ${categoria.nome}`"
-                @click="excluir(categoria)"
+                @click="pedirExclusao(categoria)"
               >
-                {{ excluindo === categoria.id ? 'Excluindo...' : 'Excluir' }}
+                Excluir
               </Botao>
             </div>
           </li>
         </ul>
       </section>
     </div>
+
+    <ModalConfirmacao
+      ref="modalExclusao"
+      titulo="Excluir categoria?"
+      texto-confirmar="Excluir"
+      texto-carregando="Excluindo..."
+      :carregando="excluindo !== null"
+      :erro="erroExclusao"
+      @confirmar="confirmarExclusao"
+      @fechado="paraExcluir = null"
+    >
+      <p v-if="paraExcluir">
+        A categoria <strong>{{ paraExcluir.nome }}</strong> será excluída. Essa ação não pode ser desfeita.
+      </p>
+    </ModalConfirmacao>
   </LayoutLogado>
 </template>
 
