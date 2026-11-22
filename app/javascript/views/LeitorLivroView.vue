@@ -13,10 +13,21 @@ import Alerta from '../components/ui/Alerta.vue'
 import Botao from '../components/ui/Botao.vue'
 import EstadoVazio from '../components/ui/EstadoVazio.vue'
 import LeitorAudio from '../components/leitor/LeitorAudio.vue'
+import ControleMarcador from '../components/leitor/ControleMarcador.vue'
 import LeitorPdf from '../components/leitor/LeitorPdf.vue'
+import { useMarcadorPagina } from '../composables/useMarcadorPagina.js'
 import { buscarLivro, ErroApiLivros } from '../services/livrosService.js'
 
 const rota = useRoute()
+
+// Marcador de página (HU-15): só para quem está logado e só no PDF
+const leitorPdf = ref(null)
+const marcador = useMarcadorPagina(() => rota.params.id)
+
+function continuarDoMarcador() {
+  leitorPdf.value?.irPara(marcador.paginaSalva.value)
+  marcador.dispensar()
+}
 const logada = computed(() => rota.meta.logada === true)
 // "Voltar" leva para a página do livro, na mesma moldura (visitante ou área logada)
 const voltarPara = computed(() => `${logada.value ? '/acervo' : '/livros'}/${rota.params.id}`)
@@ -85,6 +96,14 @@ onBeforeUnmount(() => controladorAtual?.abort())
           </div>
         </div>
 
+        <!-- Marcador (HU-15): "Você parou na página X". Fica fora da cadeia v-if abaixo, para o PDF aparecer junto -->
+        <ControleMarcador
+          v-if="texto && marcador.oferecerContinuar.value"
+          :pagina="marcador.paginaSalva.value"
+          @continuar="continuarDoMarcador"
+          @dispensar="marcador.dispensar"
+        />
+
         <EstadoVazio
           v-if="!texto && !audio"
           titulo="Livro ainda sem arquivo"
@@ -94,7 +113,14 @@ onBeforeUnmount(() => controladorAtual?.abort())
         </EstadoVazio>
 
         <!-- O PDF no centro; o audiobook, se existir, numa faixa presa embaixo da tela -->
-        <LeitorPdf v-else-if="texto" :url="texto.url" :titulo="livro.titulo">
+        <LeitorPdf
+          v-else-if="texto"
+          ref="leitorPdf"
+          :url="texto.url"
+          :titulo="livro.titulo"
+          @aberto="marcador.aoAbrirPdf"
+          @mudou-pagina="marcador.aoMudarPagina"
+        >
           <template v-if="audio" #rodape>
             <LeitorAudio
               compacto

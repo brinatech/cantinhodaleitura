@@ -7,7 +7,8 @@
 
   O endereço é o da API com ?modo=leitura. O link do arquivo vale 5 minutos, por isso
   o PDF é baixado inteiro de uma vez (sem pedaços), com a barra de progresso.
-  Saber a página atual também prepara o marcador de página (HU-15).
+  Marcador de página (HU-15): avisa "aberto" (total de páginas) e "mudou-pagina" (só quando a
+  pessoa troca de página, não ao abrir), e quem usa pode chamar irPara(n) pelo ref.
 -->
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref, shallowRef, watch } from 'vue'
@@ -25,6 +26,8 @@ const props = defineProps({
   url: { type: String, required: true }, // /api/v1/livros/:id/arquivos/:id
   titulo: { type: String, required: true },
 })
+
+const emit = defineEmits(['aberto', 'mudou-pagina'])
 
 const ZOOM_MINIMO = 0.5
 const ZOOM_MAXIMO = 3
@@ -111,6 +114,7 @@ async function carregar() {
     const pdf = await tarefaCarregar.promise
     documento.value = pdf
     totalPaginas.value = pdf.numPages
+    emit('aberto', pdf.numPages)
   } catch (falha) {
     if (falha?.name === 'AbortException') return // a pessoa saiu da tela antes de terminar
     erro.value = 'Não foi possível abrir este livro. Tente de novo ou baixe o PDF.'
@@ -179,7 +183,11 @@ function irPara(numero) {
   proximaTransicao = destino > pagina.value ? 'frente' : 'tras'
   pagina.value = destino
   area.value?.scrollTo({ top: 0, left: 0 })
+  emit('mudou-pagina', destino)
 }
+
+// O marcador (HU-15) usa para "Continuar da página X"
+defineExpose({ irPara })
 
 // Celular: deslizar o dedo para o lado troca de página (só sem zoom, porque com zoom o dedo arrasta a página)
 let toqueInicial = null
