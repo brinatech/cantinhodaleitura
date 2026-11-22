@@ -5,7 +5,7 @@ module Api
         before_action :exigir_administrador!, only: [ :create, :update, :destroy ]
 
         def index
-          render json: Livro.includes(:categoria, :arquivos).map { |livro| livro_json(livro) }
+          render json: Livro.includes(:categoria, :arquivos).with_attached_capa.map { |livro| livro_json(livro) }
         end
 
         def create
@@ -58,7 +58,8 @@ module Api
         private
 
         def livro_attributes
-          attributes = params.require(:livro).permit(:titulo, :autor, :descricao, :id_categoria)
+          # capa: imagem opcional; só troca a capa quando vem uma nova
+          attributes = params.require(:livro).permit(:titulo, :autor, :descricao, :id_categoria, :capa)
           attributes[:categoria_id] = attributes.delete(:id_categoria)
           attributes
         end
@@ -80,6 +81,7 @@ module Api
             autor: livro.autor,
             descricao: livro.descricao,
             id_categoria: livro.categoria_id,
+            capa_url: capa_url_de(livro),
             arquivos: livro.arquivos.filter_map do |arquivo|
               next unless arquivo.arquivo.attached?
 

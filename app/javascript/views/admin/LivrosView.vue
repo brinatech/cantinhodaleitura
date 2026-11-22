@@ -29,7 +29,7 @@ const paraExcluir = ref(null) // livro escolhido no botão "Excluir"
 const excluindo = ref(false)
 const erroExclusao = ref('')
 
-const ROTULOS = { titulo: 'Título', autor: 'Autor', descricao: 'Descrição', categoria: 'Categoria', arquivo: 'Arquivo' }
+const ROTULOS = { titulo: 'Título', autor: 'Autor', descricao: 'Descrição', categoria: 'Categoria', capa: 'Capa', arquivo: 'Arquivo' }
 
 
 const SEM_SERVIDOR = 'Não conseguimos conectar ao servidor. Tente de novo.'
@@ -96,7 +96,8 @@ async function salvar(dados) {
             : await criarLivro({ ...dados, ...primeiro })
 
         // 2º envio: só se escolheu os dois arquivos. Manda o áudio para o mesmo livro.
-        if (segundo) livro = await editarLivro(livro.id, { ...dados, ...segundo })
+        // A capa já foi no 1º envio: não manda a mesma imagem de novo.
+        if (segundo) livro = await editarLivro(livro.id, { ...dados, ...segundo, capa: null })
 
         Object.assign(aviso, { tipo: 'sucesso', texto: `Livro "${livro.titulo}" ${livroEditado ? 'atualizado' : 'cadastrado'}.` })
     } catch (erro) {
@@ -215,6 +216,9 @@ onMounted(carregar)
 
                 <ul v-else class="lista">
                     <li v-for="livro in livrosOrdenados" :key="livro.id" class="item">
+                        <div class="item-capa" aria-hidden="true">
+                            <img v-if="livro.capa_url" :src="livro.capa_url" alt="">
+                        </div>
                         <div class="item-texto">
                             <span class="item-nome">{{ livro.titulo }}</span>
                             <span class="item-descricao">
@@ -334,9 +338,26 @@ onMounted(carregar)
 
 .item-texto {
     display: flex;
+    flex: 1;
     flex-direction: column;
     gap: var(--espaco-4);
     min-width: 0;
+}
+
+/* Miniatura da capa; sem capa, fica só o fundo (como os cards do acervo) */
+.item-capa {
+    flex-shrink: 0;
+    width: 48px;
+    height: 64px;
+    overflow: hidden;
+    border-radius: var(--raio-8);
+    background: var(--fundo-suave);
+}
+
+.item-capa img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .item-nome {

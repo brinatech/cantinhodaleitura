@@ -7,12 +7,14 @@ const CAMINHO = '/api/v1/admin/livros'
 const caminhoDe = (id) => `${CAMINHO}/${encodeURIComponent(id)}`
 
 // Monta a "caixa" no formato que o Rails espera: livro[titulo], livro[arquivo][tipo]...
-function montarFormulario({ titulo, autor, descricao, idCategoria, tipoArquivo, arquivo }) {
+function montarFormulario({ titulo, autor, descricao, idCategoria, capa, tipoArquivo, arquivo }) {
   const dados = new FormData()
   dados.append('livro[titulo]', titulo)
   dados.append('livro[autor]', autor)
   dados.append('livro[descricao]', descricao)
   dados.append('livro[id_categoria]', idCategoria)
+  // Capa opcional: só vai quando a pessoa escolheu uma imagem (na edição, sem ela a capa atual fica)
+  if (capa) dados.append('livro[capa]', capa)
   // Na edição o arquivo é opcional: só vai na caixa se a pessoa escolheu um novo
   if (arquivo) {
     dados.append('livro[arquivo][tipo]', tipoArquivo)
