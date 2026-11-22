@@ -32,6 +32,7 @@ Rails.application.routes.draw do
           resources :classificacoes, only: [ :index, :create, :destroy ]
         end
         resources :categorias, only: [ :index, :show, :create, :update, :destroy ]
+        get "relatorios/resumo", to: "relatorios#resumo"
       end
     end
   end
