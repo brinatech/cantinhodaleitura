@@ -10,10 +10,11 @@ class Api::V1::ArquivosControllerTest < ActionDispatch::IntegrationTest
     @arquivo.save!
   end
 
-  test "exige autenticação para baixar arquivo" do
-    get api_v1_livro_arquivo_url(@livro, @arquivo)
+  test "visitante (sem login) consegue abrir o arquivo" do
+    get api_v1_livro_arquivo_url(@livro, @arquivo, modo: "leitura")
 
-    assert_response :unauthorized
+    assert_response :redirect
+    assert_includes response.location, "/rails/active_storage/blobs/"
   end
 
   test "redireciona usuário autenticado para URL assinada do arquivo" do
@@ -22,5 +23,55 @@ class Api::V1::ArquivosControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :redirect
     assert_includes response.location, "/rails/active_storage/blobs/"
+  end
+
+  test "sem modo, o arquivo é baixado" do
+    entrar
+    get api_v1_livro_arquivo_url(@livro, @arquivo)
+
+    assert_response :redirect
+    assert_includes response.location, "disposition=attachment"
+  end
+
+  test "no modo leitura, o arquivo abre no navegador" do
+    entrar
+    get api_v1_livro_arquivo_url(@livro, @arquivo, modo: "leitura")
+
+    assert_response :redirect
+    assert_includes response.location, "disposition=inline"
+  end
+
+  test "o link do arquivo vale por 5 minutos" do
+    entrar
+    get api_v1_livro_arquivo_url(@livro, @arquivo, modo: "leitura")
+    link = response.location
+
+    # Dentro do prazo: o Active Storage aceita o link e leva até o arquivo
+    travel 4.minutes do
+      get link
+      assert_response :redirect
+    end
+
+    # Depois do prazo: o link venceu
+    travel 6.minutes do
+      get link
+      assert_response :not_found
+    end
+  end
+
+  test "responde 404 para arquivo que não é do livro" do
+    outro_livro = Livro.create!(titulo: "Outro livro", categoria: @categoria, usuario_cadastro: @usuario)
+    entrar
+    get api_v1_livro_arquivo_url(outro_livro, @arquivo)
+
+    assert_response :not_found
+    assert_equal "Arquivo não encontrado", JSON.parse(response.body)["erro"]
+  end
+
+  private
+
+  def entrar
+    post api_v1_sessao_url, params: { email: @usuario.email, password: "password123" }
+    assert_response :success
   end
 end

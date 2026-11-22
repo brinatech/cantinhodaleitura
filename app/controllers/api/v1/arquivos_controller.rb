@@ -1,14 +1,27 @@
 module Api
   module V1
     class ArquivosController < ApplicationController
-      before_action :exigir_autenticacao
+      # Quanto tempo o link do arquivo vale. Depois disso, é preciso pedir de novo (e passar pelo login).
+      VALIDADE_DO_LINK = 5.minutes
+
+      # Sem login: pelo backlog, visitantes podem abrir os materiais públicos (premissas e HU-10).
+      # A restrição de livros por idade ou perfil fica para a HU-11 (acesso_service).
+      # Cadastrar livro continua só para admin (admin/livros_controller).
       before_action :carregar_arquivo
 
+      # GET /api/v1/livros/:livro_id/arquivos/:id               → baixa o arquivo
+      # GET /api/v1/livros/:livro_id/arquivos/:id?modo=leitura  → abre no navegador (para ler ou ouvir)
       def show
-        redirect_to rails_blob_url(@arquivo.arquivo, disposition: "attachment"), allow_other_host: true
+        redirect_to rails_blob_url(@arquivo.arquivo, disposition: disposicao, expires_in: VALIDADE_DO_LINK),
+                    allow_other_host: true
       end
 
       private
+
+      # inline = abre no navegador; attachment = baixa
+      def disposicao
+        params[:modo] == "leitura" ? "inline" : "attachment"
+      end
 
       def carregar_arquivo
         @arquivo = ArquivoMaterial.find_by!(livro_id: params[:livro_id], id: params[:id])
