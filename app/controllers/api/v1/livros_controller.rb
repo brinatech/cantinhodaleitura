@@ -9,6 +9,8 @@ module Api
 
       def show
         livro = Livro.includes(:categoria, :arquivos, :classificacoes).find(params[:id])
+        # HU-10 Task 3: abrir a página do livro conta como "visualizacao"
+        RegistrarAcesso.call(livro: livro, tipo: "visualizacao", usuario: current_usuario, sessao: session)
 
         render json: livro_json(livro)
       rescue ActiveRecord::RecordNotFound

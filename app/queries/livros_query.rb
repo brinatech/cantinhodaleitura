@@ -3,7 +3,14 @@
 class LivrosQuery
   ORDENACOES = {
     "titulo" => { titulo: :asc },
-    "recentes" => { created_at: :desc }
+    "recentes" => { created_at: :desc },
+    # Livros em destaque da home: os com mais leituras (HU-10 Task 3); empate (ou nenhuma leitura ainda),
+    # os mais recentes. SQL fixo, sem nada vindo do usuário.
+    "mais_lidos" => Arel.sql(<<~SQL.squish)
+      (SELECT COUNT(*) FROM acesso_materials
+        WHERE acesso_materials.livro_id = livros.id AND acesso_materials.tipo_acesso = 'leitura') DESC,
+      livros.created_at DESC
+    SQL
   }.freeze
 
   def initialize(params)

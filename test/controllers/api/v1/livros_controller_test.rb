@@ -164,10 +164,28 @@ class Api::V1::LivrosControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "retorna 404 quando o livro não existe" do
-    get api_v1_livro_url(id: -1)
+    assert_no_difference "AcessoMaterial.count" do
+      get api_v1_livro_url(id: -1)
+    end
 
     assert_response :not_found
     assert_equal "Livro não encontrado", JSON.parse(response.body)["erro"]
+  end
+
+  test "abrir a página do livro registra uma visualização (uma vez só se recarregar)" do
+    livro = livros(:one)
+
+    assert_difference "AcessoMaterial.where(tipo_acesso: 'visualizacao', livro: livro).count", 1 do
+      get api_v1_livro_url(livro)
+      get api_v1_livro_url(livro) # F5
+    end
+    assert_response :success
+  end
+
+  test "a lista de livros não registra acessos" do
+    assert_no_difference "AcessoMaterial.count" do
+      get api_v1_livros_url
+    end
   end
 
   test "capa enviada pelo admin vira o capa_url" do

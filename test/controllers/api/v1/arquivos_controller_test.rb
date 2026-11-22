@@ -68,6 +68,37 @@ class Api::V1::ArquivosControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Arquivo não encontrado", JSON.parse(response.body)["erro"]
   end
 
+  # ===== HU-10 Task 3: registro dos acessos =====
+
+  test "abrir para ler registra uma leitura do usuário logado, uma vez só na mesma sessão" do
+    entrar
+
+    assert_difference "AcessoMaterial.where(tipo_acesso: 'leitura').count", 1 do
+      get api_v1_livro_arquivo_url(@livro, @arquivo, modo: "leitura")
+      get api_v1_livro_arquivo_url(@livro, @arquivo, modo: "leitura", v: 2) # o player renovando o link
+    end
+
+    acesso = AcessoMaterial.last
+    assert_equal @livro, acesso.livro
+    assert_equal @usuario, acesso.usuario
+  end
+
+  test "baixar registra um download; visitante fica sem usuário" do
+    assert_difference "AcessoMaterial.where(tipo_acesso: 'download').count", 1 do
+      get api_v1_livro_arquivo_url(@livro, @arquivo)
+    end
+
+    assert_nil AcessoMaterial.last.usuario
+  end
+
+  test "arquivo que não existe não registra nada" do
+    outro_livro = Livro.create!(titulo: "Outro livro", categoria: @categoria, usuario_cadastro: @usuario)
+
+    assert_no_difference "AcessoMaterial.count" do
+      get api_v1_livro_arquivo_url(outro_livro, @arquivo, modo: "leitura")
+    end
+  end
+
   private
 
   def entrar
