@@ -68,6 +68,34 @@ class Api::V1::Admin::LivrosControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Livro não encontrado", JSON.parse(response.body)["erro"]
   end
 
+    test "visitante não acessa a listagem administrativa" do
+    get api_v1_admin_livros_url
+
+    assert_response :unauthorized
+  end
+
+  test "leitor não acessa a listagem administrativa" do
+    entrar_com(@leitor)
+    get api_v1_admin_livros_url
+
+    assert_response :forbidden
+  end
+
+    test "leitor não altera nem exclui livro" do
+    livro = livros(:one)
+    entrar_com(@leitor)
+
+    patch api_v1_admin_livro_url(livro), params: { livro: { titulo: "Alterado" } }
+    assert_response :forbidden
+
+    delete api_v1_admin_livro_url(livro)
+    assert_response :forbidden
+
+    assert_equal livro.titulo, livro.reload.titulo
+  end
+
+
+
   private
 
   def entrar_com(usuario)

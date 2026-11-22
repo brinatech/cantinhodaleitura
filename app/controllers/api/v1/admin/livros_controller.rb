@@ -2,7 +2,7 @@ module Api
   module V1
     module Admin
       class LivrosController < ApplicationController
-        before_action :exigir_administrador!, only: [ :create, :update, :destroy ]
+          before_action :exigir_administrador!
 
         def index
           render json: Livro.includes(:categoria, :arquivos).map { |livro| livro_json(livro) }
