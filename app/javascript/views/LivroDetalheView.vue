@@ -5,6 +5,7 @@ import LayoutLogado from '../components/layout/LayoutLogado.vue'
 import MenuSuperior from '../components/layout/MenuSuperior.vue'
 import Rodape from '../components/layout/Rodape.vue'
 import BotaoFavorito from '../components/livros/BotaoFavorito.vue'
+import BotaoAdicionarLista from '../components/listas/BotaoAdicionarLista.vue'
 import Alerta from '../components/ui/Alerta.vue'
 import Botao from '../components/ui/Botao.vue'
 import EstadoVazio from '../components/ui/EstadoVazio.vue'
@@ -124,6 +125,8 @@ onBeforeUnmount(() => controladorAtual?.abort())
                 Ler o livro
               </Botao>
               <BotaoFavorito v-if="auth.usuario" :livro-id="livro.id" :titulo="livro.titulo" />
+              <!-- Listas de leitura (HU-13): só para quem está logado -->
+              <BotaoAdicionarLista v-if="auth.usuario" :livro-id="livro.id" :titulo="livro.titulo" />
             </div>
 
             <Botao v-if="administrador" class="livro-admin" tipo="contorno" :to="`/admin/livros/${livro.id}/classificacoes`">

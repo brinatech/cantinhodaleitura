@@ -22,6 +22,10 @@ Rails.application.routes.draw do
       resources :marcadores_pagina, only: [ :show, :update ], param: :livro_id, controller: "marcadores_pagina"
       # Histórico de quem está logado: GET /historico (lista) e o leitor avisa a página lida em PUT /historico/:livro_id
       resources :historico, only: [ :index, :update ], param: :livro_id, controller: "historico"
+      # Listas de leitura de quem está logado, e os livros de cada uma (/listas_leitura/:id/livros/:livro_id)
+      resources :listas_leitura, only: [ :index, :show, :create, :update, :destroy ], controller: "listas_leitura" do
+        resources :livros, only: [ :create, :destroy ], param: :livro_id, controller: "lista_leitura_livros"
+      end
 
       namespace :admin do
         resources :livros, only: [ :index, :create, :update, :destroy ] do
