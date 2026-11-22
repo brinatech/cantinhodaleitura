@@ -29,7 +29,10 @@ const principais = [
 // Só aparece para administrador (conveniência: quem protege é o Rails)
 const administracao = computed(() =>
   auth.usuario?.tipo_usuario === 'administrador'
-    ? [{ texto: 'Categorias', to: '/admin/categorias', icone: 'marcador' }]
+    ? [
+        { texto: 'Livros', to: '/admin/livros', icone: 'livro' },
+        { texto: 'Categorias', to: '/admin/categorias', icone: 'marcador' },
+      ]
     : [],
 )
 const secundarios = [
@@ -73,7 +76,8 @@ const painel = ref(null)
 
         <template v-if="administracao.length">
           <p class="lateral-rotulo lateral-rotulo--secao">Administração</p>
-          <ItemMenuLateral v-for="item in administracao" :key="item.to" :to="item.to" :icone="item.icone" :ativo="rota.path === item.to">
+          <!-- startsWith: "Livros" continua destacado em /admin/livros/:id/classificacoes -->
+          <ItemMenuLateral v-for="item in administracao" :key="item.to" :to="item.to" :icone="item.icone" :ativo="rota.path.startsWith(item.to)">
             {{ item.texto }}
           </ItemMenuLateral>
         </template>

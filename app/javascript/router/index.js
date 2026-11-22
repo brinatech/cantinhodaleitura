@@ -44,6 +44,11 @@ const routes = [
     component: () => import('../views/admin/ClassificacoesLivroView.vue'),
     meta: { logada: true, admin: true },
   },
+    {
+    path: '/admin/livros',
+    component: () => import('../views/admin/LivrosView.vue'),
+    meta: { logada: true, admin: true },
+  },
   {
     path: '/admin/categorias',
     component: () => import('../views/admin/CategoriasView.vue'),
