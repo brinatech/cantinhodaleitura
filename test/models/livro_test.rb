@@ -5,6 +5,6 @@ class LivroTest < ActiveSupport::TestCase
     livro = Livro.new(categoria: categorias(:one), usuario_cadastro: usuarios(:one))
 
     assert_not livro.valid?
-    assert_includes livro.errors[:titulo], "can't be blank"
+    assert_includes livro.errors[:titulo], "não pode ficar em branco"
   end
 end
