@@ -16,6 +16,8 @@ Rails.application.routes.draw do
       resources :livros, only: [ :index, :show ] do
         resources :arquivos, only: :show, controller: "arquivos"
       end
+      # Favoritos de quem está logado. O DELETE usa o número do livro: /favoritos/:livro_id
+      resources :favoritos, only: [ :index, :create, :destroy ], param: :livro_id
 
       namespace :admin do
         resources :livros, only: [ :index, :create, :update, :destroy ] do
