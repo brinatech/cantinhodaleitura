@@ -28,6 +28,12 @@ const principais = [
   { texto: 'Listas de leitura', to: '/listas-de-leitura', icone: 'lista' },
   { texto: 'Histórico', to: '/historico', icone: 'historico' },
 ]
+// Só aparece para administrador (conveniência: quem protege é o Rails)
+const administracao = computed(() =>
+  auth.usuario?.tipo_usuario === 'administrador'
+    ? [{ texto: 'Categorias', to: '/admin/categorias', icone: 'marcador' }]
+    : [],
+)
 const secundarios = [
   { texto: 'Meu perfil', to: '/meu-perfil', icone: 'usuario' },
   { texto: 'Sobre o projeto', to: '/sobre', icone: 'info' },
@@ -66,6 +72,13 @@ const painel = ref(null)
         <ItemMenuLateral v-for="item in principais" :key="item.to" :to="item.to" :icone="item.icone" :ativo="rota.path === item.to">
           {{ item.texto }}
         </ItemMenuLateral>
+
+        <template v-if="administracao.length">
+          <p class="lateral-rotulo lateral-rotulo--secao">Administração</p>
+          <ItemMenuLateral v-for="item in administracao" :key="item.to" :to="item.to" :icone="item.icone" :ativo="rota.path === item.to">
+            {{ item.texto }}
+          </ItemMenuLateral>
+        </template>
 
         <hr class="lateral-divisor">
 
@@ -171,6 +184,10 @@ const painel = ref(null)
   font: var(--fonte-rotulo);
   letter-spacing: var(--letras-rotulo);
   text-transform: uppercase;
+}
+
+.lateral-rotulo--secao {
+  padding-top: var(--espaco-16);
 }
 
 /* Separa o grupo de baixo (perfil, sobre, sair): empurra para o fim do menu */

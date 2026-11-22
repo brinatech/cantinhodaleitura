@@ -44,6 +44,11 @@ const routes = [
     component: () => import('../views/admin/ClassificacoesLivroView.vue'),
     meta: { logada: true, admin: true },
   },
+  {
+    path: '/admin/categorias',
+    component: () => import('../views/admin/CategoriasView.vue'),
+    meta: { logada: true, admin: true },
+  },
   ...telasPendentes,
   // Só em desenvolvimento: no build de produção o import abaixo é descartado
   ...(import.meta.env.DEV
