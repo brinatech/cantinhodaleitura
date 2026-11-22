@@ -18,6 +18,8 @@ import logo from '../../images/logo-header.png'
 
 const auth = useAuthStore()
 const leitor = computed(() => ({ nome: auth.usuario?.nome ?? '' }))
+// Só para o admin saber que está com poderes extras; quem protege as ações é o Rails
+const administrador = computed(() => auth.usuario?.tipo_usuario === 'administrador')
 
 const principais = [
   { texto: 'Minhas leituras', to: '/minhas-leituras', icone: 'livro' },
@@ -96,9 +98,12 @@ const painel = ref(null)
           <span class="barra-acessibilidade-texto">Acessibilidade</span>
         </Botao>
 
-        <RouterLink class="perfil" to="/meu-perfil" :aria-label="`Meu perfil, ${leitor.nome}`">
+        <RouterLink class="perfil" to="/meu-perfil" :aria-label="`Meu perfil, ${leitor.nome}${administrador ? ', administrador' : ''}`">
           <span class="perfil-avatar" aria-hidden="true">{{ leitor.nome[0] }}</span>
-          <span class="perfil-nome">{{ leitor.nome }}</span>
+          <span class="perfil-textos">
+            <span class="perfil-nome">{{ leitor.nome }}</span>
+            <span v-if="administrador" class="perfil-papel">Administrador</span>
+          </span>
           <Icone class="perfil-seta" nome="seta-baixo" :tamanho="18" />
         </RouterLink>
       </header>
@@ -239,6 +244,18 @@ const painel = ref(null)
   outline-offset: 2px;
 }
 
+/* Nome em cima e, para o admin, o papel menor embaixo */
+.perfil-textos {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.perfil-papel {
+  color: var(--texto-secundario);
+  font: var(--fonte-legenda);
+}
+
 .perfil-avatar {
   display: inline-flex;
   align-items: center;
@@ -301,7 +318,7 @@ const painel = ref(null)
 
   /* Acessibilidade e perfil só com o ícone/avatar; o nome continua para leitores de tela */
   .barra-acessibilidade-texto,
-  .perfil-nome {
+  .perfil-textos {
     position: absolute;
     width: 1px;
     height: 1px;
