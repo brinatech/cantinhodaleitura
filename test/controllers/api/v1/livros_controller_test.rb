@@ -132,7 +132,11 @@ class Api::V1::LivrosControllerTest < ActionDispatch::IntegrationTest
       categoria: categoria,
       usuario_cadastro: usuario
     )
-    classificacao = Classificacao.create!(livro: livro, tipo: "acessibilidade", nome: nil, descricao: nil)
+            # Simula um registro antigo, de antes da validação de nome
+    classificacao = Classificacao.new(livro: livro, tipo: "acessibilidade", nome: nil, descricao: nil)
+    classificacao.save!(validate: false)
+
+
 
     get api_v1_livro_url(livro)
 
