@@ -4,6 +4,7 @@ import { useRoute } from 'vue-router'
 import LayoutLogado from '../components/layout/LayoutLogado.vue'
 import MenuSuperior from '../components/layout/MenuSuperior.vue'
 import Rodape from '../components/layout/Rodape.vue'
+import BotaoFavorito from '../components/livros/BotaoFavorito.vue'
 import Alerta from '../components/ui/Alerta.vue'
 import Botao from '../components/ui/Botao.vue'
 import EstadoVazio from '../components/ui/EstadoVazio.vue'
@@ -115,12 +116,14 @@ onBeforeUnmount(() => controladorAtual?.abort())
             </div>
 
             <!-- Ler (HU-10 Task 4): abre a tela de leitura, também para visitantes.
-                 Se o livro tiver audiobook, o player aparece lá, embaixo do PDF. -->
-            <div v-if="temTexto" class="livro-acoes">
-              <Botao :to="leitura">
+                 Se o livro tiver audiobook, o player aparece lá, embaixo do PDF.
+                 Favoritar (HU-12 Task 3): só para quem está logado. -->
+            <div v-if="temTexto || auth.usuario" class="livro-acoes">
+              <Botao v-if="temTexto" :to="leitura">
                 <template #icone><Icone nome="livro" /></template>
                 Ler o livro
               </Botao>
+              <BotaoFavorito v-if="auth.usuario" :livro-id="livro.id" :titulo="livro.titulo" />
             </div>
 
             <Botao v-if="administrador" class="livro-admin" tipo="contorno" :to="`/admin/livros/${livro.id}/classificacoes`">
@@ -234,6 +237,7 @@ onBeforeUnmount(() => controladorAtual?.abort())
 .livro-acoes {
   display: flex;
   flex-wrap: wrap;
+  align-items: flex-start; /* o aviso de erro do favorito não estica o botão "Ler" */
   gap: var(--espaco-12);
   margin-top: var(--espaco-8);
 }

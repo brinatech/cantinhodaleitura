@@ -10,12 +10,15 @@
 -->
 <script setup>
 import { computed, ref } from 'vue'
+import Alerta from '../ui/Alerta.vue'
 import Botao from '../ui/Botao.vue'
 import CardLivro from '../ui/CardLivro.vue'
 import ChipFiltro from '../ui/ChipFiltro.vue'
 import EstadoVazio from '../ui/EstadoVazio.vue'
 import Icone from '../ui/Icone.vue'
 import { chaveCategoria } from '../ui/categorias.js'
+import { useFavoritar } from '../../composables/useFavoritar.js'
+import { useAuthStore } from '../../stores/auth.js'
 
 const props = defineProps({
   livros: { type: Array, required: true },
@@ -24,6 +27,11 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['limpar-busca'])
+
+// ===== Favoritos (coração dos cards) =====
+// Só quem tem conta vê o coração: visitante não guarda favoritos (backlog, HU-12)
+const auth = useAuthStore()
+const { alternar: alternarFavorito, erro: erroFavorito, aviso: avisoFavorito, ehFavorito, estaPendente } = useFavoritar()
 
 // ===== Busca =====
 // Tira acentos e deixa minúsculo: "Dragão" → "dragao". Assim "joao" acha "João".
@@ -137,6 +145,9 @@ const textoFormato = (livro) => {
       </Botao>
     </div>
 
+    <p class="so-leitor" role="status">{{ avisoFavorito }}</p>
+    <Alerta v-if="erroFavorito" tipo="erro">{{ erroFavorito }}</Alerta>
+
     <ul v-if="livrosFiltrados.length" class="catalogo-grade">
       <li v-for="livro in livrosFiltrados" :key="livro.id">
         <CardLivro
@@ -147,6 +158,10 @@ const textoFormato = (livro) => {
           :formato="textoFormato(livro)"
           :icone-formato="temAudio(livro) ? 'fones' : 'livro'"
           :to="{ name: detalhe, params: { id: livro.id } }"
+          :mostrar-favoritar="Boolean(auth.usuario)"
+          :favorito="ehFavorito(livro.id)"
+          :favoritando="estaPendente(livro.id)"
+          @favoritar="alternarFavorito(livro.id, livro.titulo)"
         />
       </li>
     </ul>

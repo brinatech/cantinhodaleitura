@@ -17,7 +17,6 @@ const telasPendentes = [
   // { path: '/acervo-publico', titulo: 'Acervo' }, 
   { path: '/acessibilidade', titulo: 'Acessibilidade' },
   // Telas da área logada: a página provisória aparece dentro do menu lateral
-  { path: '/favoritos', titulo: 'Favoritos', logada: true },
   { path: '/listas-de-leitura', titulo: 'Listas de leitura', logada: true },
   { path: '/historico', titulo: 'Histórico', logada: true },
 ].map(({ path, titulo, logada }) => ({ path, component: emBreve, meta: { titulo, logada } }))
@@ -33,6 +32,7 @@ const routes = [
   { path: '/redefinir-senha', component: AcessoView },
   { path: '/minhas-leituras', component: MinhasLeiturasView, meta: { logada: true } },
   { path: '/meu-perfil', component: MeuPerfilView, meta: { logada: true } },
+  { path: '/favoritos', component: () => import('../views/FavoritosView.vue'), meta: { logada: true } },
   { path: '/livros/:id', name: 'livro-detalhe', component: LivroDetalheView },
   // Mesma tela, na moldura da área logada (menu lateral). O acervo logado (/acervo) leva a esta.
   { path: '/acervo/:id', name: 'livro-detalhe-logado', component: LivroDetalheView, meta: { logada: true } },
