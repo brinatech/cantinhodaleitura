@@ -4,6 +4,7 @@ import { useRoute } from 'vue-router'
 import LayoutLogado from '../components/layout/LayoutLogado.vue'
 import MenuSuperior from '../components/layout/MenuSuperior.vue'
 import Rodape from '../components/layout/Rodape.vue'
+import BotaoFavorito from '../components/livros/BotaoFavorito.vue'
 import Alerta from '../components/ui/Alerta.vue'
 import Botao from '../components/ui/Botao.vue'
 import EstadoVazio from '../components/ui/EstadoVazio.vue'
@@ -109,6 +110,8 @@ onBeforeUnmount(() => controladorAtual?.abort())
                 {{ textoFormato(formato.tipo) }}
               </TagFormato>
             </div>
+
+            <BotaoFavorito v-if="auth.usuario" class="livro-favorito" :livro-id="livro.id" :titulo="livro.titulo" />
 
             <Botao v-if="administrador" class="livro-admin" tipo="contorno" :to="`/admin/livros/${livro.id}/classificacoes`">
               Editar classificações
@@ -218,6 +221,7 @@ onBeforeUnmount(() => controladorAtual?.abort())
   margin-top: var(--espaco-8);
 }
 
+.livro-favorito,
 .livro-admin {
   margin-top: var(--espaco-8);
 }

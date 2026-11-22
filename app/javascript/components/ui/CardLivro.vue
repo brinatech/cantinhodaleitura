@@ -3,7 +3,8 @@
   A categoria (nome como vem da API, ex.: "Fantasia") define a cor provisória da
   capa e o selo de categoria. Com "capaUrl" a imagem da capa substitui a cor.
   Título com até 2 linhas. O título é o link do card (com "to") e o clique vale
-  para o card inteiro; o coração (favoritar) é um botão à parte.
+  para o card inteiro; o coração (favoritar) é um botão à parte. O card só mostra
+  o estado ("favorito", "favoritando") e avisa o clique: quem usa chama a API.
   O estado Foco do Figma aparece quando o link do título recebe foco do teclado.
 -->
 <script setup>
@@ -23,6 +24,8 @@ const props = defineProps({
   to: { type: [String, Object], default: null },
   mostrarCategoria: { type: Boolean, default: true },
   mostrarFavoritar: { type: Boolean, default: true },
+  favorito: { type: Boolean, default: false }, // coração cheio
+  favoritando: { type: Boolean, default: false }, // pedido a caminho: o coração fica travado
 })
 
 defineEmits(['favoritar'])
@@ -48,7 +51,10 @@ const rotuloCategoria = computed(() => props.categoria || 'Diversos')
         v-if="mostrarFavoritar"
         type="button"
         class="card-favoritar"
+        :class="{ 'card-favoritar--ativo': favorito }"
         :aria-label="`Favoritar ${titulo}`"
+        :aria-pressed="favorito ? 'true' : 'false'"
+        :disabled="favoritando"
         @click="$emit('favoritar')"
       >
         <Icone nome="coracao" :tamanho="20" />
@@ -163,6 +169,19 @@ const rotuloCategoria = computed(() => props.categoria || 'Diversos')
 .card-favoritar:focus-visible {
   outline: 3px solid var(--borda-foco);
   outline-offset: 2px;
+}
+
+.card-favoritar:disabled {
+  cursor: wait;
+}
+
+/* Favorito: coração cheio em coral */
+.card-favoritar--ativo {
+  color: var(--apoio-coral);
+}
+
+.card-favoritar--ativo :deep(path) {
+  fill: currentColor;
 }
 
 /* ===== Informações ===== */
