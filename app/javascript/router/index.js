@@ -36,6 +36,14 @@ const routes = [
   { path: '/livros/:id', name: 'livro-detalhe', component: LivroDetalheView },
   // Mesma tela, na moldura da área logada (menu lateral). O acervo logado (/acervo) leva a esta.
   { path: '/acervo/:id', name: 'livro-detalhe-logado', component: LivroDetalheView, meta: { logada: true } },
+  // Leitura do livro (HU-10 Task 4): a do visitante e a da área logada, como o detalhe
+  { path: '/livros/:id/ler', name: 'livro-leitura', component: () => import('../views/LeitorLivroView.vue') },
+  {
+    path: '/acervo/:id/ler',
+    name: 'livro-leitura-logado',
+    component: () => import('../views/LeitorLivroView.vue'),
+    meta: { logada: true },
+  },
   { path: '/acervo', component: AcervoView, meta: { logada: true } }, // busca chega pela barra de cima: /acervo?busca=...
   { path: '/acervo-publico', component: AcervoPublicoView }, //rota para chamar o acero publico
   // Área admin (provisória até a tela admin de livros, HU-07 Task 4)

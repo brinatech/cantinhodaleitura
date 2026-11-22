@@ -34,6 +34,10 @@ const formatos = computed(() => (Array.isArray(livro.value?.formatos)
   ? livro.value.formatos.filter((formato) => formato && typeof formato === 'object' && formato.tipo)
   : []))
 
+const temTexto = computed(() => formatos.value.some((formato) => formato.tipo === 'texto'))
+// A tela de leitura, na mesma moldura desta página (visitante ou área logada)
+const leitura = computed(() => `${logada.value ? '/acervo' : '/livros'}/${livro.value.id}/ler`)
+
 const textoFormato = (tipo) => ({ texto: 'Texto', audio: 'Audiobook' }[tipo] || tipo)
 const chaveFormato = (formato, indice) => `${formato.tipo || 'formato'}-${indice}`
 const chaveClassificacao = (classificacao, indice) => `${classificacao.tipo || 'classificacao'}-${classificacao.nome || 'item'}-${indice}`
@@ -108,6 +112,15 @@ onBeforeUnmount(() => controladorAtual?.abort())
               <TagFormato v-for="(formato, indice) in formatos" :key="chaveFormato(formato, indice)" :icone="formato.tipo === 'audio' ? 'fones' : 'livro'">
                 {{ textoFormato(formato.tipo) }}
               </TagFormato>
+            </div>
+
+            <!-- Ler (HU-10 Task 4): abre a tela de leitura, também para visitantes.
+                 Se o livro tiver audiobook, o player aparece lá, embaixo do PDF. -->
+            <div v-if="temTexto" class="livro-acoes">
+              <Botao :to="leitura">
+                <template #icone><Icone nome="livro" /></template>
+                Ler o livro
+              </Botao>
             </div>
 
             <Botao v-if="administrador" class="livro-admin" tipo="contorno" :to="`/admin/livros/${livro.id}/classificacoes`">
@@ -215,6 +228,13 @@ onBeforeUnmount(() => controladorAtual?.abort())
   display: flex;
   flex-wrap: wrap;
   gap: var(--espaco-8);
+  margin-top: var(--espaco-8);
+}
+
+.livro-acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--espaco-12);
   margin-top: var(--espaco-8);
 }
 
