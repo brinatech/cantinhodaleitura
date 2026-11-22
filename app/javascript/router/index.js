@@ -38,6 +38,12 @@ const routes = [
   { path: '/acervo/:id', name: 'livro-detalhe-logado', component: LivroDetalheView, meta: { logada: true } },
   { path: '/acervo', component: AcervoView, meta: { logada: true } }, // busca chega pela barra de cima: /acervo?busca=...
   { path: '/acervo-publico', component: AcervoPublicoView }, //rota para chamar o acero publico
+  // Área admin (provisória até a tela admin de livros, HU-07 Task 4)
+  {
+    path: '/admin/livros/:id/classificacoes',
+    component: () => import('../views/admin/ClassificacoesLivroView.vue'),
+    meta: { logada: true, admin: true },
+  },
   ...telasPendentes,
   // Só em desenvolvimento: no build de produção o import abaixo é descartado
   ...(import.meta.env.DEV
@@ -58,6 +64,8 @@ router.beforeEach((para) => {
   const { usuario } = useAuthStore()
   if (para.meta.logada && !usuario) return { path: '/entrar', query: { redirect: para.fullPath } }
   if (para.meta.visitante && usuario) return '/minhas-leituras'
+  // Só conveniência: quem protege de verdade é o Rails (403 para quem não é administrador)
+  if (para.meta.admin && usuario?.tipo_usuario !== 'administrador') return '/minhas-leituras'
 })
 
 export default router

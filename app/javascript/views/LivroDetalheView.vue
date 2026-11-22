@@ -11,8 +11,12 @@ import Icone from '../components/ui/Icone.vue'
 import TagFormato from '../components/ui/TagFormato.vue'
 import { chaveCategoria } from '../components/ui/categorias.js'
 import { buscarLivro, ErroApiLivros } from '../services/livrosService.js'
+import { rotuloTipo } from '../services/tiposClassificacao.js'
+import { useAuthStore } from '../stores/auth.js'
 
 const rota = useRoute()
+const auth = useAuthStore()
+const administrador = computed(() => auth.usuario?.tipo_usuario === 'administrador')
 
 // /livros/:id é o detalhe do visitante; /acervo/:id é o mesmo, dentro da área logada
 const logada = computed(() => rota.meta.logada === true)
@@ -105,6 +109,10 @@ onBeforeUnmount(() => controladorAtual?.abort())
                 {{ textoFormato(formato.tipo) }}
               </TagFormato>
             </div>
+
+            <Botao v-if="administrador" class="livro-admin" tipo="contorno" :to="`/admin/livros/${livro.id}/classificacoes`">
+              Editar classificações
+            </Botao>
           </div>
         </div>
 
@@ -117,7 +125,7 @@ onBeforeUnmount(() => controladorAtual?.abort())
           <h2 id="titulo-classificacoes">Classificações</h2>
           <ul class="livro-classificacoes">
             <li v-for="(classificacao, indice) in classificacoes" :key="chaveClassificacao(classificacao, indice)">
-              <strong v-if="classificacao.tipo">{{ classificacao.tipo }}</strong>
+              <strong v-if="classificacao.tipo">{{ rotuloTipo(classificacao.tipo) }}</strong>
               <span v-if="classificacao.nome">{{ classificacao.nome }}</span>
               <p v-if="classificacao.descricao">{{ classificacao.descricao }}</p>
             </li>
@@ -207,6 +215,10 @@ onBeforeUnmount(() => controladorAtual?.abort())
   display: flex;
   flex-wrap: wrap;
   gap: var(--espaco-8);
+  margin-top: var(--espaco-8);
+}
+
+.livro-admin {
   margin-top: var(--espaco-8);
 }
 
