@@ -57,7 +57,8 @@ onMounted(async () => {
         <img class="deco deco-nuvem-arcoiris" :src="nuvemArcoiris" alt="" aria-hidden="true">
         <img class="deco deco-estrela" :src="arcoIrisEstrela" alt="" aria-hidden="true">
 
-        <div class="apresentacao-grid">
+        <!-- v-aparecer: cada bloco aparece ao entrar na tela rolando a página (directives/aparecer.js) -->
+        <div v-aparecer class="apresentacao-grid">
           <div class="apresentacao-texto">
             <Selo tom="suave">Um mundo ao seu alcance</Selo>
 
@@ -86,6 +87,7 @@ onMounted(async () => {
         </div>
 
         <CabecalhoSecao
+          v-aparecer
           class="apresentacao-destaque"
           titulo="Livros em destaque"
           subtitulo="Uma boa história pode ser seu próximo começo."
@@ -99,8 +101,9 @@ onMounted(async () => {
 
         <p v-if="carregandoDestaque" class="livros-aviso" role="status">Carregando livros…</p>
 
-        <ul v-else-if="livrosDestaque.length" class="livros-lista">
-          <li v-for="livro in livrosDestaque" :key="livro.id" class="livros-item">
+        <!-- Os livros entram um por um (cascata) quando a seção aparece -->
+        <ul v-else-if="livrosDestaque.length" v-aparecer class="livros-lista aparecer-em-cascata">
+          <li v-for="(livro, indice) in livrosDestaque" :key="livro.id" class="livros-item" :style="{ '--ordem': indice }">
             <CardLivro
               :titulo="livro.titulo"
               :autor="livro.autor || ''"
@@ -119,7 +122,7 @@ onMounted(async () => {
       </section>
 
       <section class="chamada" aria-labelledby="titulo-chamada">
-        <div class="chamada-box" :style="{ '--fundo-chamada': `url('${fundoChamada}')` }">
+        <div v-aparecer class="chamada-box" :style="{ '--fundo-chamada': `url('${fundoChamada}')` }">
           <h2 id="titulo-chamada" class="chamada-titulo">Seu próximo capítulo<br>começa neste cantinho.</h2>
           <Botao class="chamada-acao" to="/entrar">Entrar para acessar</Botao>
         </div>

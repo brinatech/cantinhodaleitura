@@ -1,0 +1,84 @@
+/*
+ * Animações gerais do site (sem Figma: decisão da equipe de desenvolvimento).
+ *
+ * Página "acendendo" (fade-in): ao abrir o site (F5) e a cada troca de página, o conteúdo
+ * aparece de transparente para visível e sobe 8px, em --duracao-pagina (tokens.css). Vale para o <main> de todas as telas:
+ * o menu lateral, a barra de cima e o menu da área pública ficam fora do <main> e aparecem na hora
+ * (senão o menu "piscaria" a cada clique).
+ *
+ * - "Reduzir movimento" no sistema: só o fade, sem subir.
+ * - Modo calmo (styles/ajustes.css): nenhuma animação.
+ * - fill-mode "backwards": depois de terminar, a animação não deixa nada no elemento
+ *   (um transform que sobrasse no <main> atrapalharia elementos fixos e a tela cheia do leitor).
+ */
+@keyframes aparecer-subindo {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+@keyframes aparecer {
+  from {
+    opacity: 0;
+  }
+}
+
+main {
+  animation: aparecer-subindo var(--duracao-pagina) var(--curva) backwards;
+}
+
+/*
+ * Cascata: os itens de uma grade aparecem um depois do outro, em ordem, descendo um pouco.
+ * Uso: class="aparecer-em-cascata" na lista e :style="{ '--ordem': indice }" em cada item.
+ * Só os primeiros 12 esperam a vez (no máximo ~0,6 s); os de baixo, que nem estão na tela, aparecem
+ * junto com o 12º, para quem rola rápido não encontrar cards ainda invisíveis.
+ * Ao trocar um filtro, só os cards que entram na lista animam (os que já estavam ficam parados).
+ */
+@keyframes aparecer-descendo {
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+}
+
+.aparecer-em-cascata > * {
+  animation: aparecer-descendo var(--duracao-cascata) var(--curva) backwards;
+  animation-delay: calc(min(var(--ordem, 0), 12) * var(--intervalo-cascata));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  main,
+  .aparecer-em-cascata > * {
+    animation-name: aparecer;
+  }
+}
+
+/*
+ * Revelar ao rolar (diretiva v-aparecer, directives/aparecer.js): o bloco começa transparente e
+ * 16px abaixo, e aparece quando entra na tela. A classe "revelar" só existe se o JavaScript a colocou.
+ */
+.revelar {
+  opacity: 0;
+  transform: translateY(16px);
+  transition:
+    opacity var(--duracao-revelar) var(--curva),
+    transform var(--duracao-revelar) var(--curva);
+}
+
+.revelar.revelado {
+  opacity: 1;
+  transform: none;
+}
+
+/* "Reduzir movimento": só o fade, sem subir */
+@media (prefers-reduced-motion: reduce) {
+  .revelar {
+    transform: none;
+  }
+}
+
+/* Cascata dentro de um bloco que ainda não apareceu: espera, e começa junto com ele */
+.revelar:not(.revelado) .aparecer-em-cascata > * {
+  animation-play-state: paused;
+}

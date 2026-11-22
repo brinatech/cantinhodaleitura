@@ -170,8 +170,9 @@ const textoFormato = (livro) => {
     <p class="so-leitor" role="status">{{ avisoFavorito }}</p>
     <Alerta v-if="erroFavorito" tipo="erro">{{ erroFavorito }}</Alerta>
 
-    <ul v-if="livrosFiltrados.length" class="catalogo-grade">
-      <li v-for="livro in livrosFiltrados" :key="livro.id">
+    <!-- aparecer-em-cascata (styles/animacoes.css): os cards aparecem um depois do outro -->
+    <ul v-if="livrosFiltrados.length" class="catalogo-grade aparecer-em-cascata">
+      <li v-for="(livro, indice) in livrosFiltrados" :key="livro.id" :style="{ '--ordem': indice }">
         <CardLivro
           :titulo="livro.titulo"
           :autor="livro.autor"

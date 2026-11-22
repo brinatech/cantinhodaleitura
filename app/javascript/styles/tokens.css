@@ -91,6 +91,10 @@
      O "modo calmo" (styles/ajustes.css) desliga todas as transições. */
   --duracao-rapida: 150ms; /* cores e fundos: botões, chips, menu */
   --duracao-media: 200ms;  /* cards que "levantam" */
+  --duracao-pagina: 400ms; /* página "acendendo" ao abrir (styles/animacoes.css) */
+  --duracao-cascata: 400ms;   /* cada card da grade aparecendo */
+  --intervalo-cascata: 50ms;  /* espera entre um card e o próximo */
+  --duracao-revelar: 600ms;   /* seção da home aparecendo ao rolar (v-aparecer) */
   --curva: ease-out;
   --elevar: -4px;          /* quanto o card sobe ao passar o mouse */
   --crescer: 1.1;          /* botões de ícone (coração, fechar, player) */
