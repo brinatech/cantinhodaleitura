@@ -2,7 +2,7 @@ module Api
   module V1
     class LivrosController < ApplicationController
       def index
-        livros = LivrosQuery.new(params).call.includes(:categoria, :arquivos, :classificacoes)
+        livros = LivrosQuery.new(params).call.includes(:categoria, :arquivos, :classificacoes).with_attached_capa
 
         render json: livros.map { |livro| livro_json(livro) }
       end
@@ -23,7 +23,7 @@ module Api
           titulo: livro.titulo,
           autor: livro.autor,
           descricao: livro.descricao,
-          capa_url: livro.capa_url,
+          capa_url: capa_url_de(livro),
           formatos: livro.arquivos.select { |arquivo| arquivo.arquivo.attached? }.map do |arquivo|
             {
               tipo: arquivo.tipo,

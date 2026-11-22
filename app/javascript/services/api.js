@@ -14,16 +14,19 @@ export class ErroApi extends Error {
 }
 
 export async function chamarApi(metodo, url, corpo) {
+  // FormData = "caixa" com arquivos (upload). Vai do jeito que está, sem virar JSON.
+  const ehFormulario = corpo instanceof FormData
   const resposta = await fetch(url, {
     method: metodo,
     credentials: 'same-origin',
     headers: {
       Accept: 'application/json',
-      ...(corpo && { 'Content-Type': 'application/json' }),
+      ...(corpo && !ehFormulario && { 'Content-Type': 'application/json' }),
       ...(metodo !== 'GET' && { 'X-CSRF-Token': tokenCsrf }),
     },
-    body: corpo ? JSON.stringify(corpo) : undefined,
+    body: ehFormulario ? corpo : corpo ? JSON.stringify(corpo) : undefined,
   })
+
 
   tokenCsrf = resposta.headers.get('X-CSRF-Token') || tokenCsrf
 
