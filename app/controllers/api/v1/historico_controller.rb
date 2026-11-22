@@ -5,7 +5,20 @@ module Api
     # Tudo sai do current_usuario: o navegador nunca diz de quem é o histórico.
     class HistoricoController < ApplicationController
       before_action :exigir_autenticacao
-      before_action :carregar_livro
+      before_action :carregar_livro, only: :update
+
+      # GET /api/v1/historico → os livros que eu li, do lido mais recentemente para o mais antigo,
+      # com o progresso e a página do marcador (para "Continuar")
+      def index
+        historicos = current_usuario.historico_leituras
+                                    .includes(livro: [ :categoria, { capa_attachment: :blob } ])
+                                    .order(data_ultima_leitura: :desc, id: :desc)
+        paginas = current_usuario.marcador_paginas
+                                 .where(livro_id: historicos.map(&:livro_id))
+                                 .pluck(:livro_id, :pagina_atual).to_h
+
+        render json: historicos.map { |historico| historico_json(historico).merge(item_da_lista(historico, paginas)) }
+      end
 
       # PUT /api/v1/historico/:livro_id com { pagina: 11, total_paginas: 28 } → registra a leitura
       # (sem página: só marca que abriu o livro)
@@ -40,6 +53,20 @@ module Api
 
       def render_pagina_invalida
         render json: { erros: { pagina: [ "deve estar entre 1 e o total de páginas" ] } }, status: :unprocessable_entity
+      end
+
+      def item_da_lista(historico, paginas)
+        livro = historico.livro
+        {
+          pagina_atual: paginas[livro.id],
+          livro: {
+            id: livro.id,
+            titulo: livro.titulo,
+            autor: livro.autor,
+            capa_url: capa_url_de(livro),
+            categoria: { id: livro.categoria.id, nome: livro.categoria.nome }
+          }
+        }
       end
 
       def historico_json(historico)

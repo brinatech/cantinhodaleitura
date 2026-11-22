@@ -8,9 +8,40 @@ class Api::V1::HistoricoControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "visitante não tem histórico e recebe 401" do
-    put api_v1_historico_url(@livro.id), params: { pagina: 1, total_paginas: 10 }, as: :json
-
+    get api_v1_historico_index_url
     assert_response :unauthorized
+
+    put api_v1_historico_url(@livro.id), params: { pagina: 1, total_paginas: 10 }, as: :json
+    assert_response :unauthorized
+  end
+
+  test "lista só o meu histórico, do lido mais recentemente para o mais antigo, com a página do marcador" do
+    outro_livro = livros(:two)
+    HistoricoLeitura.create!(usuario: @ana, livro: @livro, data_inicio: 3.days.ago, data_ultima_leitura: 3.days.ago, progresso_percentual: 40)
+    HistoricoLeitura.create!(usuario: @ana, livro: outro_livro, data_inicio: 1.day.ago, data_ultima_leitura: 1.day.ago, progresso_percentual: 10)
+    HistoricoLeitura.create!(usuario: @beto, livro: @livro, data_inicio: Time.current, data_ultima_leitura: Time.current) # de outra pessoa
+    MarcadorPagina.create!(usuario: @ana, livro: @livro, pagina_atual: 11)
+    entrar_com(@ana)
+
+    get api_v1_historico_index_url
+
+    assert_response :success
+    resposta = JSON.parse(response.body)
+    assert_equal [ outro_livro.id, @livro.id ], resposta.map { |item| item["livro_id"] }
+    assert_nil resposta.first["pagina_atual"] # sem marcador neste livro
+    assert_equal 11, resposta.last["pagina_atual"]
+    assert_in_delta 40.0, resposta.last["progresso_percentual"], 0.001
+    assert_equal @livro.titulo, resposta.last.dig("livro", "titulo")
+    assert_equal @livro.categoria.nome, resposta.last.dig("livro", "categoria", "nome")
+  end
+
+  test "sem leituras, a lista vem vazia" do
+    entrar_com(@ana)
+
+    get api_v1_historico_index_url
+
+    assert_response :success
+    assert_equal [], JSON.parse(response.body)
   end
 
   test "registra a leitura com o progresso" do
