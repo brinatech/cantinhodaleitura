@@ -7,8 +7,8 @@
   logo e os links ficam numa faixa branca de canto arredondado; o botão fica
   direto sobre a imagem. Quem usa posiciona o menu (absolute) em cima do banner.
   Até 768px o menu vira um botão que abre e fecha a lista (links + ação).
-  "Acessibilidade" abre o mesmo painel de ajustes da área logada (PainelAcessibilidade): o visitante
-  também precisa de letra maior, contraste etc. No celular ele fica sempre à mostra (só o ícone),
+  "Acessibilidade" (BotaoAcessibilidade) abre o mesmo painel de ajustes da área logada: o visitante
+  também precisa de letra maior, contraste etc. No celular ele fica sempre à mostra,
   ao lado do botão de menu, em vez de escondido dentro do menu fechado.
 -->
 <script setup>
@@ -16,7 +16,7 @@ import { computed, ref, watch } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import Botao from '../ui/Botao.vue'
 import Icone from '../ui/Icone.vue'
-import PainelAcessibilidade from './PainelAcessibilidade.vue'
+import BotaoAcessibilidade from './BotaoAcessibilidade.vue'
 import logo from '../../images/logo-header.png'
 
 const props = defineProps({
@@ -43,7 +43,6 @@ const linksDoMenu = computed(() => props.links ?? linksPadrao.value)
 const destinoDaAcao = computed(() => props.acaoPara ?? (props.leitor ? '/minhas-leituras' : '/entrar'))
 const textoDaAcao = computed(() => (props.leitor ? 'Meu espaço' : 'Entrar'))
 
-const painel = ref(null)
 const aberto = ref(false)
 const rota = useRoute()
 watch(() => rota.fullPath, () => (aberto.value = false))
@@ -66,12 +65,7 @@ watch(() => rota.fullPath, () => (aberto.value = false))
     </div>
 
     <div class="menu-acoes">
-      <!-- Botão redondo só com o ícone; a etiqueta "Acessibilidade" aparece ao passar o mouse ou com o foco.
-           O nome para o leitor de tela vem do aria-label (a etiqueta é só visual, para não ler duas vezes). -->
-      <button type="button" class="menu-acessibilidade" aria-label="Acessibilidade" aria-haspopup="dialog" @click="painel.abrir()">
-        <Icone nome="acessibilidade" />
-        <span class="menu-acessibilidade-etiqueta" aria-hidden="true">Acessibilidade</span>
-      </button>
+      <BotaoAcessibilidade class="menu-acessibilidade" />
 
       <Botao class="menu-acao" :to="destinoDaAcao">
         <template v-if="leitor" #icone><Icone nome="usuario" /></template>
@@ -88,8 +82,6 @@ watch(() => rota.fullPath, () => (aberto.value = false))
     >
       <Icone :nome="aberto ? 'fechar' : 'lista'" :rotulo="aberto ? 'Fechar menu' : 'Abrir menu'" />
     </button>
-
-    <PainelAcessibilidade ref="painel" />
   </header>
 </template>
 
@@ -116,62 +108,6 @@ watch(() => rota.fullPath, () => (aberto.value = false))
   flex-shrink: 0;
   align-items: center;
   gap: var(--espaco-12);
-}
-
-/* ===== Botão de acessibilidade: redondo, só o ícone ===== */
-.menu-acessibilidade {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 48px;
-  height: 48px;
-  padding: 0;
-  border: 1.5px solid var(--borda-padrao);
-  border-radius: 50%;
-  background: var(--fundo-superficie);
-  box-shadow: var(--sombra-cartao); /* destaca da imagem do banner, na home */
-  color: var(--texto-principal);
-  cursor: pointer;
-  transition: transform var(--duracao-rapida) var(--curva), background-color var(--duracao-rapida) var(--curva);
-}
-
-.menu-acessibilidade:hover {
-  transform: scale(var(--crescer));
-  background: color-mix(in srgb, var(--fundo-superficie), var(--texto-principal) 8%);
-}
-
-.menu-acessibilidade:focus-visible {
-  outline: 3px solid var(--borda-foco);
-  outline-offset: 3px;
-}
-
-/* Etiqueta embaixo do botão: aparece com o foco do teclado e, em quem tem mouse, ao passar o mouse */
-.menu-acessibilidade-etiqueta {
-  position: absolute;
-  top: calc(100% + var(--espaco-8));
-  left: 50%;
-  z-index: 10;
-  padding: var(--espaco-4) var(--espaco-12);
-  border-radius: var(--raio-8);
-  background: var(--destaque-escuro);
-  color: var(--texto-inverso);
-  font: var(--fonte-legenda);
-  white-space: nowrap;
-  pointer-events: none;
-  opacity: 0;
-  transform: translateX(-50%);
-  transition: opacity var(--duracao-rapida) var(--curva);
-}
-
-.menu-acessibilidade:focus-visible .menu-acessibilidade-etiqueta {
-  opacity: 1;
-}
-
-@media (hover: hover) {
-  .menu-acessibilidade:hover .menu-acessibilidade-etiqueta {
-    opacity: 1;
-  }
 }
 
 .menu-logo {

@@ -9,6 +9,7 @@
 import { computed, nextTick, reactive, ref, watch } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import PainelAcesso from '../components/acesso/PainelAcesso.vue'
+import BotaoAcessibilidade from '../components/layout/BotaoAcessibilidade.vue'
 import AbasAcesso from '../components/ui/AbasAcesso.vue'
 import Alerta from '../components/ui/Alerta.vue'
 import Botao from '../components/ui/Botao.vue'
@@ -155,10 +156,8 @@ async function enviar() {
           <Icone nome="seta-esquerda" :tamanho="20" />
           Voltar ao início
         </RouterLink>
-        <Botao tipo="contorno" to="/acessibilidade">
-          <template #icone><Icone nome="acessibilidade" /></template>
-          Acessibilidade
-        </Botao>
+        <!-- Abre o painel de ajustes de leitura (antes levava para a página "Em breve") -->
+        <BotaoAcessibilidade />
       </header>
 
       <main class="acesso-centro">
