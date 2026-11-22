@@ -3,7 +3,7 @@
   aqui ficam o posicionamento das seções e das ilustrações.
 -->
 <script setup>
-import { onMounted, ref } from 'vue'
+import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import BannerCarrossel from '../components/BannerCarrossel.vue'
 import MenuSuperior from '../components/layout/MenuSuperior.vue'
 import Rodape from '../components/layout/Rodape.vue'
@@ -40,6 +40,59 @@ onMounted(async () => {
   } finally {
     carregandoDestaque.value = false
   }
+})
+
+// ===== Setas dos livros em destaque =====
+// A lista rola para o lado (no celular, com o dedo). As setas só aparecem quando há livros escondidos:
+// a ← some no começo, a → some no fim, e se tudo couber na tela, nenhuma aparece.
+const lista = ref(null)
+const setaAnterior = ref(null)
+const setaProxima = ref(null)
+const podeVoltar = ref(false)
+const podeAvancar = ref(false)
+let observador = null
+
+function atualizarSetas() {
+  const el = lista.value
+  if (!el) return
+  const focoNaAnterior = document.activeElement === setaAnterior.value
+  const focoNaProxima = document.activeElement === setaProxima.value
+
+  podeVoltar.value = el.scrollLeft > 4
+  podeAvancar.value = el.scrollLeft + el.clientWidth < el.scrollWidth - 4
+
+  // A seta com o foco do teclado sumiu (chegou na ponta): o foco passa para a outra, em vez de se perder
+  nextTick(() => {
+    if (focoNaProxima && !podeAvancar.value) setaAnterior.value?.focus()
+    if (focoNaAnterior && !podeVoltar.value) setaProxima.value?.focus()
+  })
+}
+
+// Anda um card por clique (a largura de um card + o espaço entre eles)
+function rolar(direcao) {
+  const el = lista.value
+  const card = el?.querySelector('.livros-item')
+  if (!card) return
+  const passo = card.offsetWidth + parseFloat(getComputedStyle(el).columnGap || 0)
+  const semMovimento =
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches || document.documentElement.hasAttribute('data-calmo')
+  el.scrollBy({ left: direcao * passo, behavior: semMovimento ? 'auto' : 'smooth' })
+}
+
+// A lista só existe depois que os livros chegam: aí começa a vigiar a rolagem e o tamanho da tela
+watch(lista, (el, antiga) => {
+  antiga?.removeEventListener('scroll', atualizarSetas)
+  observador?.disconnect()
+  if (!el) return
+  el.addEventListener('scroll', atualizarSetas, { passive: true })
+  observador = new ResizeObserver(atualizarSetas)
+  observador.observe(el)
+  atualizarSetas()
+})
+
+onBeforeUnmount(() => {
+  lista.value?.removeEventListener('scroll', atualizarSetas)
+  observador?.disconnect()
 })
 </script>
 
@@ -101,22 +154,46 @@ onMounted(async () => {
 
         <p v-if="carregandoDestaque" class="livros-aviso" role="status">Carregando livros…</p>
 
-        <!-- Os livros entram um por um (cascata) quando a seção aparece -->
-        <ul v-else-if="livrosDestaque.length" v-aparecer class="livros-lista aparecer-em-cascata">
-          <li v-for="(livro, indice) in livrosDestaque" :key="livro.id" class="livros-item" :style="{ '--ordem': indice }">
-            <CardLivro
-              :titulo="livro.titulo"
-              :autor="livro.autor || ''"
-              :categoria="livro.categoria?.nome"
-              :capa-url="livro.capa_url"
-              :formato="textoFormato(livro)"
-              :icone-formato="temAudio(livro) ? 'fones' : 'livro'"
-              :to="{ name: 'livro-detalhe', params: { id: livro.id } }"
-              :mostrar-categoria="false"
-              :mostrar-favoritar="false"
-            />
-          </li>
-        </ul>
+        <!-- O "palco" segura a lista e as setas por cima, nas laterais -->
+        <div v-else-if="livrosDestaque.length" class="livros-palco">
+          <!-- Os livros entram um por um (cascata) quando a seção aparece -->
+          <ul ref="lista" v-aparecer class="livros-lista aparecer-em-cascata">
+            <li v-for="(livro, indice) in livrosDestaque" :key="livro.id" class="livros-item" :style="{ '--ordem': indice }">
+              <CardLivro
+                :titulo="livro.titulo"
+                :autor="livro.autor || ''"
+                :categoria="livro.categoria?.nome"
+                :capa-url="livro.capa_url"
+                :formato="textoFormato(livro)"
+                :icone-formato="temAudio(livro) ? 'fones' : 'livro'"
+                :to="{ name: 'livro-detalhe', params: { id: livro.id } }"
+                :mostrar-categoria="false"
+                :mostrar-favoritar="false"
+              />
+            </li>
+          </ul>
+
+          <button
+            v-if="podeVoltar"
+            ref="setaAnterior"
+            type="button"
+            class="livros-seta livros-seta--anterior"
+            aria-label="Ver livros anteriores"
+            @click="rolar(-1)"
+          >
+            <Icone nome="seta-esquerda" :tamanho="28" />
+          </button>
+          <button
+            v-if="podeAvancar"
+            ref="setaProxima"
+            type="button"
+            class="livros-seta livros-seta--proxima"
+            aria-label="Ver próximos livros"
+            @click="rolar(1)"
+          >
+            <Icone nome="seta-direita" :tamanho="28" />
+          </button>
+        </div>
 
         <Botao class="livros-acao" to="/acervo-publico">Explorar acervo →</Botao>
       </section>
@@ -275,6 +352,61 @@ onMounted(async () => {
   align-items: center;
   gap: var(--espaco-24);
   padding: var(--espaco-8) 0 var(--espaco-48);
+}
+
+/* Segura a lista e as setas (que ficam por cima, nas laterais) */
+.livros-palco {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+}
+
+/* Setas: redondas, no mesmo estilo das setas do leitor de PDF; centralizadas na margem lateral */
+.livros-seta {
+  position: absolute;
+  top: 50%;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  padding: 0;
+  border: 1.5px solid var(--borda-padrao);
+  border-radius: 50%;
+  background: var(--fundo-superficie);
+  box-shadow: var(--sombra-cartao);
+  color: var(--texto-principal);
+  cursor: pointer;
+  transform: translateY(-50%);
+  transition: transform var(--duracao-rapida) var(--curva), background-color var(--duracao-rapida) var(--curva);
+}
+
+.livros-seta--anterior {
+  left: max(var(--espaco-8), calc(var(--margem) / 2 - 26px));
+}
+
+.livros-seta--proxima {
+  right: max(var(--espaco-8), calc(var(--margem) / 2 - 26px));
+}
+
+.livros-seta:hover {
+  transform: translateY(-50%) scale(var(--crescer));
+  background: color-mix(in srgb, var(--fundo-superficie), var(--texto-principal) 8%);
+}
+
+.livros-seta:focus-visible {
+  outline: 3px solid var(--borda-foco);
+  outline-offset: 2px;
+}
+
+/* Celular: margem pequena, a seta fica por cima do card. Menor e meio transparente (dá para deslizar o dedo) */
+@media (max-width: 640px) {
+  .livros-seta {
+    width: 40px;
+    height: 40px;
+    background: color-mix(in srgb, var(--fundo-superficie) 85%, transparent);
+  }
 }
 
 .livros-lista {
