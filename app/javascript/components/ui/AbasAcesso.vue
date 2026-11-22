@@ -72,6 +72,12 @@ function teclado(evento) {
   color: var(--texto-secundario);
   font: var(--fonte-botao);
   cursor: pointer;
+  transition: background-color var(--duracao-rapida) var(--curva), color var(--duracao-rapida) var(--curva);
+}
+
+.aba:not(.selecionada):hover {
+  background: var(--camada-hover);
+  color: var(--texto-principal);
 }
 
 .aba.selecionada {

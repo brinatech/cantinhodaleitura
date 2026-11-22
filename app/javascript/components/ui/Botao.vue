@@ -67,6 +67,7 @@ const tag = computed(() => (props.to ? RouterLink : props.href ? 'a' : 'button')
   text-decoration: none;
   white-space: nowrap;
   cursor: pointer;
+  transition: --camada var(--duracao-rapida) var(--curva); /* o hover escurece suave (ver @property abaixo) */
 }
 
 .botao--escuro {
@@ -108,5 +109,12 @@ const tag = computed(() => (props.to ? RouterLink : props.href ? 'a' : 'button')
   display: inline-flex;
   width: 24px;
   height: 24px;
+}
+
+/* Registra --camada como cor: só assim o navegador consegue animar a troca (sem isso, ela é instantânea) */
+@property --camada {
+  syntax: '<color>';
+  inherits: false;
+  initial-value: transparent;
 }
 </style>

@@ -212,10 +212,35 @@ function clicar(evento) {
 }
 
 .redondo,
+.principal,
+.velocidade {
+  transition: transform var(--duracao-rapida) var(--curva), background-color var(--duracao-rapida) var(--curva);
+}
+
+.redondo,
 .principal {
   display: inline-flex;
   border-radius: var(--raio-total);
   cursor: pointer;
+}
+
+/* Passar o mouse nos controles: crescem um pouco e o fundo muda de leve */
+.redondo:hover,
+.principal:hover,
+.velocidade:hover {
+  transform: scale(var(--crescer));
+}
+
+.redondo:hover {
+  background: color-mix(in srgb, var(--fundo-superficie), var(--texto-principal) 8%);
+}
+
+.principal:hover {
+  background: color-mix(in srgb, var(--destaque-escuro), white 12%);
+}
+
+.velocidade:hover {
+  background: color-mix(in srgb, var(--destaque-ceu), var(--texto-principal) 12%);
 }
 
 .redondo {

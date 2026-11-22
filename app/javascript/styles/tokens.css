@@ -85,4 +85,22 @@
   /* ===== Sombras ===== */
   --sombra-cartao: -4px 8px 10px #184e6a2e;
   --sombra-flutuante: 0 12px 24px #184e6a38;
+
+  /* ===== Movimento (resposta ao passar o mouse) =====
+     Um padrão só para o site todo. Sem Figma: decisão da equipe de desenvolvimento.
+     O "modo calmo" (styles/ajustes.css) desliga todas as transições. */
+  --duracao-rapida: 150ms; /* cores e fundos: botões, chips, menu */
+  --duracao-media: 200ms;  /* cards que "levantam" */
+  --curva: ease-out;
+  --elevar: -4px;          /* quanto o card sobe ao passar o mouse */
+  --crescer: 1.1;          /* botões de ícone (coração, fechar, player) */
+  --camada-hover: color-mix(in srgb, var(--texto-principal) 8%, transparent); /* fundo levemente mais escuro */
+}
+
+/* Quem pediu "reduzir movimento" no sistema: nada sobe nem cresce (só a cor muda) */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --elevar: 0px;
+    --crescer: 1;
+  }
 }

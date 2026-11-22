@@ -73,10 +73,16 @@ const ligado = defineModel({ type: Boolean, default: false })
   border-radius: var(--raio-total);
   background: var(--borda-padrao);
   color: var(--texto-inverso);
+  transition: background-color var(--duracao-rapida) var(--curva);
 }
 
 .interruptor-trilho.ligado {
   background: var(--destaque-escuro);
+}
+
+/* Passar o mouse no interruptor desligado: o trilho escurece um pouco */
+.interruptor:hover .interruptor-trilho:not(.ligado) {
+  background: var(--borda-forte);
 }
 
 .interruptor-marca {
@@ -98,5 +104,12 @@ const ligado = defineModel({ type: Boolean, default: false })
 
 .interruptor-trilho.ligado .interruptor-botao {
   left: 23px;
+}
+
+/* A bolinha desliza ao ligar/desligar (só para quem não pediu menos movimento) */
+@media (prefers-reduced-motion: no-preference) {
+  .interruptor-botao {
+    transition: left var(--duracao-rapida) var(--curva);
+  }
 }
 </style>

@@ -48,6 +48,12 @@ const tag = computed(() => (props.to ? RouterLink : 'button'))
   text-align: left;
   text-decoration: none;
   cursor: pointer;
+  transition: background-color var(--duracao-rapida) var(--curva);
+}
+
+/* Passar o mouse num item que não é a página atual */
+.item-menu:not(.ativo, .router-link-exact-active):hover {
+  background: var(--camada-hover);
 }
 
 /* Ativo: o RouterLink põe a classe sozinho na rota atual */

@@ -55,6 +55,12 @@ defineProps({
   font: var(--fonte-botao);
   white-space: nowrap;
   cursor: pointer;
+  transition: background-color var(--duracao-rapida) var(--curva);
+}
+
+/* Passar o mouse num chip não selecionado: fundo levemente mais escuro */
+.chip:not(.chip--selecionado):hover {
+  --fundo: color-mix(in srgb, var(--fundo-superficie), var(--texto-principal) 8%);
 }
 
 .chip-ponto {

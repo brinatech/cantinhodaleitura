@@ -200,11 +200,19 @@ onMounted(carregar)
   border-radius: var(--raio-20);
   background: var(--fundo-pagina);
   box-shadow: var(--sombra-cartao);
+  transition: transform var(--duracao-media) var(--curva), box-shadow var(--duracao-media) var(--curva);
+}
+
+/* O card "levanta" ao passar o mouse ou com o foco do teclado (igual ao CardLivro) */
+.lista-card:hover,
+.lista-card:has(.lista-link:focus-visible) {
+  transform: translateY(var(--elevar));
+  box-shadow: var(--sombra-flutuante);
 }
 
 .lista-card:has(.lista-link:focus-visible) {
   border-color: var(--borda-foco);
-  box-shadow: inset 0 0 0 2px var(--borda-foco), var(--sombra-cartao);
+  box-shadow: inset 0 0 0 2px var(--borda-foco), var(--sombra-flutuante);
 }
 
 .lista-capas {

@@ -43,6 +43,11 @@ defineEmits(['ir'])
   background: white;
   background-clip: content-box;
   cursor: pointer;
+  transition: background-color var(--duracao-rapida) var(--curva);
+}
+
+.ponto:not(.ativo):hover {
+  background-color: color-mix(in srgb, white, var(--destaque-ceu) 50%);
 }
 
 .ponto.ativo {

@@ -236,6 +236,11 @@ const painel = ref(null)
   background: transparent;
   color: var(--texto-principal);
   cursor: pointer;
+  transition: background-color var(--duracao-rapida) var(--curva);
+}
+
+.barra-menu:hover {
+  background: var(--camada-hover);
 }
 
 .barra-menu:focus-visible {
@@ -260,6 +265,11 @@ const painel = ref(null)
   color: var(--texto-principal);
   font: var(--fonte-botao);
   text-decoration: none;
+  transition: background-color var(--duracao-rapida) var(--curva);
+}
+
+.perfil:hover {
+  background: color-mix(in srgb, var(--fundo-nuvem), var(--texto-principal) 8%);
 }
 
 .perfil:focus-visible {
