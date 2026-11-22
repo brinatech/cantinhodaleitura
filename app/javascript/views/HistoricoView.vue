@@ -110,6 +110,7 @@ onMounted(carregar)
               :titulo="item.livro.titulo"
               :detalhe="detalhe(item)"
               :categoria="item.livro.categoria?.nome"
+              :capa-url="item.livro.capa_url"
               :progresso="item.progresso_percentual"
               :rotulo-progresso="rotuloProgresso(item)"
               :to="{ name: 'livro-leitura-logado', params: { id: item.livro_id } }"

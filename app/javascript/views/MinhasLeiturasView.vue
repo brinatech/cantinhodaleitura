@@ -1,46 +1,105 @@
 <!--
   Minhas leituras (Figma: "Minhas leituras · área logada"). Primeira tela do leitor:
   boas-vindas com resumo, os livros em andamento e as novidades do acervo.
-  shortcut: dados de exemplo fixos (como no Figma). Trocar pelos dados do leitor
-  (histórico e marcadores) e do acervo quando o backend tiver essas APIs.
+  Dados reais:
+  - Resumo e "Continue de onde parou": histórico de leitura (GET /api/v1/historico, HU-14), com a
+    página do marcador (HU-15). "Em andamento" = progresso abaixo de 100%; "lidos" = 100%.
+  - O terceiro número do Figma era "2h ouvindo", mas nada no banco guarda tempo de escuta:
+    trocado pelo número de favoritos (levar à equipe).
+  - Novidades: os 4 livros cadastrados mais recentemente (GET /api/v1/livros?ordem=recentes).
+  Cada parte carrega sozinha: se uma falhar, as outras continuam aparecendo.
 -->
 <script setup>
-import { computed } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import LayoutLogado from '../components/layout/LayoutLogado.vue'
+import Alerta from '../components/ui/Alerta.vue'
 import Botao from '../components/ui/Botao.vue'
 import CabecalhoSecao from '../components/ui/CabecalhoSecao.vue'
 import CardContinuarLendo from '../components/ui/CardContinuarLendo.vue'
 import CardLivro from '../components/ui/CardLivro.vue'
 import DestaquePalavra from '../components/ui/DestaquePalavra.vue'
+import EstadoVazio from '../components/ui/EstadoVazio.vue'
 import Icone from '../components/ui/Icone.vue'
 import IconeBolha from '../components/ui/IconeBolha.vue'
 import Selo from '../components/ui/Selo.vue'
+import { useFavoritar } from '../composables/useFavoritar.js'
+import { listarHistorico } from '../services/historicoService.js'
+import { listarLivros } from '../services/livrosService.js'
 import { useAuthStore } from '../stores/auth.js'
+import { useFavoritosStore } from '../stores/favoritos.js'
 import globo from '../images/ilustracoes/globo-livros.png'
 import lamparina from '../images/imgs-baixo-banner/lamparina.png'
 import nuvem from '../images/imgs-baixo-banner/nuvem.png'
 import menina from '../images/imgs-baixo-banner/garota-com-fone.png'
 
 const nome = computed(() => useAuthStore().usuario?.nome ?? '')
+const favoritos = useFavoritosStore()
+const { alternar: alternarFavorito, erro: erroFavorito, aviso: avisoFavorito, ehFavorito, estaPendente } = useFavoritar()
 
-const resumo = [
-  { texto: '3 em andamento', icone: 'livro', cor: 'laranja' },
-  { texto: '5 livros lidos', icone: 'estrela', cor: 'rosa' },
-  { texto: '2h ouvindo', icone: 'fones', cor: 'ceu' },
-]
+// ===== Histórico: resumo e "Continue de onde parou" =====
+const historico = ref([])
+const carregandoHistorico = ref(true)
+const erroHistorico = ref(false)
 
-const emAndamento = [
-  { titulo: 'Caminhos de casa', detalhe: 'Pedro Almeida · Capítulo 3', categoria: 'Aventura', formato: 'texto', progresso: 40, rotuloProgresso: 'Página 11 de 28' },
-  { titulo: 'A menina que conversava com a Lua', detalhe: 'Ana Martins · Capítulo 5', categoria: 'Fantasia', formato: 'audiobook', progresso: 60, rotuloProgresso: '4 min restantes' },
-  { titulo: 'O jardim das pequenas coisas', detalhe: 'Clara Ribeiro · Capítulo 1', categoria: 'Natureza', formato: 'texto', progresso: 20, rotuloProgresso: 'Página 3 de 16' },
-]
+const lido = (item) => item.progresso_percentual >= 100
+const andamento = computed(() => historico.value.filter((item) => !lido(item)))
+const totalLidos = computed(() => historico.value.filter(lido).length)
+// O histórico já vem do lido mais recentemente para o mais antigo: os 3 primeiros em andamento
+const continuar = computed(() => andamento.value.slice(0, 3))
 
-const novidades = [
-  { titulo: 'Sementes de amanhã', autor: 'Marina Santos', categoria: 'Natureza' },
-  { titulo: 'As cartas do vento', autor: 'João Oliveira', categoria: 'Clássicos' },
-  { titulo: 'O dragão que tinha medo do escuro', autor: 'Lucas Prado', categoria: 'Fantasia' },
-  { titulo: 'O mapa do quintal', autor: 'Rita Souza', categoria: 'Aventura' },
-]
+const plural = (total, um, varios) => (total === 1 ? `1 ${um}` : `${total} ${varios}`)
+const resumo = computed(() => [
+  { texto: plural(andamento.value.length, 'em andamento', 'em andamento'), icone: 'livro', cor: 'laranja' },
+  { texto: plural(totalLidos.value, 'livro lido', 'livros lidos'), icone: 'estrela', cor: 'rosa' },
+  { texto: plural(favoritos.favoritos.length, 'favorito', 'favoritos'), icone: 'coracao', cor: 'ceu' },
+])
+
+const rotuloProgresso = (item) => (item.pagina_atual ? `Parou na página ${item.pagina_atual}` : 'Começou a ler')
+
+async function carregarHistorico() {
+  carregandoHistorico.value = true
+  erroHistorico.value = false
+  try {
+    historico.value = await listarHistorico()
+  } catch {
+    erroHistorico.value = true
+  } finally {
+    carregandoHistorico.value = false
+  }
+}
+
+// ===== Novidades no acervo =====
+const novidades = ref([])
+const carregandoNovidades = ref(true)
+const erroNovidades = ref(false)
+
+async function carregarNovidades() {
+  carregandoNovidades.value = true
+  erroNovidades.value = false
+  try {
+    novidades.value = (await listarLivros({ ordem: 'recentes' })).slice(0, 4)
+  } catch {
+    erroNovidades.value = true
+  } finally {
+    carregandoNovidades.value = false
+  }
+}
+
+// Lista de formatos da API → texto da tag do card (como no CatalogoLivros)
+function textoFormato(livro) {
+  const tipos = (livro.formatos ?? []).map((formato) => formato.tipo)
+  if (tipos.includes('texto') && tipos.includes('audio')) return 'Texto e audiobook'
+  if (tipos.includes('audio')) return 'Audiobook'
+  if (tipos.includes('texto')) return 'Texto'
+  return ''
+}
+const temAudio = (livro) => livro.formatos?.some((formato) => formato.tipo === 'audio')
+
+onMounted(() => {
+  carregarHistorico()
+  carregarNovidades()
+  favoritos.carregar({ forcar: true }).catch(() => {}) // o número de favoritos pode ter mudado em outra aba
+})
 </script>
 
 <template>
@@ -56,8 +115,8 @@ const novidades = [
         </h1>
         <p class="boas-vindas-texto">Seus livros guardam a página onde você parou. É só escolher e seguir lendo ou ouvindo.</p>
 
-        <ul class="resumo">
-          <li v-for="item in resumo" :key="item.texto" class="resumo-item">
+        <ul v-if="!carregandoHistorico && !erroHistorico" class="resumo">
+          <li v-for="item in resumo" :key="item.icone" class="resumo-item">
             <IconeBolha :icone="item.icone" :cor="item.cor" :tamanho="36" :tamanho-icone="24" />
             {{ item.texto }}
           </li>
@@ -75,10 +134,35 @@ const novidades = [
           </Botao>
         </div>
 
-        <ul class="grade grade--continuar">
-          <li v-for="livro in emAndamento" :key="livro.titulo">
-            <!-- shortcut: o leitor ainda não existe; a ação leva ao acervo -->
-            <CardContinuarLendo layout="vertical" to="/acervo" v-bind="livro" />
+        <p v-if="carregandoHistorico" class="secao-aviso" role="status">Carregando suas leituras…</p>
+
+        <div v-else-if="erroHistorico" class="secao-erro">
+          <Alerta tipo="erro">Não conseguimos carregar suas leituras.</Alerta>
+          <Botao tipo="contorno" @click="carregarHistorico">Tentar de novo</Botao>
+        </div>
+
+        <EstadoVazio
+          v-else-if="!continuar.length"
+          class="secao-vazio"
+          :nivel="3"
+          :titulo="totalLidos ? 'Você terminou todos os livros que começou!' : 'Você ainda não começou nenhum livro'"
+          descricao="Escolha uma história no acervo. A página onde você parar fica guardada aqui."
+        >
+          <template #acao><Botao tipo="contorno" to="/acervo">Explorar o acervo</Botao></template>
+        </EstadoVazio>
+
+        <ul v-else class="grade grade--continuar">
+          <li v-for="item in continuar" :key="item.livro_id">
+            <CardContinuarLendo
+              layout="vertical"
+              :titulo="item.livro.titulo"
+              :detalhe="item.livro.autor || ''"
+              :categoria="item.livro.categoria?.nome"
+              :capa-url="item.livro.capa_url"
+              :progresso="item.progresso_percentual"
+              :rotulo-progresso="rotuloProgresso(item)"
+              :to="{ name: 'livro-leitura-logado', params: { id: item.livro_id } }"
+            />
           </li>
         </ul>
       </section>
@@ -94,11 +178,36 @@ const novidades = [
           </Botao>
         </div>
 
-        <ul class="grade grade--novidades">
-          <li v-for="livro in novidades" :key="livro.titulo">
-            <CardLivro :titulo="livro.titulo" :autor="livro.autor" :categoria="livro.categoria" formato="Texto e audiobook" to="/acervo" />
-          </li>
-        </ul>
+        <p v-if="carregandoNovidades" class="secao-aviso" role="status">Carregando novidades…</p>
+
+        <div v-else-if="erroNovidades" class="secao-erro">
+          <Alerta tipo="erro">Não conseguimos carregar as novidades.</Alerta>
+          <Botao tipo="contorno" @click="carregarNovidades">Tentar de novo</Botao>
+        </div>
+
+        <p v-else-if="!novidades.length" class="secao-aviso">O acervo ainda não tem livros.</p>
+
+        <template v-else>
+          <p class="so-leitor" role="status">{{ avisoFavorito }}</p>
+          <Alerta v-if="erroFavorito" tipo="erro">{{ erroFavorito }}</Alerta>
+
+          <ul class="grade grade--novidades">
+            <li v-for="livro in novidades" :key="livro.id">
+              <CardLivro
+                :titulo="livro.titulo"
+                :autor="livro.autor"
+                :categoria="livro.categoria?.nome"
+                :capa-url="livro.capa_url"
+                :formato="textoFormato(livro)"
+                :icone-formato="temAudio(livro) ? 'fones' : 'livro'"
+                :to="{ name: 'livro-detalhe-logado', params: { id: livro.id } }"
+                :favorito="ehFavorito(livro.id)"
+                :favoritando="estaPendente(livro.id)"
+                @favoritar="alternarFavorito(livro.id, livro.titulo)"
+              />
+            </li>
+          </ul>
+        </template>
       </section>
     </div>
   </LayoutLogado>
@@ -195,15 +304,42 @@ const novidades = [
   gap: var(--espaco-16);
 }
 
+.secao-aviso {
+  color: var(--texto-secundario);
+  font: var(--fonte-corpo);
+}
+
+.secao-erro {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--espaco-12);
+}
+
+.secao-vazio {
+  align-self: center;
+}
+
+/* Só para leitor de tela */
+.so-leitor {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 .grade {
   display: grid;
   gap: 20px;
   list-style: none;
 }
 
-/* Colunas fluidas: 3 (continuar) e 4 (novidades) na largura do Figma, menos quando aperta */
+/* Colunas fluidas: 3 (continuar) e 4 (novidades) na largura do Figma, menos quando aperta.
+   Continuar usa auto-fill: com 1 ou 2 livros, o card fica do tamanho de uma coluna (não estica). */
 .grade--continuar {
-  grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr));
 }
 
 .grade--novidades {
