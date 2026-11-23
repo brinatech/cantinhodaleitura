@@ -6,7 +6,8 @@
     página do marcador (HU-15). "Em andamento" = progresso abaixo de 100%; "lidos" = 100%.
   - O terceiro número do Figma era "2h ouvindo", mas nada no banco guarda tempo de escuta:
     trocado pelo número de favoritos (levar à equipe).
-  - Novidades: os 4 livros cadastrados mais recentemente (GET /api/v1/livros?ordem=recentes).
+  - Novidades: os 12 livros cadastrados mais recentemente (GET /api/v1/livros?ordem=recentes).
+  As duas listas ficam numa fileira com setas (FileiraRolagem), também no celular.
   Cada parte carrega sozinha: se uma falhar, as outras continuam aparecendo.
 -->
 <script setup>
@@ -19,6 +20,7 @@ import CardContinuarLendo from '../components/ui/CardContinuarLendo.vue'
 import CardLivro from '../components/ui/CardLivro.vue'
 import DestaquePalavra from '../components/ui/DestaquePalavra.vue'
 import EstadoVazio from '../components/ui/EstadoVazio.vue'
+import FileiraRolagem from '../components/ui/FileiraRolagem.vue'
 import Icone from '../components/ui/Icone.vue'
 import IconeBolha from '../components/ui/IconeBolha.vue'
 import Selo from '../components/ui/Selo.vue'
@@ -45,8 +47,8 @@ const erroHistorico = ref(false)
 const lido = (item) => item.progresso_percentual >= 100
 const andamento = computed(() => historico.value.filter((item) => !lido(item)))
 const totalLidos = computed(() => historico.value.filter(lido).length)
-// O histórico já vem do lido mais recentemente para o mais antigo: os 3 primeiros em andamento
-const continuar = computed(() => andamento.value.slice(0, 3))
+// O histórico já vem do lido mais recentemente para o mais antigo: os 10 primeiros em andamento (o resto, no Histórico)
+const continuar = computed(() => andamento.value.slice(0, 10))
 
 const plural = (total, um, varios) => (total === 1 ? `1 ${um}` : `${total} ${varios}`)
 const resumo = computed(() => [
@@ -78,7 +80,7 @@ async function carregarNovidades() {
   carregandoNovidades.value = true
   erroNovidades.value = false
   try {
-    novidades.value = (await listarLivros({ ordem: 'recentes' })).slice(0, 4)
+    novidades.value = (await listarLivros({ ordem: 'recentes' })).slice(0, 12)
   } catch {
     erroNovidades.value = true
   } finally {
@@ -142,8 +144,8 @@ onMounted(() => {
           <template #acao><Botao tipo="contorno" to="/acervo">Explorar o acervo</Botao></template>
         </EstadoVazio>
 
-        <ul v-else class="grade grade--continuar">
-          <li v-for="item in continuar" :key="item.livro_id">
+        <FileiraRolagem v-else class="fileira fileira--continuar" :itens="continuar" :chave="(item) => item.livro_id">
+          <template #default="{ item }">
             <CardContinuarLendo
               layout="vertical"
               :titulo="item.livro.titulo"
@@ -154,8 +156,8 @@ onMounted(() => {
               :rotulo-progresso="rotuloProgresso(item)"
               :to="{ name: 'livro-leitura-logado', params: { id: item.livro_id } }"
             />
-          </li>
-        </ul>
+          </template>
+        </FileiraRolagem>
       </section>
 
       <section class="secao secao--novidades" aria-labelledby="titulo-novidades">
@@ -182,8 +184,8 @@ onMounted(() => {
           <p class="so-leitor" role="status">{{ avisoFavorito }}</p>
           <Alerta v-if="erroFavorito" tipo="erro">{{ erroFavorito }}</Alerta>
 
-          <ul class="grade grade--novidades">
-            <li v-for="livro in novidades" :key="livro.id">
+          <FileiraRolagem class="fileira fileira--novidades" :itens="novidades">
+            <template #default="{ item: livro }">
               <CardLivro
                 :titulo="livro.titulo"
                 :autor="livro.autor"
@@ -196,8 +198,8 @@ onMounted(() => {
                 :favoritando="estaPendente(livro.id)"
                 @favoritar="alternarFavorito(livro.id, livro.titulo)"
               />
-            </li>
-          </ul>
+            </template>
+          </FileiraRolagem>
         </template>
       </section>
     </div>
@@ -321,28 +323,25 @@ onMounted(() => {
   white-space: nowrap;
 }
 
-.grade {
-  display: grid;
-  gap: 20px;
-  list-style: none;
+/* ===== Fileiras com setas (components/ui/FileiraRolagem.vue) =====
+   Na largura do Figma cabem 3 cards (continuar) e 4 (novidades); o resto fica para as setas.
+   Com 1 ou 2 livros, o card não estica: fica do tamanho de uma coluna.
+   O respiro de 8px nas laterais deixa a sombra dos cards à mostra; a margem negativa
+   compensa, para os cards continuarem alinhados com o título da seção. */
+.fileira {
+  --fileira-espaco: 20px;
+  --fileira-respiro: var(--espaco-8);
+  --fileira-seta-lado: calc(var(--espaco-8) - 26px); /* metade da seta para fora, na borda da fileira */
+
+  margin: calc(-1 * var(--espaco-16)) calc(-1 * var(--espaco-8)) calc(-1 * var(--espaco-24)); /* tira a folga de cima e de baixo da fileira */
 }
 
-/* Colunas fluidas: 3 (continuar) e 4 (novidades) na largura do Figma, menos quando aperta.
-   Continuar usa auto-fill: com 1 ou 2 livros, o card fica do tamanho de uma coluna (não estica). */
-.grade--continuar {
-  grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr));
+.fileira--continuar {
+  --fileira-largura-item: max(260px, calc((100% - 2 * 20px) / 3));
 }
 
-.grade--novidades {
-  grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
-}
-
-.grade > li {
-  display: flex;
-}
-
-.grade > li > * {
-  flex: 1;
+.fileira--novidades {
+  --fileira-largura-item: max(220px, calc((100% - 3 * 20px) / 4));
 }
 
 /* ===== Telas menores ===== */
@@ -365,6 +364,11 @@ onMounted(() => {
 
   .boas-vindas-titulo {
     font: var(--fonte-titulo-cartao);
+  }
+
+  /* Celular: a seta fica toda dentro da tela, por cima do card (para fora, passaria da borda) */
+  .fileira {
+    --fileira-seta-lado: var(--espaco-8);
   }
 }
 </style>
