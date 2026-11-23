@@ -182,8 +182,34 @@ function irPara(numero) {
   if (destino === pagina.value) return
   proximaTransicao = destino > pagina.value ? 'frente' : 'tras'
   pagina.value = destino
-  area.value?.scrollTo({ top: 0, left: 0 })
+  area.value?.scrollTo({ top: 0, left: 0 }) // a folha nova começa do alto, como virar a página de um livro
+  mostrarComecoDaFolha()
   emit('mudou-pagina', destino)
+}
+
+// Altura do que fica preso no topo da tela (ex.: a barra de busca da área logada).
+// Olha o elemento bem no alto da tela e sobe até achar um "sticky"/"fixed"; sem nenhum, é 0.
+function alturaDoTopoPreso() {
+  let el = document.elementFromPoint(window.innerWidth / 2, 1)
+  while (el && el !== document.body) {
+    const posicao = getComputedStyle(el).position
+    if (posicao === 'sticky' || posicao === 'fixed') return Math.max(0, el.getBoundingClientRect().bottom)
+    el = el.parentElement
+  }
+  return 0
+}
+
+// Se o começo da folha ficou escondido (acima da tela ou atrás da barra do topo), rola até ele.
+// Se já está à vista, nada se mexe. Em tela cheia, quem rola é o próprio leitor.
+function mostrarComecoDaFolha() {
+  if (!area.value) return
+  const folga = alturaDoTopoPreso() + 16
+  const distancia = area.value.getBoundingClientRect().top - folga
+  if (distancia >= 0) return
+  const semMovimento =
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches || document.documentElement.hasAttribute('data-calmo')
+  const rolavel = document.fullscreenElement ?? window
+  rolavel.scrollBy({ top: distancia, behavior: semMovimento ? 'auto' : 'smooth' })
 }
 
 // O marcador (HU-15) usa para "Continuar da página X"
