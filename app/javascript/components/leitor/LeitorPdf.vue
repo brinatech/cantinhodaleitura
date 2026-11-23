@@ -276,18 +276,24 @@ onBeforeUnmount(() => {
           <Botao tipo="contorno" class="pdf-botao" :disabled="zoom >= ZOOM_MAXIMO" aria-label="Aumentar o zoom" @click="mudarZoom(zoom + PASSO_ZOOM)">
             <span aria-hidden="true">+</span>
           </Botao>
-          <Botao tipo="contorno" :disabled="zoom === 1" @click="mudarZoom(1)">Ajustar à largura</Botao>
+          <!-- No celular só "Ajustar" aparece; o nome completo fica no aria-label (começa com o texto visível) -->
+          <Botao tipo="contorno" class="pdf-acao" aria-label="Ajustar à largura" :disabled="zoom === 1" @click="mudarZoom(1)">
+            <span>Ajustar<span class="pdf-texto-longo"> à largura</span></span>
+          </Botao>
         </div>
 
         <div class="pdf-grupo">
-          <Botao v-if="telaCheiaDisponivel" tipo="contorno" :aria-pressed="emTelaCheia" @click="alternarTelaCheia">
+          <Botao v-if="telaCheiaDisponivel" tipo="contorno" class="pdf-acao" :aria-pressed="emTelaCheia" @click="alternarTelaCheia">
             {{ emTelaCheia ? 'Sair da tela cheia' : 'Tela cheia' }}
           </Botao>
-          <Botao tipo="contorno" :href="url">
+          <Botao tipo="contorno" class="pdf-acao" :href="url">
             <template #icone><Icone nome="seta-baixo" /></template>
             Baixar
           </Botao>
         </div>
+
+        <!-- Só no celular: quebra a linha antes de "Ajustar" (ver o CSS do fim) -->
+        <span class="pdf-quebra" aria-hidden="true"></span>
       </div>
 
       <BarraProgresso :progresso="progressoLeitura" rotulo="Seu progresso neste livro" :valor="`${Math.round(progressoLeitura)}%`" />
@@ -395,6 +401,10 @@ onBeforeUnmount(() => {
 
 .pdf-pagina {
   min-width: 14ch;
+}
+
+.pdf-quebra {
+  display: none;
 }
 
 /* Rodapé preso: acompanha a rolagem e fica sempre visível embaixo da tela */
@@ -578,6 +588,52 @@ onBeforeUnmount(() => {
 
   .pdf-seta--proxima {
     right: var(--espaco-4);
+  }
+}
+
+/* ===== Celular: a barra em 2 linhas =====
+   1ª: "Página 1 de 8" à esquerda e o zoom (− 100% +) à direita
+   2ª: Ajustar · Tela cheia · Baixar, dividindo a largura
+   Os grupos "somem" (display: contents) para cada botão ir para o seu lugar com "order";
+   o .pdf-quebra ocupa uma linha inteira de altura zero e empurra os botões para baixo */
+@media (max-width: 640px) {
+  .pdf-barra {
+    gap: var(--espaco-8);
+    padding: var(--espaco-12);
+  }
+
+  .pdf-grupo {
+    display: contents;
+  }
+
+  .pdf-pagina {
+    flex: 1;
+    order: 1;
+    min-width: 0;
+    text-align: left;
+  }
+
+  .pdf-botao,
+  .pdf-zoom {
+    order: 2;
+  }
+
+  .pdf-quebra {
+    display: block;
+    flex-basis: 100%;
+    order: 3;
+  }
+
+  .pdf-acao {
+    flex: 1 1 auto;
+    order: 4;
+    min-height: 44px;
+    padding: var(--espaco-8) var(--espaco-12);
+    white-space: nowrap;
+  }
+
+  .pdf-texto-longo {
+    display: none;
   }
 }
 </style>
