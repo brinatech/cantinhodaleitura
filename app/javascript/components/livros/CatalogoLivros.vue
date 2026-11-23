@@ -32,7 +32,8 @@ const props = defineProps({
 const emit = defineEmits(['limpar-busca'])
 
 // ===== Favoritos (coração dos cards) =====
-// Só quem tem conta vê o coração: visitante não guarda favoritos (backlog, HU-12)
+// Só o leitor logado vê o coração: visitante não guarda favoritos (backlog, HU-12) e o administrador
+// não usa as ferramentas de leitor
 const auth = useAuthStore()
 const { alternar: alternarFavorito, erro: erroFavorito, aviso: avisoFavorito, ehFavorito, estaPendente } = useFavoritar()
 
@@ -181,7 +182,7 @@ const textoFormato = (livro) => {
           :formato="textoFormato(livro)"
           :icone-formato="temAudio(livro) ? 'fones' : 'livro'"
           :to="{ name: detalhe, params: { id: livro.id } }"
-          :mostrar-favoritar="Boolean(auth.usuario)"
+          :mostrar-favoritar="Boolean(auth.usuario) && !auth.ehAdministrador"
           :favorito="ehFavorito(livro.id)"
           :favoritando="estaPendente(livro.id)"
           @favoritar="alternarFavorito(livro.id, livro.titulo)"

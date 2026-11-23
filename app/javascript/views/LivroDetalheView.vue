@@ -18,16 +18,21 @@ import { useAuthStore } from '../stores/auth.js'
 
 const rota = useRoute()
 const auth = useAuthStore()
-const administrador = computed(() => auth.usuario?.tipo_usuario === 'administrador')
+const administrador = computed(() => auth.ehAdministrador)
 
 // /livros/:id é o detalhe do visitante; /acervo/:id é o mesmo, dentro da área logada
 const logada = computed(() => rota.meta.logada === true)
-// "Voltar ao acervo" volta para o acervo como estava (com a busca e os filtros do endereço),
-// se a pessoa veio de lá; senão, para o acervo sem filtros. O vue-router guarda o endereço anterior em history.state.back.
+// "Voltar" volta para o acervo como estava (com a busca e os filtros do endereço), se a pessoa
+// veio de lá; senão, para o acervo sem filtros. O vue-router guarda o endereço anterior em history.state.back.
+// Administrador: o acervo dele é /admin/acervo; e se veio do "Ver como leitor" da lista de livros, volta para ela.
 const enderecoAnterior = window.history.state?.back
-const voltarPara = computed(() => {
-  const acervo = logada.value ? '/acervo' : '/acervo-publico'
-  return typeof enderecoAnterior === 'string' && enderecoAnterior.split('?')[0] === acervo ? enderecoAnterior : acervo
+const anterior = typeof enderecoAnterior === 'string' ? enderecoAnterior : ''
+const voltar = computed(() => {
+  if (logada.value && administrador.value && anterior.startsWith('/admin/livros')) {
+    return { para: anterior, texto: 'Voltar aos livros' }
+  }
+  const acervo = !logada.value ? '/acervo-publico' : administrador.value ? '/admin/acervo' : '/acervo'
+  return { para: anterior.split('?')[0] === acervo ? anterior : acervo, texto: 'Voltar ao acervo' }
 })
 const livro = ref(null)
 const carregando = ref(true)
@@ -89,21 +94,21 @@ onBeforeUnmount(() => controladorAtual?.abort())
         titulo="Livro não encontrado"
         descricao="O livro que você procura não está disponível no acervo."
       >
-        <template #acao><Botao tipo="contorno" :to="voltarPara">Voltar ao acervo</Botao></template>
+        <template #acao><Botao tipo="contorno" :to="voltar.para">{{ voltar.texto }}</Botao></template>
       </EstadoVazio>
 
       <div v-else-if="erro?.status === 401 || erro?.status === 403" class="livro-estado">
         <Alerta tipo="erro">Este material é restrito e não pode ser exibido.</Alerta>
-        <Botao tipo="contorno" :to="voltarPara">Voltar ao acervo</Botao>
+        <Botao tipo="contorno" :to="voltar.para">{{ voltar.texto }}</Botao>
       </div>
 
       <div v-else-if="erro" class="livro-estado">
         <Alerta tipo="erro">Não foi possível carregar este livro. Tente novamente.</Alerta>
-        <Botao tipo="contorno" :to="voltarPara">Voltar ao acervo</Botao>
+        <Botao tipo="contorno" :to="voltar.para">{{ voltar.texto }}</Botao>
       </div>
 
       <article v-else-if="livro" class="livro-conteudo" :class="`cat-${chaveCategoria(categoria)}`">
-        <Botao class="livro-voltar" tipo="contorno" :to="voltarPara">← Voltar ao acervo</Botao>
+        <Botao class="livro-voltar" tipo="contorno" :to="voltar.para">← {{ voltar.texto }}</Botao>
 
         <div class="livro-cabecalho">
           <div class="livro-capa">
@@ -124,15 +129,15 @@ onBeforeUnmount(() => controladorAtual?.abort())
 
             <!-- Ler (HU-10 Task 4): abre a tela de leitura, também para visitantes.
                  Se o livro tiver audiobook, o player aparece lá, embaixo do PDF.
-                 Favoritar (HU-12 Task 3): só para quem está logado. -->
-            <div v-if="temTexto || auth.usuario" class="livro-acoes">
+                 Favoritar (HU-12 Task 3) e listas (HU-13): só para o leitor logado.
+                 O administrador não tem as ferramentas de leitor: ele só confere o livro. -->
+            <div v-if="temTexto || (auth.usuario && !administrador)" class="livro-acoes">
               <Botao v-if="temTexto" :to="leitura">
                 <template #icone><Icone nome="livro" /></template>
                 Ler o livro
               </Botao>
-              <BotaoFavorito v-if="auth.usuario" :livro-id="livro.id" :titulo="livro.titulo" />
-              <!-- Listas de leitura (HU-13): só para quem está logado -->
-              <BotaoAdicionarLista v-if="auth.usuario" :livro-id="livro.id" :titulo="livro.titulo" />
+              <BotaoFavorito v-if="auth.usuario && !administrador" :livro-id="livro.id" :titulo="livro.titulo" />
+              <BotaoAdicionarLista v-if="auth.usuario && !administrador" :livro-id="livro.id" :titulo="livro.titulo" />
             </div>
 
             <Botao v-if="administrador" class="livro-admin" tipo="contorno" :to="`/admin/livros/${livro.id}/classificacoes`">

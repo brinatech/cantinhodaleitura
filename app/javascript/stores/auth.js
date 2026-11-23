@@ -6,6 +6,15 @@ const canal = typeof BroadcastChannel === 'undefined' ? null : new BroadcastChan
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({ usuario: null }),
+  getters: {
+    // Só conveniência de tela: quem protege as ações de administração é o Rails (403)
+    ehAdministrador: (state) => state.usuario?.tipo_usuario === 'administrador',
+    // Página inicial de cada perfil (um login só; o perfil vem da conta):
+    // o administrador cai nos Relatórios, o leitor nas Minhas leituras
+    inicio() {
+      return this.ehAdministrador ? '/admin/relatorios' : '/minhas-leituras'
+    },
+  },
   actions: {
     // Pergunta ao servidor quem está logado. Sem rede, fica como estava.
     async carregar() {

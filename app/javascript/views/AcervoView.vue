@@ -3,6 +3,7 @@
   A busca por texto fica na barra de cima (LayoutLogado), que manda para /acervo?busca=...;
   esta tela lê a URL e mostra os livros que combinam (HU-02, Task 2 do backlog).
   A estante (filtros + cards) é o CatalogoLivros, que também servirá ao acervo do visitante.
+  O administrador usa esta mesma tela em /admin/acervo, para conferir os livros como o leitor vê.
   Os livros vêm do GET /api/v1/livros (services/livrosService.js); a busca e os
   filtros ainda são feitos no navegador.
 -->
@@ -14,9 +15,12 @@ import CatalogoLivros from '../components/livros/CatalogoLivros.vue'
 import Botao from '../components/ui/Botao.vue'
 import EstadoVazio from '../components/ui/EstadoVazio.vue'
 import { listarLivros } from '../services/livrosService.js'
+import { useAuthStore } from '../stores/auth.js'
 
 const rota = useRoute()
 const roteador = useRouter()
+// A mesma estante serve ao administrador (/admin/acervo), para conferir os livros como o leitor vê
+const administrador = computed(() => useAuthStore().ehAdministrador)
 
 // A busca vem da URL (/acervo?busca=lua), que a barra de cima preenche
 const busca = computed(() => (typeof rota.query.busca === 'string' ? rota.query.busca : ''))
@@ -51,7 +55,9 @@ onMounted(carregarLivros) // quando a tela abrir, busca os livros
     <div class="acervo">
       <header class="acervo-topo">
         <h1 class="acervo-titulo">Acervo</h1>
-        <p class="acervo-subtitulo">Encontre uma história que combine com seu momento.</p>
+        <p class="acervo-subtitulo">
+          {{ administrador ? 'Os livros do jeito que os leitores veem. Abra um livro para conferir capa, texto e áudio.' : 'Encontre uma história que combine com seu momento.' }}
+        </p>
       </header>
 
       <p v-if="carregando" class="acervo-aviso" role="status">Carregando livros…</p>

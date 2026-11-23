@@ -105,7 +105,8 @@ function mostrarErroDoServidor(erro) {
 
 function irParaAreaLogada() {
   const destino = rota.query.redirect
-  roteador.push(typeof destino === 'string' && destino.startsWith('/') ? destino : '/minhas-leituras')
+  // Sem destino: cada perfil vai para o seu início (leitor: minhas leituras; admin: relatórios)
+  roteador.push(typeof destino === 'string' && destino.startsWith('/') ? destino : auth.inicio)
 }
 
 async function enviarAoServidor() {
