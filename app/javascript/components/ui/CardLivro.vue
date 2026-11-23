@@ -239,4 +239,29 @@ const rotuloCategoria = computed(() => props.categoria || 'Diversos')
   color: var(--texto-secundario);
   font: var(--fonte-legenda);
 }
+
+/* ===== Card estreito (duas colunas no celular) =====
+   Olha a largura do próprio card, e não a da tela: vale em qualquer grade que o use */
+.card {
+  container-type: inline-size;
+}
+
+@container (max-width: 180px) { /* largura de dentro do card (sem o padding); no computador ele nunca fica tão estreito */
+  /* A marca não cabe numa linha só; é enfeite (aria-hidden), então sai */
+  .card-marca {
+    display: none;
+  }
+
+  .card-capa {
+    height: 190px;
+  }
+
+  /* O selo desce para o pé da capa: em cima, ele bateria no coração */
+  .card-categoria {
+    top: auto;
+    bottom: var(--espaco-8);
+    max-width: calc(100% - var(--espaco-16));
+    overflow: hidden;
+  }
+}
 </style>

@@ -53,4 +53,20 @@ defineProps({
   color: var(--texto-secundario);
   font: var(--fonte-subtitulo);
 }
+
+/* Celular: ilustração e letras um pouco menores, para o título não quebrar em várias linhas */
+@media (max-width: 640px) {
+  .cabecalho-secao-ilustracao {
+    width: 56px;
+    height: 68px;
+  }
+
+  .cabecalho-secao-titulo {
+    font: var(--fonte-titulo-cartao);
+  }
+
+  .cabecalho-secao-subtitulo {
+    font: var(--fonte-corpo);
+  }
+}
 </style>
