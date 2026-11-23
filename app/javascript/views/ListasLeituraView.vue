@@ -230,7 +230,7 @@ onMounted(carregar)
   overflow: hidden;
   border-radius: var(--raio-12);
   background: var(--cat-capa);
-  color: var(--texto-principal);
+  color: var(--cat-texto, var(--texto-principal));
 }
 
 .lista-capa img {

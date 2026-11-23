@@ -157,7 +157,7 @@ const rotuloCategoria = computed(() => props.categoria || 'Diversos')
   overflow: hidden;
   border-radius: var(--raio-12);
   background: var(--cat-capa);
-  color: var(--texto-principal);
+  color: var(--cat-texto, var(--texto-principal));
 }
 
 /* Capa real: inteira (capas são verticais), sobra a cor da categoria dos lados */

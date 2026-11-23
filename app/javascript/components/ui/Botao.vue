@@ -44,8 +44,8 @@ const tag = computed(() => (props.to ? RouterLink : props.href ? 'a' : 'button')
 .botao {
   /* Cada tipo só troca estas variáveis; a estrutura é uma só */
   --fundo: var(--destaque-ceu);
-  --cor: var(--texto-principal);
-  --camada-hover: color-mix(in srgb, var(--texto-principal) 10%, transparent);
+  --cor: var(--texto-sobre-cor); /* texto sobre o azul-céu/laranja: escuro também no tema escuro */
+  --camada-hover: color-mix(in srgb, var(--texto-sobre-cor) 10%, transparent);
   --anel-largura: 0px;
   --anel-cor: transparent;
   --anel-foco: var(--borda-foco);
@@ -79,6 +79,8 @@ const tag = computed(() => (props.to ? RouterLink : props.href ? 'a' : 'button')
 
 .botao--contorno {
   --fundo: var(--fundo-superficie);
+  --cor: var(--texto-principal); /* fundo da página: segue o tema */
+  --camada-hover: color-mix(in srgb, var(--texto-principal) 10%, transparent);
   --anel-largura: 1.5px;
   --anel-cor: var(--borda-forte);
 }

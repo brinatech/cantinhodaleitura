@@ -60,6 +60,7 @@ const tag = computed(() => (props.to ? RouterLink : 'button'))
 .item-menu.ativo,
 .item-menu.router-link-exact-active {
   background: var(--destaque-ceu);
+  color: var(--texto-sobre-cor);
   font: var(--fonte-botao);
 }
 

@@ -51,4 +51,5 @@ defineProps({
 .destaque--ceu {
   --marca: var(--destaque-ceu);
 }
+/* No tema escuro o marca-texto fica mais fraco: a regra está em styles/tema-escuro.css */
 </style>

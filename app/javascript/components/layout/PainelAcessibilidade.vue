@@ -26,6 +26,11 @@ const linhas = [
   { valor: 'normal', texto: 'Normal' },
   { valor: 'amplo', texto: 'Amplo' },
 ]
+// Tema escuro: TESTE, sem Figma (styles/tema-escuro.css)
+const temas = [
+  { valor: 'claro', texto: 'Claro' },
+  { valor: 'escuro', texto: 'Escuro' },
+]
 
 const abrir = () => dialogo.value.showModal()
 const fechar = () => dialogo.value.close()
@@ -61,6 +66,15 @@ defineExpose({ abrir })
         <p id="painel-linhas" class="painel-rotulo">Espaço entre linhas</p>
         <div class="painel-opcoes">
           <ChipFiltro v-for="opcao in linhas" :key="opcao.valor" :selecionado="ajustes.linhas === opcao.valor" @click="ajustes.linhas = opcao.valor">
+            {{ opcao.texto }}
+          </ChipFiltro>
+        </div>
+      </div>
+
+      <div class="painel-grupo" role="group" aria-labelledby="painel-tema">
+        <p id="painel-tema" class="painel-rotulo">Tema</p>
+        <div class="painel-opcoes">
+          <ChipFiltro v-for="opcao in temas" :key="opcao.valor" :selecionado="ajustes.tema === opcao.valor" @click="ajustes.tema = opcao.valor">
             {{ opcao.texto }}
           </ChipFiltro>
         </div>

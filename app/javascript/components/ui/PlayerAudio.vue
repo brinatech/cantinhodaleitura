@@ -263,7 +263,7 @@ function clicar(evento) {
   border: 0;
   border-radius: var(--raio-total);
   background: var(--destaque-ceu);
-  color: var(--texto-principal);
+  color: var(--texto-sobre-cor);
   font: var(--fonte-botao);
   cursor: pointer;
 }

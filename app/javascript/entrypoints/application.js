@@ -1,4 +1,5 @@
 import '../styles/tokens.css'
+import '../styles/tema-escuro.css' // antes dos ajustes: o alto contraste também vale no escuro
 import '../styles/ajustes.css'
 import '../styles/animacoes.css'
 import { createApp } from 'vue'
