@@ -62,4 +62,54 @@ class Api::V1::PerfilControllerTest < ActionDispatch::IntegrationTest
     assert_response :no_content
     assert @usuario.reload.authenticate("novasenha123")
   end
+
+  test "excluir a conta exige login e a senha atual" do
+    delete api_v1_perfil_url, params: { senha_atual: "password123" }
+    assert_response :unauthorized
+
+    entrar
+    delete api_v1_perfil_url, params: { senha_atual: "errada" }
+    assert_response :unprocessable_entity
+    assert JSON.parse(response.body).dig("erros", "senha_atual").any?
+    assert_not @usuario.reload.excluido?
+  end
+
+  test "exclui a própria conta: anonimiza, encerra a sessão e não deixa entrar de novo" do
+    Favorito.create!(usuario: @usuario, livro: livros(:one))
+    entrar
+
+    delete api_v1_perfil_url, params: { senha_atual: "password123" }
+
+    assert_response :no_content
+    assert response.headers["X-CSRF-Token"].present?
+    @usuario.reload
+    assert @usuario.excluido?
+    assert_equal "Conta excluída", @usuario.nome
+    assert_equal 0, @usuario.favoritos.count
+
+    get api_v1_perfil_url
+    assert_response :unauthorized
+
+    post api_v1_sessao_url, params: { email: "perfil@example.com", password: "password123" }
+    assert_response :unauthorized
+  end
+
+  test "só exclui a conta de quem está logado" do
+    entrar
+    delete api_v1_perfil_url, params: { senha_atual: "password123", id: @outro.id }
+
+    assert @usuario.reload.excluido?
+    assert_not @outro.reload.excluido?
+    assert_equal "Outra", @outro.nome
+  end
+
+  test "administrador não exclui a própria conta por aqui" do
+    admin = Usuario.create!(nome: "Admin", email: "admin-perfil@example.com", password: "password123", tipo_usuario: "administrador")
+    post api_v1_sessao_url, params: { email: admin.email, password: "password123" }
+
+    delete api_v1_perfil_url, params: { senha_atual: "password123" }
+
+    assert_response :forbidden
+    assert_not admin.reload.excluido?
+  end
 end

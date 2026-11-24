@@ -81,6 +81,17 @@ class Relatorios::BibliotecaQueryTest < ActiveSupport::TestCase
     assert_includes Usuario.where(created_at: ..BRASILIA.local(2026, 10, 31).end_of_day), @leitor
   end
 
+  test "conta excluída deixa de contar como leitor a partir da exclusão" do
+    antes = relatorio[:leitores_cadastrados]
+
+    travel_to(BRASILIA.local(2026, 11, 10)) { ExcluirConta.call(usuario: @leitor) }
+
+    assert_equal antes, relatorio[:leitores_cadastrados], "outubro foi antes da exclusão: continua contando"
+    fim_de_novembro = BRASILIA.local(2026, 11, 30).end_of_day
+    esperado = Usuario.where(tipo_usuario: "leitor", created_at: ..fim_de_novembro).where.not(id: @leitor.id).count
+    assert_equal esperado, relatorio(Date.new(2026, 11, 1), Date.new(2026, 11, 30))[:leitores_cadastrados]
+  end
+
   test "dados_desde é o dia do primeiro acesso gravado (ou nil)" do
     assert_nil relatorio[:dados_desde]
 

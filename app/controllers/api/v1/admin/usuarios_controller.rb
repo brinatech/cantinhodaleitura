@@ -9,7 +9,7 @@ module Api
 
         def index
           usuarios = Usuario.order(created_at: :desc, id: :desc)
-          render json: usuarios.map { |usuario| usuario_json(usuario) }
+          render json: usuarios.map { |usuario| usuario_admin_json(usuario) }
         end
 
         def update
@@ -18,6 +18,11 @@ module Api
 
           if atributos.key?(:ativo) && ActiveModel::Type::Boolean.new.cast(atributos[:ativo]).nil?
             return render json: { erro: "O status precisa ser ativo ou bloqueado" }, status: :unprocessable_entity
+          end
+
+          # HU-21: conta excluída pelo próprio usuário (anonimizada) não volta a ser ativada nem muda de tipo.
+          if @usuario.excluido?
+            return render json: { erro: "Esta conta foi excluída pelo próprio usuário e não pode ser alterada." }, status: :forbidden
           end
 
           solicitou_bloqueio = atributos.key?(:ativo) && ActiveModel::Type::Boolean.new.cast(atributos[:ativo]) == false
@@ -30,7 +35,7 @@ module Api
           end
 
           if @usuario.update(atributos)
-            render json: usuario_json(@usuario)
+            render json: usuario_admin_json(@usuario)
           else
             render json: { erros: @usuario.errors.to_hash }, status: :unprocessable_entity
           end
@@ -41,6 +46,11 @@ module Api
         def carregar_usuario
           @usuario = Usuario.find_by(id: params[:id])
           render json: { erro: "Usuário não encontrado" }, status: :not_found unless @usuario
+        end
+
+        # O mesmo JSON de sempre + a data da exclusão (HU-21), para a tela mostrar o selo "Excluída".
+        def usuario_admin_json(usuario)
+          usuario_json(usuario).merge(excluido_em: usuario.excluido_em)
         end
 
         def usuario_params

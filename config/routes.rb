@@ -10,7 +10,8 @@ Rails.application.routes.draw do
       resources :usuarios, only: [ :create ]
       resource :sessao, only: [ :show, :create, :destroy ]
       resource :recuperacao_senha, only: [ :create, :update ], controller: "recuperacoes_senha"
-      resource :perfil, only: [ :show, :update ], controller: "perfil" do
+      # Meus dados (HU-21). DELETE = excluir a própria conta (anonimização, pede a senha atual)
+      resource :perfil, only: [ :show, :update, :destroy ], controller: "perfil" do
         patch :senha
       end
       resources :livros, only: [ :index, :show ] do
