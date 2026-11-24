@@ -92,12 +92,6 @@ const cards = computed(() => {
   ]
 })
 
-const avisoDados = computed(() => {
-  if (!resumo.value) return ''
-  if (!resumo.value.dados_desde) return 'Ainda não há acessos registrados. Os números de visualizações, leituras e downloads aparecem conforme os livros forem usados.'
-  return `Os acessos são registrados desde ${dataBr(resumo.value.dados_desde)}. Períodos anteriores aparecem sem acessos.`
-})
-
 onMounted(carregar)
 </script>
 
@@ -151,8 +145,6 @@ onMounted(carregar)
       </EstadoVazio>
 
       <template v-else-if="resumo">
-        <Alerta tipo="info">{{ avisoDados }}</Alerta>
-
         <ul class="relatorios-cards" :aria-busy="carregando">
           <li v-for="card in cards" :key="card.rotulo">
             <IndicadorCard v-bind="card" />
@@ -162,7 +154,8 @@ onMounted(carregar)
         <section class="relatorios-secao" aria-labelledby="titulo-mais-acessados">
           <h2 id="titulo-mais-acessados" class="relatorios-secao-titulo">Livros mais acessados</h2>
           <p v-if="!resumo.mais_acessados.length" class="relatorios-aviso">Nenhum acesso no período.</p>
-          <div v-else class="tabela-rolagem">
+          <!-- tabindex: no celular a tabela rola para o lado, e quem usa teclado também precisa conseguir rolar -->
+          <div v-else class="tabela-rolagem" tabindex="0" role="region" aria-labelledby="titulo-mais-acessados">
             <table class="tabela">
               <caption class="so-leitor">Os 10 livros com mais leituras no período</caption>
               <thead>
@@ -314,6 +307,11 @@ onMounted(carregar)
   background: var(--fundo-superficie);
 }
 
+.tabela-rolagem:focus-visible {
+  outline: 3px solid var(--borda-foco);
+  outline-offset: 2px;
+}
+
 .tabela {
   width: 100%;
   border-collapse: collapse;
@@ -367,6 +365,19 @@ onMounted(carregar)
   overflow: hidden;
   clip-path: inset(50%);
   white-space: nowrap;
+}
+
+/* Celular: células mais justas e o nome do livro com largura mínima
+   (sem ela, o título quebra quase uma palavra por linha) */
+@media (max-width: 640px) {
+  .tabela th,
+  .tabela td {
+    padding: var(--espaco-8) var(--espaco-12);
+  }
+
+  .tabela tbody th {
+    min-width: 10em;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

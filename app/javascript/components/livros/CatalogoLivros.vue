@@ -251,7 +251,7 @@ const textoFormato = (livro) => {
 /* ===== Grade de cards (mesma da seção "Novidades" em Minhas leituras) ===== */
 .catalogo-grade {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(240px, 100%), 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(240px, calc(50% - 10px)), 1fr)); /* no celular: 2 colunas (50% menos meio espaço de 20px) */
   gap: 20px;
   list-style: none;
 }

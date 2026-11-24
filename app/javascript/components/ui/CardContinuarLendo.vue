@@ -45,53 +45,65 @@ const rotuloCategoria = computed(() => props.categoria || 'Diversos')
     class="continuar"
     :class="[`continuar--${layout}`, `cat-${chaveCategoria(categoria)}`]"
   >
-    <div class="continuar-capa">
-      <img v-if="capaUrl" class="continuar-capa-img" :src="capaUrl" alt="">
-      <Icone v-else :nome="icone" :tamanho="vertical ? 44 : 36" />
+    <div class="continuar-conteudo">
+      <div class="continuar-capa">
+        <img v-if="capaUrl" class="continuar-capa-img" :src="capaUrl" alt="">
+        <Icone v-else :nome="icone" :tamanho="vertical ? 44 : 36" />
 
-      <template v-if="vertical">
-        <span class="pilula pilula-categoria">
+        <template v-if="vertical">
+          <span class="pilula pilula-categoria">
+            <span class="pilula-ponto" aria-hidden="true"></span>
+            {{ rotuloCategoria }}
+          </span>
+          <span class="pilula pilula-formato">
+            <Icone :nome="icone" :tamanho="14" />
+            {{ audiobook ? 'Audiobook' : 'Leitura' }}
+          </span>
+        </template>
+      </div>
+
+      <div class="continuar-info">
+        <span v-if="!vertical" class="pilula pilula-linha">
           <span class="pilula-ponto" aria-hidden="true"></span>
           {{ rotuloCategoria }}
         </span>
-        <span class="pilula pilula-formato">
-          <Icone :nome="icone" :tamanho="14" />
-          {{ audiobook ? 'Audiobook' : 'Leitura' }}
-        </span>
-      </template>
-    </div>
+        <h3 class="continuar-titulo">{{ titulo }}</h3>
+        <p v-if="detalhe" class="continuar-detalhe">{{ detalhe }}</p>
+        <BarraProgresso :progresso="progresso" :rotulo="rotuloProgresso" :valor="`${Math.round(progresso)}%`" />
+      </div>
 
-    <div class="continuar-info">
-      <span v-if="!vertical" class="pilula pilula-linha">
-        <span class="pilula-ponto" aria-hidden="true"></span>
-        {{ rotuloCategoria }}
-      </span>
-      <h3 class="continuar-titulo">{{ titulo }}</h3>
-      <p v-if="detalhe" class="continuar-detalhe">{{ detalhe }}</p>
-      <BarraProgresso :progresso="progresso" :rotulo="rotuloProgresso" :valor="`${Math.round(progresso)}%`" />
+      <Botao class="continuar-acao" :tipo="audiobook ? 'destaque' : 'principal'" :to="to">
+        <template #icone><Icone :nome="icone" /></template>
+        {{ audiobook ? 'Continuar ouvindo' : 'Continuar leitura' }}
+      </Botao>
     </div>
-
-    <Botao class="continuar-acao" :tipo="audiobook ? 'destaque' : 'principal'" :to="to">
-      <template #icone><Icone :nome="icone" /></template>
-      {{ audiobook ? 'Continuar ouvindo' : 'Continuar leitura' }}
-    </Botao>
   </article>
 </template>
 
 <style scoped>
+/* O article é a caixa (borda, fundo) e mede a própria largura para o container query do fim.
+   O layout (capa, texto, botão) fica no .continuar-conteudo: o container query só muda
+   o que está dentro do container, não o container em si */
 .continuar {
   display: flex;
+  width: 100%;
+  container-type: inline-size;
   border: 1px solid var(--borda-padrao);
   border-radius: var(--raio-20);
   background: var(--fundo-superficie);
   box-shadow: var(--sombra-cartao);
 }
 
+.continuar-conteudo {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+}
+
 /* ===== Horizontal ===== */
-.continuar--horizontal {
+.continuar--horizontal .continuar-conteudo {
   align-items: center;
   gap: var(--espaco-24);
-  width: 100%;
   padding: var(--espaco-16) var(--espaco-24) var(--espaco-16) var(--espaco-16);
 }
 
@@ -107,10 +119,9 @@ const rotuloCategoria = computed(() => props.categoria || 'Diversos')
 }
 
 /* ===== Vertical ===== */
-.continuar--vertical {
+.continuar--vertical .continuar-conteudo {
   flex-direction: column;
   gap: var(--espaco-12);
-  width: 100%;
   padding: var(--espaco-16);
 }
 
@@ -220,5 +231,24 @@ const rotuloCategoria = computed(() => props.categoria || 'Diversos')
   height: 10px;
   border-radius: 50%;
   background: var(--cat);
+}
+
+/* ===== Horizontal estreito (celular) =====
+   Olha a largura do próprio card: capa menor ao lado do texto e o botão desce para uma linha só dele */
+@container (max-width: 520px) {
+  .continuar--horizontal .continuar-conteudo {
+    flex-wrap: wrap;
+    gap: var(--espaco-16);
+    padding: var(--espaco-16);
+  }
+
+  .continuar--horizontal .continuar-capa {
+    width: 84px;
+    height: 112px;
+  }
+
+  .continuar--horizontal .continuar-acao {
+    flex-basis: 100%;
+  }
 }
 </style>
