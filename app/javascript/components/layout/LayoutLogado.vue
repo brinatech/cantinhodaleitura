@@ -34,6 +34,7 @@ const administracao = computed(() =>
     ? [
         { texto: 'Livros', to: '/admin/livros', icone: 'livro' },
         { texto: 'Categorias', to: '/admin/categorias', icone: 'marcador' },
+        { texto: 'Relatórios', to: '/admin/relatorios', icone: 'grafico' },
       ]
     : [],
 )
