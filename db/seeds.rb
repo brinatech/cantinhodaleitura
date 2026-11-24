@@ -1,12 +1,17 @@
 # Dados iniciais da biblioteca. Pode ser executado mais de uma vez sem duplicar
 # categorias ou livros.
 
-usuario_seed = Usuario.find_or_create_by!(email: "seed@cantinhodaleitura.local") do |usuario|
-  usuario.nome = "Cadastro dos livros iniciais"
-  usuario.password = SecureRandom.hex(32)
-  usuario.tipo_usuario = "administrador"
-  usuario.data_cadastro = Time.current
-end
+usuario_seed = Usuario.find_by(email: "seed@cantinhodaleitura.local") ||
+  Usuario.find_by(tipo_usuario: "administrador") ||
+  Usuario.first
+
+usuario_seed ||= Usuario.create!(
+  nome: "Cadastro dos livros iniciais",
+  email: "seed@cantinhodaleitura.local",
+  password: SecureRandom.hex(32),
+  tipo_usuario: "administrador",
+  data_cadastro: Time.current
+)
 
 livros = [
   {
@@ -34,4 +39,33 @@ livros.each do |dados|
     usuario_cadastro: usuario_seed
   )
   livro.save!
+
+  pasta_arquivos = Rails.root.join("db/seeds/arquivos/livros", dados.fetch(:titulo).parameterize)
+  caminho_capa = pasta_arquivos.join("capa.jpg")
+  if File.file?(caminho_capa)
+    mesma_capa = livro.capa.attached? &&
+      livro.capa.filename.to_s == "capa.jpg" &&
+      livro.capa.blob.byte_size == File.size(caminho_capa)
+    unless mesma_capa
+      File.open(caminho_capa, "rb") do |arquivo|
+        livro.capa.attach(io: arquivo, filename: "capa.jpg", content_type: "image/jpeg")
+      end
+    end
+  end
+
+  { "livro.pdf" => [ "texto", "application/pdf" ], "audio.mp3" => [ "audio", "audio/mpeg" ] }.each do |nome, (tipo, content_type)|
+    caminho_arquivo = pasta_arquivos.join(nome)
+    next unless File.file?(caminho_arquivo)
+
+    material = ArquivoMaterial.find_or_initialize_by(livro: livro, tipo: tipo)
+    mesmo_arquivo = material.arquivo.attached? &&
+      material.arquivo.filename.to_s == nome &&
+      material.arquivo.blob.byte_size == File.size(caminho_arquivo)
+    unless mesmo_arquivo
+      File.open(caminho_arquivo, "rb") do |arquivo|
+        material.arquivo.attach(io: arquivo, filename: nome, content_type: content_type)
+      end
+    end
+    material.save!
+  end
 end

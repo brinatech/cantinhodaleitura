@@ -1,0 +1,6 @@
+Adicione nesta pasta os arquivos deste livro:
+- capa.png, capa.jpg ou capa.webp
+- livro.pdf
+- audio.mp3, audio.ogg ou audio.wav
+
+Os arquivos são opcionais. Depois de adicioná-los, avise para atualizar o seed.
