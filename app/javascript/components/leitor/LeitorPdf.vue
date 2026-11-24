@@ -284,7 +284,6 @@ onBeforeUnmount(() => {
       <Alerta tipo="erro">{{ erro }}</Alerta>
       <div class="pdf-acoes">
         <Botao tipo="contorno" @click="carregar">Tentar de novo</Botao>
-        <Botao tipo="contorno" :href="url">Baixar o PDF</Botao>
       </div>
     </template>
 
@@ -308,13 +307,10 @@ onBeforeUnmount(() => {
           </Botao>
         </div>
 
-        <div class="pdf-grupo">
-          <Botao v-if="telaCheiaDisponivel" tipo="contorno" class="pdf-acao" :aria-pressed="emTelaCheia" @click="alternarTelaCheia">
+        <!-- Sem botão de baixar o livro: a biblioteca não oferece download (decisão da equipe) -->
+        <div v-if="telaCheiaDisponivel" class="pdf-grupo">
+          <Botao tipo="contorno" class="pdf-acao" :aria-pressed="emTelaCheia" @click="alternarTelaCheia">
             {{ emTelaCheia ? 'Sair da tela cheia' : 'Tela cheia' }}
-          </Botao>
-          <Botao tipo="contorno" class="pdf-acao" :href="url">
-            <template #icone><Icone nome="seta-baixo" /></template>
-            Baixar
           </Botao>
         </div>
 
@@ -619,7 +615,7 @@ onBeforeUnmount(() => {
 
 /* ===== Celular: a barra em 2 linhas =====
    1ª: "Página 1 de 8" à esquerda e o zoom (− 100% +) à direita
-   2ª: Ajustar · Tela cheia · Baixar, dividindo a largura
+   2ª: Ajustar · Tela cheia, dividindo a largura
    Os grupos "somem" (display: contents) para cada botão ir para o seu lugar com "order";
    o .pdf-quebra ocupa uma linha inteira de altura zero e empurra os botões para baixo */
 @media (max-width: 640px) {
