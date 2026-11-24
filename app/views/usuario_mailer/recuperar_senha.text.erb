@@ -1,6 +1,6 @@
-Olá, <%= @nome %>!
+Olá<%= @menor ? "" : ", #{@nome}" %>!
 
-Recebemos um pedido para redefinir a senha da sua conta no Cantinho da Leitura.
+Recebemos um pedido para redefinir a senha da <%= @menor ? "conta de #{@nome} (você é o responsável por ela)" : "sua conta" %> no Cantinho da Leitura.
 Para criar uma senha nova, abra o link abaixo (ele vale por 15 minutos):
 
 <%= @link %>

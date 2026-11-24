@@ -1,0 +1,13 @@
+Olá, <%= @responsavel %>!
+
+Você criou uma conta no Cantinho da Leitura para <%= @nome %>.
+Para ela poder entrar, confirme que você é o responsável e autoriza o uso da biblioteca:
+
+<%= @link %>
+
+O link vale por <%= @prazo_dias %> dias. Na página você vê quais dados ficam guardados e pode autorizar ou recusar.
+Se ninguém confirmar nesse prazo, o cadastro é apagado.
+
+Depois de autorizar, <%= @nome %> entra com o nome de usuário "<%= @nome_usuario %>" e a senha que você criou.
+
+Se não foi você quem fez este cadastro, é só ignorar este e-mail.

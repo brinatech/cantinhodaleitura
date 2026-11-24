@@ -24,7 +24,9 @@ class ApplicationController < ActionController::Base
       email: usuario.email,
       tipo_usuario: usuario.tipo_usuario,
       ativo: usuario.ativo,
-      ultimo_acesso_em: usuario.ultimo_acesso_em
+      ultimo_acesso_em: usuario.ultimo_acesso_em,
+      menor: usuario.menor, # HU-20: conta de criança/adolescente criada pelo responsável
+      nome_usuario: usuario.nome_usuario
     }
   end
 end

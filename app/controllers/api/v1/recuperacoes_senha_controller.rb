@@ -6,8 +6,9 @@ module Api
 
       # Responde igual exista a conta ou não, para não revelar quem tem cadastro.
       def create
-        usuario = Usuario.find_by(email: params[:email].to_s.strip.downcase, ativo: true)
-        UsuarioMailer.recuperar_senha(usuario).deliver_later if usuario
+        # E-mail ou nome de usuário; na conta de menor o link vai para o e-mail do responsável (HU-20)
+        usuario = Usuario.para_login(params[:email])
+        UsuarioMailer.recuperar_senha(usuario).deliver_later if usuario&.ativo? && !usuario.aguardando_autorizacao?
 
         head :no_content
       end

@@ -8,6 +8,9 @@ Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
       resources :usuarios, only: [ :create ]
+      # HU-20 (versão proposta): o responsável cria a conta da criança e confirma pelo link do e-mail
+      resources :cadastros_menores, only: [ :create ], controller: "cadastros_menores"
+      resources :autorizacoes_menor, only: [ :show, :update, :destroy ], param: :token, controller: "autorizacoes_menor"
       resource :sessao, only: [ :show, :create, :destroy ]
       resource :recuperacao_senha, only: [ :create, :update ], controller: "recuperacoes_senha"
       # Meus dados (HU-21). DELETE = excluir a própria conta (anonimização, pede a senha atual)

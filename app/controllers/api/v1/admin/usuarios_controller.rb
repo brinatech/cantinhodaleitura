@@ -25,6 +25,11 @@ module Api
             return render json: { erro: "Esta conta foi excluída pelo próprio usuário e não pode ser alterada." }, status: :forbidden
           end
 
+          # HU-20: só o responsável libera a conta de menor (pelo link do e-mail), e menor não vira administrador.
+          if @usuario.menor? && (atributos.key?(:tipo_usuario) || @usuario.aguardando_autorizacao?)
+            return render json: { erro: "Conta de criança ou adolescente: só o responsável autoriza o acesso, e o perfil não muda." }, status: :forbidden
+          end
+
           solicitou_bloqueio = atributos.key?(:ativo) && ActiveModel::Type::Boolean.new.cast(atributos[:ativo]) == false
           if @usuario.id == current_usuario.id && (atributos.key?(:tipo_usuario) || solicitou_bloqueio)
             return render json: { erro: "Não é permitido alterar o próprio perfil ou bloquear a própria conta" }, status: :forbidden
@@ -48,9 +53,14 @@ module Api
           render json: { erro: "Usuário não encontrado" }, status: :not_found unless @usuario
         end
 
-        # O mesmo JSON de sempre + a data da exclusão (HU-21), para a tela mostrar o selo "Excluída".
+        # O mesmo JSON de sempre + a data da exclusão (HU-21) e os dados da conta de menor (HU-20).
         def usuario_admin_json(usuario)
-          usuario_json(usuario).merge(excluido_em: usuario.excluido_em)
+          usuario_json(usuario).merge(
+            excluido_em: usuario.excluido_em,
+            responsavel_nome: usuario.responsavel_nome,
+            responsavel_email: usuario.responsavel_email,
+            autorizado_em: usuario.autorizado_em
+          )
         end
 
         def usuario_params
