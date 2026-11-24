@@ -17,7 +17,8 @@ já gravados; não existe tabela de relatórios.
 | Livros no acervo | todos os livros cadastrados até o fim do período | `livros` |
 | Livros novos no período | livros com `created_at` dentro do período | `livros` |
 | Livros cadastrados por mês | contagem por mês (`created_at`), dentro do período | `livros` |
-| Leitores cadastrados | contas com `tipo_usuario = leitor`, criadas até o fim do período | `usuarios` |
+| Leitores cadastrados | contas com `tipo_usuario = leitor`, criadas até o fim do período (conta excluída pelo próprio usuário deixa de contar a partir da exclusão) | `usuarios` |
+| Leitores ativos | leitores **diferentes** com pelo menos um acesso (visualização, leitura ou download) no período; quem acessou várias vezes conta 1; visitantes e administradores não entram. O painel mostra também a % sobre os cadastrados | `acesso_materials` + `usuarios` |
 | Visualizações | acessos `visualizacao` no período | `acesso_materials` |
 | Leituras | acessos `leitura` no período | `acesso_materials` |
 | Downloads | acessos `download` no período | `acesso_materials` |
@@ -48,8 +49,10 @@ o painel avisa a data do primeiro acesso registrado.
 
 ## Em aberto (decisão da SESFA)
 
-- **Usuário ativo:** o que conta como "ativo"? Opções: (a) entrou no sistema no período
-  (a tabela `usuarios` guarda só o último login, `ultimo_acesso_em`); (b) leu ou abriu algum livro
-  no período (`acesso_materials` com usuário); (c) conta habilitada. Até a decisão, o painel mostra
-  "leitores cadastrados", que não depende de definição.
+- **Usuário ativo:** a equipe adotou a opção (b), **"leu ou abriu algum livro no período"**
+  (`acesso_materials` com usuário), porque é a única que dá para calcular para qualquer período com
+  os dados que já existem. As outras opções eram: (a) entrou no sistema no período (não dá para
+  calcular o passado: a tabela `usuarios` guarda só o último login, `ultimo_acesso_em`); (c) conta
+  habilitada (é o mesmo que "leitores cadastrados", que continua no painel). **A SESFA precisa
+  confirmar** esta definição.
 - **Quem é "gestor autorizado":** hoje só o perfil `administrador` vê os relatórios.
