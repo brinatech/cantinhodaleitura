@@ -72,7 +72,8 @@ const painel = ref(null)
 
       <nav class="lateral-nav" aria-label="Menu do leitor">
         <p class="lateral-rotulo">Menu</p>
-        <ItemMenuLateral v-for="item in principais" :key="item.to" :to="item.to" :icone="item.icone" :ativo="rota.path === item.to">
+        <!-- Também nas subpáginas: "Listas de leitura" em /listas-de-leitura/5, "Acervo" em /acervo/3 -->
+        <ItemMenuLateral v-for="item in principais" :key="item.to" :to="item.to" :icone="item.icone" :ativo="rota.path === item.to || rota.path.startsWith(`${item.to}/`)">
           {{ item.texto }}
         </ItemMenuLateral>
 
