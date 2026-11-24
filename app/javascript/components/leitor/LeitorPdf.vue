@@ -18,6 +18,7 @@ import Alerta from '../ui/Alerta.vue'
 import BarraProgresso from '../ui/BarraProgresso.vue'
 import Botao from '../ui/Botao.vue'
 import Icone from '../ui/Icone.vue'
+import { useAjustesStore } from '../../stores/ajustes.js'
 
 // O PDF.js faz o trabalho pesado num "worker" (um ajudante em segundo plano), para a tela não travar
 GlobalWorkerOptions.workerSrc = enderecoDoWorker
@@ -29,6 +30,10 @@ const props = defineProps({
 
 const emit = defineEmits(['aberto', 'mudou-pagina'])
 
+// "Tamanho do texto" do painel (A, A+, A++) vira o zoom da página (HU-18): o PDF é uma imagem, não cresce com a fonte
+const ajustes = useAjustesStore()
+const ZOOM_DO_TAMANHO = { normal: 1, grande: 1.25, maior: 1.5 }
+
 const ZOOM_MINIMO = 0.5
 const ZOOM_MAXIMO = 3
 const PASSO_ZOOM = 0.25
@@ -39,7 +44,7 @@ const urlLeitura = computed(() => `${props.url}?modo=leitura`)
 const documento = shallowRef(null)
 const totalPaginas = ref(0)
 const pagina = ref(1)
-const zoom = ref(1) // 1 = a página ocupa a largura da área (ajustar à largura)
+const zoom = ref(ZOOM_DO_TAMANHO[ajustes.tamanho] ?? 1) // 1 = a página ocupa a largura da área (ajustar à largura)
 const progressoDownload = ref(0)
 const carregando = ref(true)
 const erro = ref('')
@@ -73,8 +78,9 @@ let proximaTransicao = 'abrir'
 const DURACAO_TRANSICAO = 220 // ms
 const DESLOCAMENTO = 24 // px
 
-// Quem pediu "reduzir movimento" no sistema (Windows, celular, Mac) não vê animação
-const semMovimento = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches
+// Quem pediu "reduzir movimento" no sistema (Windows, celular, Mac) ou ligou o "Modo calmo" não vê animação
+const semMovimento = () =>
+  window.matchMedia('(prefers-reduced-motion: reduce)').matches || document.documentElement.hasAttribute('data-calmo')
 
 function animarFolha(tipo) {
   if (!folha.value) return
@@ -98,7 +104,7 @@ async function carregar() {
   carregando.value = true
   progressoDownload.value = 0
   pagina.value = 1
-  zoom.value = 1
+  zoom.value = ZOOM_DO_TAMANHO[ajustes.tamanho] ?? 1
   proximaTransicao = 'abrir'
   tarefaCarregar?.destroy()
   documento.value?.destroy()
@@ -256,6 +262,7 @@ function teclado(evento) {
 }
 
 watch(urlLeitura, carregar, { immediate: true })
+watch(() => ajustes.tamanho, (tamanho) => mudarZoom(ZOOM_DO_TAMANHO[tamanho] ?? 1))
 // Redesenha quando o livro chega, quando troca de página e quando muda o zoom
 watch([documento, pagina, zoom], desenhar, { flush: 'post' })
 
