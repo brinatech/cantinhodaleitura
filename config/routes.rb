@@ -18,6 +18,10 @@ Rails.application.routes.draw do
       end
       # Favoritos de quem está logado. O DELETE usa o número do livro: /favoritos/:livro_id
       resources :favoritos, only: [ :index, :create, :destroy ], param: :livro_id
+      # Marcador de página de quem está logado, um por livro: GET e PUT /marcadores_pagina/:livro_id
+      resources :marcadores_pagina, only: [ :show, :update ], param: :livro_id, controller: "marcadores_pagina"
+      # Histórico de quem está logado: GET /historico (lista) e o leitor avisa a página lida em PUT /historico/:livro_id
+      resources :historico, only: [ :index, :update ], param: :livro_id, controller: "historico"
 
       namespace :admin do
         resources :livros, only: [ :index, :create, :update, :destroy ] do

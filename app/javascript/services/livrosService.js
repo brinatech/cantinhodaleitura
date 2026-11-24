@@ -1,7 +1,9 @@
 // Conversa com a API de livros do Rails.
 // GET /api/v1/livros → lista de livros no formato { id, titulo, autor, capa_url, categoria, formatos }
-export async function listarLivros() {
-  const resposta = await fetch('/api/v1/livros', { headers: { Accept: 'application/json' } })
+// params opcionais, os mesmos do backend (LivrosQuery): ex. { ordem: 'recentes' }
+export async function listarLivros(params = {}) {
+  const busca = new URLSearchParams(params).toString()
+  const resposta = await fetch(`/api/v1/livros${busca ? `?${busca}` : ''}`, { headers: { Accept: 'application/json' } })
 
   // fetch só falha sozinho se a internet cair; erro do servidor (404, 500) a gente verifica aqui
   if (!resposta.ok) throw new Error(`Erro ${resposta.status} ao carregar os livros`)

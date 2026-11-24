@@ -9,7 +9,7 @@ module Api
       # GET /api/v1/favoritos → os meus favoritos, do mais recente para o mais antigo
       def index
         favoritos = current_usuario.favoritos
-                                   .includes(livro: :categoria)
+                                   .includes(livro: [ :categoria, { capa_attachment: :blob } ])
                                    .order(data_favorito: :desc, id: :desc)
 
         render json: favoritos.map { |favorito| favorito_json(favorito) }
@@ -57,8 +57,7 @@ module Api
             id: livro.id,
             titulo: livro.titulo,
             autor: livro.autor,
-            # A coluna antiga. Quando a tela de livros (com a capa enviada) entrar na dev: capa_url_de(livro)
-            capa_url: livro.capa_url,
+            capa_url: capa_url_de(livro), # capa enviada pelo admin ou, se não tiver, o link antigo
             categoria: { id: livro.categoria.id, nome: livro.categoria.nome }
           }
         }

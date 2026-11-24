@@ -3,7 +3,8 @@
   audiobook em Minhas leituras (RF11: histórico e marcador).
   layout: "horizontal" (largo, ação à direita) ou "vertical" (card de coluna).
   formato: "texto" usa o botão Principal; "audiobook" usa o Destaque (laranja).
-  A cor da capa e do ponto vêm da categoria (nome como vem da API).
+  A cor da capa e do ponto vêm da categoria (nome como vem da API). Com "capaUrl" a
+  imagem da capa aparece por cima da cor (inteira, sem cortar); sem ela, fica o ícone.
   A ação é um botão; com "to" vira link do router, e sem "to" avisa por @click.
 -->
 <script setup>
@@ -17,6 +18,7 @@ const props = defineProps({
   titulo: { type: String, required: true },
   detalhe: { type: String, default: '' },
   categoria: { type: String, default: '' },
+  capaUrl: { type: String, default: null },
   formato: {
     type: String,
     default: 'texto',
@@ -44,7 +46,8 @@ const rotuloCategoria = computed(() => props.categoria || 'Diversos')
     :class="[`continuar--${layout}`, `cat-${chaveCategoria(categoria)}`]"
   >
     <div class="continuar-capa">
-      <Icone :nome="icone" :tamanho="vertical ? 44 : 36" />
+      <img v-if="capaUrl" class="continuar-capa-img" :src="capaUrl" alt="">
+      <Icone v-else :nome="icone" :tamanho="vertical ? 44 : 36" />
 
       <template v-if="vertical">
         <span class="pilula pilula-categoria">
@@ -144,6 +147,20 @@ const rotuloCategoria = computed(() => props.categoria || 'Diversos')
   border-radius: var(--raio-12);
   background: var(--cat-capa);
   color: var(--texto-principal);
+}
+
+/* Capa real: inteira (capas são verticais), sobra a cor da categoria dos lados */
+.continuar-capa-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* As pílulas ficam por cima da imagem */
+.continuar-capa .pilula {
+  z-index: 1;
 }
 
 .continuar-info {

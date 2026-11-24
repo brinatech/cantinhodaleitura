@@ -15,6 +15,9 @@ pt-BR:
         confirmation: "não confere com a senha"
         inclusion: "não está na lista"
         password_too_long: "é muito longa (máximo de 72 caracteres)"
+        not_a_number: "não é um número"
+        not_an_integer: "deve ser um número inteiro"
+        greater_than: "deve ser maior que %{count}"
         restrict_dependent_destroy:
           has_one: "Não é possível excluir o registro pois existe um %{record} dependente"
           has_many: "Não é possível excluir o registro pois existem %{record} dependentes"
@@ -32,3 +35,6 @@ pt-BR:
       confirmation: "não confere com a senha"
       inclusion: "não está na lista"
       password_too_long: "é muito longa (máximo de 72 caracteres)"
+      not_a_number: "não é um número"
+      not_an_integer: "deve ser um número inteiro"
+      greater_than: "deve ser maior que %{count}"
