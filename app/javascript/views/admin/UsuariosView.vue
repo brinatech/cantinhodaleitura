@@ -23,10 +23,13 @@ const filtrados = computed(() => {
   const termo = busca.value.trim().toLocaleLowerCase('pt-BR')
   return usuarios.value.filter((usuario) => {
     const combina = !termo || `${usuario.nome} ${usuario.email}`.toLocaleLowerCase('pt-BR').includes(termo)
-    const status = filtro.value === 'todos' || (filtro.value === 'ativos' ? usuario.ativo : !usuario.ativo)
-    return combina && status
+    return combina && (filtro.value === 'todos' || situacao(usuario) === filtro.value)
   })
 })
+
+// Situação da conta: excluída pelo próprio usuário (HU-21, sem volta), bloqueada pelo admin ou ativa
+const situacao = (usuario) => usuario.excluido_em ? 'excluidos' : usuario.ativo ? 'ativos' : 'inativos'
+const ROTULO_SITUACAO = { ativos: 'Ativa', inativos: 'Bloqueada', excluidos: 'Excluída' }
 
 const mensagemErro = (erro) => {
   if (!(erro instanceof ErroApi)) return 'Não conseguimos conectar ao servidor. Tente de novo.'
@@ -117,6 +120,7 @@ const dataBr = (valor) => valor ? new Date(valor).toLocaleDateString('pt-BR') : 
               <option value="todos">Todas as contas</option>
               <option value="ativos">Ativas</option>
               <option value="inativos">Bloqueadas</option>
+              <option value="excluidos">Excluídas</option>
             </select>
           </label>
         </section>
@@ -145,6 +149,7 @@ const dataBr = (valor) => valor ? new Date(valor).toLocaleDateString('pt-BR') : 
                   <template v-if="usuario.id === auth.usuario?.id">
                     <span class="usuarios-papel">Administrador (sua conta)</span>
                   </template>
+                  <span v-else-if="usuario.excluido_em" class="usuarios-papel">Leitor</span>
                   <div v-else class="usuarios-papel-edicao">
                     <label class="so-leitor" :for="`papel-${usuario.id}`">Perfil de {{ usuario.nome }}</label>
                     <select :id="`papel-${usuario.id}`" v-model="papeis[usuario.id]" :disabled="salvando[usuario.id]">
@@ -161,14 +166,17 @@ const dataBr = (valor) => valor ? new Date(valor).toLocaleDateString('pt-BR') : 
                   </div>
                 </td>
                 <td data-label="Status">
-                  <span class="usuarios-status-conta" :class="usuario.ativo ? 'is-ativo' : 'is-bloqueado'">
-                    {{ usuario.ativo ? 'Ativa' : 'Bloqueada' }}
+                  <span class="usuarios-status-conta" :class="`is-${situacao(usuario)}`">
+                    {{ ROTULO_SITUACAO[situacao(usuario)] }}
                   </span>
                 </td>
                 <td data-label="Último acesso">{{ dataBr(usuario.ultimo_acesso_em) }}</td>
                 <td data-label="Ações">
+                  <span v-if="usuario.excluido_em" class="usuarios-propria-conta">
+                    Excluída pelo próprio usuário em {{ dataBr(usuario.excluido_em) }}. Não pode ser reativada.
+                  </span>
                   <button
-                    v-if="usuario.id !== auth.usuario?.id"
+                    v-else-if="usuario.id !== auth.usuario?.id"
                     class="usuarios-acao"
                     :class="usuario.ativo ? 'usuarios-acao--bloquear' : 'usuarios-acao--reativar'"
                     type="button"
@@ -210,8 +218,9 @@ const dataBr = (valor) => valor ? new Date(valor).toLocaleDateString('pt-BR') : 
 .usuarios-papel { color: var(--texto-secundario); }
 .usuarios-link { padding: 8px 10px; border: 0; background: transparent; color: var(--texto-principal); font: var(--fonte-rotulo); text-decoration: underline; cursor: pointer; }
 .usuarios-status-conta { display: inline-flex; padding: 6px 10px; border-radius: 999px; font: var(--fonte-rotulo); }
-.is-ativo { background: var(--fundo-suave); color: var(--texto-principal); }
-.is-bloqueado { background: var(--apoio-rosa-suave); color: var(--texto-erro); }
+.is-ativos { background: var(--fundo-suave); color: var(--texto-principal); }
+.is-inativos { background: var(--apoio-rosa-suave); color: var(--texto-erro); }
+.is-excluidos { background: var(--fundo-suave); color: var(--texto-secundario); }
 .usuarios-acao { padding: 9px 12px; border: 1px solid var(--borda-padrao); border-radius: var(--raio-8); background: transparent; font: var(--fonte-rotulo); cursor: pointer; }
 .usuarios-acao--bloquear { color: var(--texto-erro); }
 .usuarios-acao--reativar { color: var(--texto-principal); }
