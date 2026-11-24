@@ -3,7 +3,8 @@
   abrir() (o LayoutLogado chama pelo botão Acessibilidade). É um <dialog> nativo
   (showModal): o foco fica preso dentro, Esc fecha e o foco volta ao botão.
   Os valores ficam no store de ajustes e valem no site todo, salvos no navegador.
-  "Ler em voz alta" só guarda a preferência: a leitura em voz vem com o leitor.
+  "Ler em voz alta" só guarda a preferência: no leitor do livro ela deixa o bloco
+  "Recursos de acessibilidade" (com os botões de voz) aberto (RecursosAcessibilidade.vue).
 -->
 <script setup>
 import { ref } from 'vue'

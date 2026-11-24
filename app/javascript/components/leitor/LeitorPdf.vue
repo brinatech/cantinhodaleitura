@@ -212,8 +212,15 @@ function mostrarComecoDaFolha() {
   rolavel.scrollBy({ top: distancia, behavior: semMovimento ? 'auto' : 'smooth' })
 }
 
-// O marcador (HU-15) usa para "Continuar da página X"
-defineExpose({ irPara })
+// Texto da página atual, para a leitura em voz alta (HU-17). Vazio se a página for só imagem.
+async function textoDaPagina() {
+  if (!documento.value) return ''
+  const conteudo = await (await documento.value.getPage(pagina.value)).getTextContent()
+  return conteudo.items.map((item) => item.str + (item.hasEOL ? '\n' : ' ')).join('').replace(/\s+/g, ' ').trim()
+}
+
+// O marcador (HU-15) usa para "Continuar da página X"; a voz (HU-17), para o texto e a página atual
+defineExpose({ irPara, textoDaPagina, pagina })
 
 // Celular: deslizar o dedo para o lado troca de página (só sem zoom, porque com zoom o dedo arrasta a página)
 let toqueInicial = null
