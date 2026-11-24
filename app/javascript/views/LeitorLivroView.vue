@@ -14,6 +14,7 @@ import Botao from '../components/ui/Botao.vue'
 import EstadoVazio from '../components/ui/EstadoVazio.vue'
 import LeitorAudio from '../components/leitor/LeitorAudio.vue'
 import ControleMarcador from '../components/leitor/ControleMarcador.vue'
+import RecursosAcessibilidade from '../components/leitor/RecursosAcessibilidade.vue'
 import LeitorPdf from '../components/leitor/LeitorPdf.vue'
 import { useMarcadorPagina } from '../composables/useMarcadorPagina.js'
 import { buscarLivro, ErroApiLivros } from '../services/livrosService.js'
@@ -41,6 +42,7 @@ let controladorAtual = null
 // Cada um é o arquivo do livro (com a url da API para abrir) ou null, se o livro não tem.
 const arquivoDo = (tipo) => livro.value?.formatos?.find((item) => item.tipo === tipo) ?? null
 const texto = computed(() => arquivoDo('texto'))
+const recursosAcessibilidade = computed(() => livro.value?.classificacoes?.filter((c) => c.tipo === 'acessibilidade') ?? [])
 const audio = computed(() => arquivoDo('audio'))
 
 async function carregarLivro(id) {
@@ -102,6 +104,14 @@ onBeforeUnmount(() => controladorAtual?.abort())
           :pagina="marcador.paginaSalva.value"
           @continuar="continuarDoMarcador"
           @dispensar="marcador.dispensar"
+        />
+
+        <!-- Recursos de acessibilidade (HU-17): voz alta (só PDF) e o que o cadastro do livro declara -->
+        <RecursosAcessibilidade
+          v-if="texto || recursosAcessibilidade.length"
+          :recursos="recursosAcessibilidade"
+          :obter-texto="texto ? () => leitorPdf?.textoDaPagina() : null"
+          :pagina="leitorPdf?.pagina ?? 1"
         />
 
         <EstadoVazio
