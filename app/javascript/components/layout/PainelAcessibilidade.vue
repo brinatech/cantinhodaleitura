@@ -91,6 +91,7 @@ defineExpose({ abrir })
         Restaurar padrão
       </Botao>
 
+      <p class="painel-nota">Em livros em PDF, valem o tamanho do texto, o tema e o alto contraste. O espaço entre linhas não muda o PDF.</p>
       <p class="painel-nota">Os ajustes ficam salvos neste navegador.</p>
     </div>
   </dialog>

@@ -9,7 +9,7 @@
  * - As cores fortes (azul-céu, laranja, coral, rosa, categorias) ficam iguais: são a cara do
  *   site e funcionam no escuro. O texto em cima delas continua escuro (--texto-sobre-cor).
  * - As versões "suaves" viram tons escuros da mesma cor.
- * - A folha do PDF continua branca (é o livro).
+ * - A página do PDF é invertida por filtro (styles/ajustes.css), para a leitura também ficar escura (HU-18).
  */
 html[data-tema='escuro'] {
   color-scheme: dark; /* campos, selects e barras de rolagem do navegador também ficam escuros */

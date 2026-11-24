@@ -27,3 +27,23 @@ html[data-calmo] img[aria-hidden="true"],
 html[data-calmo] [aria-hidden="true"] > img {
   display: none;
 }
+
+/* PDF (HU-18): a página é uma imagem (canvas), então tema e contraste agem por filtro.
+   Escuro: inverte e gira o matiz de volta (as cores continuam as mesmas, só o claro vira escuro).
+   Limite: o "Espaço entre linhas" não muda o PDF, pois o texto faz parte da imagem. */
+html[data-tema='escuro'] .pdf-tela {
+  filter: invert(1) hue-rotate(180deg);
+}
+
+html[data-contraste-alto] .pdf-tela {
+  filter: contrast(1.4);
+}
+
+html[data-tema='escuro'][data-contraste-alto] .pdf-tela {
+  filter: invert(1) hue-rotate(180deg) contrast(1.4);
+}
+
+/* Enquanto a página redesenha, o fundo da folha não pisca em branco no escuro */
+html[data-tema='escuro'] .pdf-folha {
+  background: #000;
+}
