@@ -50,6 +50,13 @@
   --categoria-natureza-suave: #f0f9ff;
   --categoria-classicos: #ff6243;
   --categoria-classicos-suave: #fff0ec;
+  /* Categorias novas (fora do Figma, escolhidas pela equipe): tons claros, o texto escuro em cima continua legível */
+  --categoria-infantil: #ffd84d;
+  --categoria-infantil-suave: #fffae6;
+  --categoria-poesia: #d4b8ff;
+  --categoria-poesia-suave: #f6f0ff;
+  --categoria-ciencias: #7ed89a;
+  --categoria-ciencias-suave: #effaf2;
 
   /* ===== Espaçamento ===== */
   --espaco-4: 4px;

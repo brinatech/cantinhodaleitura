@@ -46,6 +46,9 @@ html[data-tema='escuro'] {
   --categoria-fantasia-suave: #3a2429;
   --categoria-natureza-suave: #15303f;
   --categoria-classicos-suave: #3a2420;
+  --categoria-infantil-suave: #3a3417;
+  --categoria-poesia-suave: #2e2540;
+  --categoria-ciencias-suave: #1c3324;
 
   /* ===== Sombras: no escuro, sombra preta (a azulada sumiria) ===== */
   --sombra-cartao: -4px 8px 10px #00000059;
