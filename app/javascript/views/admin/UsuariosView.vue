@@ -22,7 +22,9 @@ const papeis = reactive({})
 const filtrados = computed(() => {
   const termo = busca.value.trim().toLocaleLowerCase('pt-BR')
   return usuarios.value.filter((usuario) => {
-    const combina = !termo || `${usuario.nome} ${usuario.email}`.toLocaleLowerCase('pt-BR').includes(termo)
+    const texto = [usuario.nome, usuario.email, usuario.nome_usuario, usuario.responsavel_email].filter(Boolean).join(' ')
+    const combina = !termo || texto.toLocaleLowerCase('pt-BR').includes(termo)
+    if (filtro.value === 'menores') return combina && usuario.menor // HU-20
     return combina && (filtro.value === 'todos' || situacao(usuario) === filtro.value)
   })
 })
@@ -121,6 +123,7 @@ const dataBr = (valor) => valor ? new Date(valor).toLocaleDateString('pt-BR') : 
               <option value="ativos">Ativas</option>
               <option value="inativos">Bloqueadas</option>
               <option value="excluidos">Excluídas</option>
+              <option value="menores">Crianças e adolescentes</option>
             </select>
           </label>
         </section>
@@ -143,13 +146,19 @@ const dataBr = (valor) => valor ? new Date(valor).toLocaleDateString('pt-BR') : 
               <tr v-for="usuario in filtrados" :key="usuario.id">
                 <td data-label="Conta">
                   <strong>{{ usuario.nome }}</strong>
-                  <span class="usuarios-email">{{ usuario.email }}</span>
+                  <span class="usuarios-email">{{ usuario.email || `Usuário: ${usuario.nome_usuario}` }}</span>
+                  <!-- HU-20: quem é o responsável e se ele já autorizou -->
+                  <span v-if="usuario.menor" class="usuarios-email">
+                    <span class="usuarios-menor">Menor</span>
+                    Responsável: {{ usuario.responsavel_nome }} ({{ usuario.responsavel_email }}) ·
+                    {{ usuario.autorizado_em ? `autorizou em ${dataBr(usuario.autorizado_em)}` : 'aguardando a autorização' }}
+                  </span>
                 </td>
                 <td data-label="Perfil">
                   <template v-if="usuario.id === auth.usuario?.id">
                     <span class="usuarios-papel">Administrador (sua conta)</span>
                   </template>
-                  <span v-else-if="usuario.excluido_em" class="usuarios-papel">Leitor</span>
+                  <span v-else-if="usuario.excluido_em || usuario.menor" class="usuarios-papel">Leitor</span>
                   <div v-else class="usuarios-papel-edicao">
                     <label class="so-leitor" :for="`papel-${usuario.id}`">Perfil de {{ usuario.nome }}</label>
                     <select :id="`papel-${usuario.id}`" v-model="papeis[usuario.id]" :disabled="salvando[usuario.id]">
@@ -174,6 +183,9 @@ const dataBr = (valor) => valor ? new Date(valor).toLocaleDateString('pt-BR') : 
                 <td data-label="Ações">
                   <span v-if="usuario.excluido_em" class="usuarios-propria-conta">
                     Excluída pelo próprio usuário em {{ dataBr(usuario.excluido_em) }}. Não pode ser reativada.
+                  </span>
+                  <span v-else-if="usuario.menor && !usuario.autorizado_em" class="usuarios-propria-conta">
+                    Só o responsável libera esta conta, pelo link do e-mail.
                   </span>
                   <button
                     v-else-if="usuario.id !== auth.usuario?.id"
@@ -214,6 +226,7 @@ const dataBr = (valor) => valor ? new Date(valor).toLocaleDateString('pt-BR') : 
 .usuarios-tabela tbody tr:last-child td { border-bottom: 0; }
 .usuarios-tabela td:first-child { min-width: 210px; }
 .usuarios-email { display: block; margin-top: 4px; color: var(--texto-secundario); font-size: .9rem; }
+.usuarios-menor { display: inline-block; margin-right: 6px; padding: 2px 8px; border-radius: 999px; background: var(--apoio-rosa-suave); color: var(--texto-principal); font: var(--fonte-rotulo); }
 .usuarios-papel-edicao { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .usuarios-papel { color: var(--texto-secundario); }
 .usuarios-link { padding: 8px 10px; border: 0; background: transparent; color: var(--texto-principal); font: var(--fonte-rotulo); text-decoration: underline; cursor: pointer; }
