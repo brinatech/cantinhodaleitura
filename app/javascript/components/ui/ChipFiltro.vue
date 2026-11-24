@@ -79,11 +79,13 @@ defineProps({
 
 .chip--selecionado:not(.cat-neutro) {
   --fundo: var(--cat);
+  --cor: var(--texto-sobre-cor);
   --anel-cor: var(--cat);
 }
 
 .chip--selecionado.cat-classicos {
   --fundo: var(--cat-suave);
+  --cor: var(--texto-principal); /* fundo suave: segue o tema */
   --anel-largura: 2.5px;
 }
 

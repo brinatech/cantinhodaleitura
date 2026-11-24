@@ -20,7 +20,7 @@ defineProps({
 <style scoped>
 .selo {
   --fundo: var(--destaque-ceu);
-  --cor: var(--texto-principal);
+  --cor: var(--texto-sobre-cor);
 
   display: inline-flex;
   align-items: center;
@@ -32,6 +32,13 @@ defineProps({
   letter-spacing: var(--letras-rotulo);
   text-transform: uppercase;
   white-space: nowrap;
+}
+
+/* Fundos suaves: o texto segue o tema (claro no escuro) */
+.selo--suave,
+.selo--laranja,
+.selo--rosa {
+  --cor: var(--texto-principal);
 }
 
 .selo--suave {

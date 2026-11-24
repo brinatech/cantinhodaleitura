@@ -72,6 +72,7 @@ const tag = computed(() => (props.to ? RouterLink : 'div'))
   height: 64px;
   border-radius: var(--raio-total);
   background: var(--cat);
+  color: var(--cat-texto, var(--texto-principal));
 }
 
 .bloco-nome {

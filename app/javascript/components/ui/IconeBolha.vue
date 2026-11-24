@@ -38,7 +38,7 @@ defineProps({
   height: var(--tamanho);
   border-radius: var(--raio-total);
   background: var(--fundo);
-  color: var(--texto-principal);
+  color: var(--texto-sobre-cor);
 }
 
 .bolha--laranja {
@@ -55,5 +55,6 @@ defineProps({
 
 .bolha--suave {
   --fundo: var(--fundo-suave);
+  color: var(--texto-principal); /* fundo suave: segue o tema */
 }
 </style>

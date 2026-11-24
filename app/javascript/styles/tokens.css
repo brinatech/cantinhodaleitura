@@ -11,6 +11,10 @@
   --texto-secundario: #526572;
   --texto-inverso: #ffffff;
   --texto-erro: #b8381f;
+  /* Texto em cima de cor forte (botão azul-céu, capa colorida, bolha laranja...).
+     No tema claro é igual ao --texto-principal; no escuro continua escuro (styles/tema-escuro.css).
+     Sem Figma: criado para o modo escuro. */
+  --texto-sobre-cor: #184e6a;
 
   /* ===== Cores · fundos ===== */
   --fundo-pagina: #faf9f6;

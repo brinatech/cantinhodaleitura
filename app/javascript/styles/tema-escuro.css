@@ -1,0 +1,69 @@
+/*
+ * Tema escuro (TESTE, sem Figma: decisão a levar à equipe).
+ * Liga pelo painel "Ajustes de leitura" (stores/ajustes.js põe data-tema="escuro" no <html>).
+ * Só redefine as variáveis de cor de styles/tokens.css: os componentes não mudam.
+ *
+ * Regras da paleta:
+ * - Fundos: azul-petróleo bem escuro (a mesma família do #184e6a do site), não preto puro.
+ * - Textos claros, todos acima de 4,5:1 de contraste sobre os fundos (WCAG AA).
+ * - As cores fortes (azul-céu, laranja, coral, rosa, categorias) ficam iguais: são a cara do
+ *   site e funcionam no escuro. O texto em cima delas continua escuro (--texto-sobre-cor).
+ * - As versões "suaves" viram tons escuros da mesma cor.
+ * - A folha do PDF continua branca (é o livro).
+ */
+html[data-tema='escuro'] {
+  color-scheme: dark; /* campos, selects e barras de rolagem do navegador também ficam escuros */
+
+  /* ===== Texto ===== */
+  --texto-principal: #a8dcff;
+  --texto-corpo: #e3edf2;
+  --texto-secundario: #a9bcc7;
+  --texto-inverso: #ffffff;
+  --texto-erro: #ff9b85;
+  --texto-sobre-cor: #184e6a;
+
+  /* ===== Fundos ===== */
+  --fundo-pagina: #0f1a21;
+  --fundo-superficie: #172631;
+  --fundo-suave: #1f3442;
+  --fundo-nuvem: #15303f;
+
+  /* ===== Bordas ===== */
+  --borda-padrao: #2c4352;
+  --borda-forte: #a8dcff;
+  --borda-foco: #64c8ff;
+  --borda-erro: #ff9b85;
+
+  /* ===== Destaques =====
+     O azul-escuro dos botões "escuros" (texto branco) clareia um pouco, para não sumir no fundo */
+  --destaque-escuro: #2b7aa3;
+
+  /* ===== Apoio e categorias: só as versões suaves mudam ===== */
+  --apoio-coral-suave: #3a2420;
+  --apoio-laranja-suave: #3a2d17;
+  --apoio-rosa-suave: #3a2429;
+  --categoria-aventura-suave: #3a2d17;
+  --categoria-fantasia-suave: #3a2429;
+  --categoria-natureza-suave: #15303f;
+  --categoria-classicos-suave: #3a2420;
+
+  /* ===== Sombras: no escuro, sombra preta (a azulada sumiria) ===== */
+  --sombra-cartao: -4px 8px 10px #00000059;
+  --sombra-flutuante: 0 12px 24px #00000073;
+
+  background: var(--fundo-pagina);
+}
+
+/* Nuvens decorativas (PNG brancos): no fundo escuro ficam chamativas e, no rodapé,
+   passam por trás do texto. Ficam bem apagadas. Pega pelo nome do arquivo
+   (nuvem.png, nuvem-roxa.png, nuvem-footer.png...): o Vite mantém o nome e só acrescenta um código */
+html[data-tema='escuro'] img[src*='nuvem'] {
+  opacity: 0.18;
+}
+
+/* Marca-texto da DestaquePalavra ("história?"): o texto agora é claro, então a marca fica
+   mais fraca para não brigar com ele. Fica aqui, e não no componente, porque o :global()
+   do Vue aplicaria a opacidade ao <html> inteiro */
+html[data-tema='escuro'] .destaque::before {
+  opacity: 0.45;
+}

@@ -203,7 +203,7 @@ onBeforeUnmount(() => controladorAtual?.abort())
   overflow: hidden;
   border-radius: var(--raio-20);
   background: var(--cat-capa);
-  color: var(--texto-principal);
+  color: var(--cat-texto, var(--texto-principal));
 }
 
 .livro-capa img {

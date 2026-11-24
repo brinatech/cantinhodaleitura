@@ -297,6 +297,7 @@ const painel = ref(null)
   height: 40px;
   border-radius: 50%;
   background: var(--destaque-ceu);
+  color: var(--texto-sobre-cor);
 }
 
 .logado-conteudo {
