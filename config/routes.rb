@@ -28,6 +28,7 @@ Rails.application.routes.draw do
       end
 
       namespace :admin do
+        resources :usuarios, only: [ :index, :update ]
         resources :livros, only: [ :index, :create, :update, :destroy ] do
           resources :classificacoes, only: [ :index, :create, :destroy ]
         end

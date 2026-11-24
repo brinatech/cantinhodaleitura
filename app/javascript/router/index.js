@@ -63,6 +63,11 @@ const routes = [
     meta: { logada: true, admin: true },
   },
   {
+    path: '/admin/usuarios',
+    component: () => import('../views/admin/UsuariosView.vue'),
+    meta: { logada: true, admin: true },
+  },
+  {
     path: '/admin/relatorios',
     component: () => import('../views/admin/RelatoriosView.vue'),
     meta: { logada: true, admin: true },
