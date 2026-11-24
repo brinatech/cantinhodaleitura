@@ -12,6 +12,9 @@ module Api
       # GET /api/v1/livros/:livro_id/arquivos/:id               → baixa o arquivo
       # GET /api/v1/livros/:livro_id/arquivos/:id?modo=leitura  → abre no navegador (para ler ou ouvir)
       def show
+        # HU-10 Task 3: abrir para ler/ouvir conta como "leitura"; sem modo, como "download"
+        RegistrarAcesso.call(livro: @arquivo.livro, tipo: leitura? ? "leitura" : "download", usuario: current_usuario, sessao: session)
+
         redirect_to rails_blob_url(@arquivo.arquivo, disposition: disposicao, expires_in: VALIDADE_DO_LINK),
                     allow_other_host: true
       end
@@ -20,8 +23,10 @@ module Api
 
       # inline = abre no navegador; attachment = baixa
       def disposicao
-        params[:modo] == "leitura" ? "inline" : "attachment"
+        leitura? ? "inline" : "attachment"
       end
+
+      def leitura? = params[:modo] == "leitura"
 
       def carregar_arquivo
         @arquivo = ArquivoMaterial.find_by!(livro_id: params[:livro_id], id: params[:id])

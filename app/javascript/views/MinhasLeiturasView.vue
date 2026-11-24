@@ -22,6 +22,7 @@ import EstadoVazio from '../components/ui/EstadoVazio.vue'
 import Icone from '../components/ui/Icone.vue'
 import IconeBolha from '../components/ui/IconeBolha.vue'
 import Selo from '../components/ui/Selo.vue'
+import { temAudio, textoFormato } from '../components/livros/formatos.js'
 import { useFavoritar } from '../composables/useFavoritar.js'
 import { listarHistorico } from '../services/historicoService.js'
 import { listarLivros } from '../services/livrosService.js'
@@ -84,16 +85,6 @@ async function carregarNovidades() {
     carregandoNovidades.value = false
   }
 }
-
-// Lista de formatos da API → texto da tag do card (como no CatalogoLivros)
-function textoFormato(livro) {
-  const tipos = (livro.formatos ?? []).map((formato) => formato.tipo)
-  if (tipos.includes('texto') && tipos.includes('audio')) return 'Texto e audiobook'
-  if (tipos.includes('audio')) return 'Audiobook'
-  if (tipos.includes('texto')) return 'Texto'
-  return ''
-}
-const temAudio = (livro) => livro.formatos?.some((formato) => formato.tipo === 'audio')
 
 onMounted(() => {
   carregarHistorico()

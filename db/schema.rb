@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_22_153418) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_22_210210) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -21,7 +21,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_22_153418) do
     t.datetime "data_acesso"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["data_acesso"], name: "index_acesso_materials_on_data_acesso"
     t.index ["livro_id"], name: "index_acesso_materials_on_livro_id"
+    t.index ["tipo_acesso", "livro_id"], name: "index_acesso_materials_on_tipo_acesso_and_livro_id"
     t.index ["usuario_id"], name: "index_acesso_materials_on_usuario_id"
   end
 

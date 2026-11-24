@@ -3,11 +3,11 @@
 one:
   livro: one
   usuario: one
-  tipo_acesso: MyString
+  tipo_acesso: leitura
   data_acesso: 2026-11-08 16:22:15
 
 two:
   livro: two
   usuario: two
-  tipo_acesso: MyString
+  tipo_acesso: visualizacao
   data_acesso: 2026-11-08 16:22:15

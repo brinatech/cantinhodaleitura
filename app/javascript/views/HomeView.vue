@@ -3,6 +3,7 @@
   aqui ficam o posicionamento das seções e das ilustrações.
 -->
 <script setup>
+import { onMounted, ref } from 'vue'
 import BannerCarrossel from '../components/BannerCarrossel.vue'
 import MenuSuperior from '../components/layout/MenuSuperior.vue'
 import Rodape from '../components/layout/Rodape.vue'
@@ -11,12 +12,9 @@ import CabecalhoSecao from '../components/ui/CabecalhoSecao.vue'
 import CardLivro from '../components/ui/CardLivro.vue'
 import Icone from '../components/ui/Icone.vue'
 import Selo from '../components/ui/Selo.vue'
+import { temAudio, textoFormato } from '../components/livros/formatos.js'
+import { listarLivros } from '../services/livrosService.js'
 import coruja from '../images/imgs-livros-destaque/coruja.png'
-import capaJardim from '../images/imgs-livros-destaque/o jardim das pequenas coisas.png'
-import capaMaluquinho from '../images/imgs-livros-destaque/o menino maluquinho.png'
-import capaPrincipePreto from '../images/imgs-livros-destaque/o pequeno principe preto.png'
-import capaPerigoso from '../images/imgs-livros-destaque/perigoso.png'
-import capaMeninaCastelo from '../images/imgs-livros-destaque/outro.png'
 import lamparina from '../images/imgs-baixo-banner/lamparina.png'
 import garotaComFone from '../images/imgs-baixo-banner/garota-com-fone.png'
 import nuvem from '../images/imgs-baixo-banner/nuvem.png'
@@ -28,14 +26,21 @@ import nuvemRodape from '../images/imgs-footer/nuvem-footer.png'
 import livroRodape from '../images/imgs-footer/livro.png'
 import garotoRodape from '../images/imgs-footer/garoto-cadeira.png'
 
-// Dados estáticos por enquanto — depois virão de livrosService.listar()
-const livrosDestaque = [
-  { id: 5, titulo: 'A menina e o castelo', autor: 'Guacyra Pereira', capa: capaMeninaCastelo },
-  { id: 1, titulo: 'O pequeno livro das grandes coisas', autor: 'Sophie Vissière', capa: capaJardim },
-  { id: 2, titulo: 'O Menino Maluquinho', autor: 'Ziraldo', capa: capaMaluquinho },
-  { id: 3, titulo: 'O Pequeno Príncipe Preto', autor: 'Rodrigo França', capa: capaPrincipePreto },
-  { id: 4, titulo: 'Perigoso!', autor: 'Tim Warnes', capa: capaPerigoso },
-]
+// Livros em destaque: os 5 mais lidos do acervo (leituras registradas pela HU-10 Task 3).
+// Sem leituras ainda (acervo novo), a API completa com os mais recentes.
+// Se a API falhar, a seção some e a home continua (o botão "Explorar acervo" fica).
+const livrosDestaque = ref([])
+const carregandoDestaque = ref(true)
+
+onMounted(async () => {
+  try {
+    livrosDestaque.value = (await listarLivros({ ordem: 'mais_lidos' })).slice(0, 5)
+  } catch {
+    livrosDestaque.value = []
+  } finally {
+    carregandoDestaque.value = false
+  }
+})
 </script>
 
 <template>
@@ -92,14 +97,18 @@ const livrosDestaque = [
       <section class="livros-destaque" aria-label="Livros em destaque">
         <img class="deco deco-coruja" :src="coruja" alt="" aria-hidden="true">
 
-        <ul class="livros-lista">
+        <p v-if="carregandoDestaque" class="livros-aviso" role="status">Carregando livros…</p>
+
+        <ul v-else-if="livrosDestaque.length" class="livros-lista">
           <li v-for="livro in livrosDestaque" :key="livro.id" class="livros-item">
             <CardLivro
               :titulo="livro.titulo"
-              :autor="livro.autor"
-              :capa-url="livro.capa"
-              formato="Texto e audiobook"
-              to="/acervo-publico"
+              :autor="livro.autor || ''"
+              :categoria="livro.categoria?.nome"
+              :capa-url="livro.capa_url"
+              :formato="textoFormato(livro)"
+              :icone-formato="temAudio(livro) ? 'fones' : 'livro'"
+              :to="{ name: 'livro-detalhe', params: { id: livro.id } }"
               :mostrar-categoria="false"
               :mostrar-favoritar="false"
             />
@@ -285,8 +294,20 @@ const livrosDestaque = [
 }
 
 .livros-item {
+  display: flex; /* cards com a mesma altura, mesmo com título de 1 ou 2 linhas */
   flex: 0 0 272px; /* largura do Card de livro no Figma */
   scroll-snap-align: start;
+}
+
+.livros-item > * {
+  flex: 1;
+}
+
+.livros-aviso {
+  position: relative;
+  z-index: 1;
+  color: var(--texto-secundario);
+  font: var(--fonte-corpo);
 }
 
 .livros-acao {

@@ -59,6 +59,18 @@ class LivrosQueryTest < ActiveSupport::TestCase
     assert_equal [ @mapa.id, @dragao.id ], buscar(tipo_classificacao: "faixa_etaria", ordem: "recentes")
   end
 
+  test "mais lidos: quem tem mais leituras primeiro; sem leituras, os mais recentes" do
+    # Sem nenhuma leitura: igual a "recentes" (o mapa é o mais novo)
+    assert_equal [ @mapa.id, @dragao.id ], buscar(tipo_classificacao: "faixa_etaria", ordem: "mais_lidos")
+
+    # O dragão ganha 2 leituras; visualizações e downloads não contam
+    2.times { AcessoMaterial.create!(livro: @dragao, tipo_acesso: "leitura") }
+    3.times { AcessoMaterial.create!(livro: @mapa, tipo_acesso: "visualizacao") }
+    AcessoMaterial.create!(livro: @mapa, tipo_acesso: "leitura")
+
+    assert_equal [ @dragao.id, @mapa.id ], buscar(tipo_classificacao: "faixa_etaria", ordem: "mais_lidos")
+  end
+
   test "ordenação fora da lista e parâmetros estranhos são ignorados" do
     esperado = [ @dragao.id, @mapa.id ].sort
 
