@@ -12,7 +12,7 @@ import CampoFormulario from '../ui/CampoFormulario.vue'
 import Icone from '../ui/Icone.vue'
 import { ErroApi } from '../../services/api.js'
 import { criarClassificacao, excluirClassificacao, listarClassificacoes } from '../../services/admin/classificacoesService.js'
-import { TIPOS_CLASSIFICACAO } from '../../services/tiposClassificacao.js'
+import { RECURSOS_ACESSIBILIDADE, TIPOS_CLASSIFICACAO } from '../../services/tiposClassificacao.js'
 
 const props = defineProps({
   livroId: { type: [String, Number], required: true },
@@ -63,6 +63,10 @@ async function carregar() {
 
 watch(() => props.livroId, carregar, { immediate: true })
 
+// Acessibilidade tem lista fechada de recursos (HU-17): o nome vira uma escolha, não texto livre
+const ehAcessibilidade = computed(() => nova.tipo === 'acessibilidade')
+watch(() => nova.tipo, () => (nova.nome = '')) // o nome de um tipo não vale no outro
+
 function limparMensagens() {
   Object.assign(erros, { tipo: '', nome: '', descricao: '' })
   aviso.texto = ''
@@ -72,7 +76,7 @@ async function adicionar() {
   limparMensagens()
   // Validação só para ajudar quem digita; quem decide é o Rails (422 com erros por campo)
   if (!nova.tipo) erros.tipo = 'Escolha um tipo.'
-  if (!nova.nome.trim()) erros.nome = 'Escreva o nome da classificação.'
+  if (!nova.nome.trim()) erros.nome = ehAcessibilidade.value ? 'Escolha um recurso.' : 'Escreva o nome da classificação.'
   if (erros.tipo || erros.nome) return
 
   salvando.value = true
@@ -171,12 +175,32 @@ async function remover(classificacao) {
         </p>
       </div>
 
+      <div v-if="ehAcessibilidade" class="campo" :class="{ 'campo--erro': erros.nome }">
+        <label class="campo-label" for="classificacao-recurso">Recurso</label>
+        <select
+          id="classificacao-recurso"
+          v-model="nova.nome"
+          class="campo-entrada"
+          :aria-invalid="erros.nome ? 'true' : undefined"
+          :aria-describedby="erros.nome ? 'classificacao-recurso-erro' : undefined"
+          @change="erros.nome = ''"
+        >
+          <option value="" disabled>Escolha um recurso</option>
+          <option v-for="recurso in RECURSOS_ACESSIBILIDADE" :key="recurso" :value="recurso">{{ recurso }}</option>
+        </select>
+        <p v-if="erros.nome" id="classificacao-recurso-erro" class="campo-erro">
+          <Icone nome="info" :tamanho="16" />
+          {{ erros.nome }}
+        </p>
+      </div>
+
       <CampoFormulario
+        v-else
         v-model="nova.nome"
         label="Nome"
         name="nome"
         maxlength="100"
-        ajuda="Ex.: 6+, Fantasia, Audiodescrição."
+        ajuda="Ex.: 6+, Fantasia, PDF."
         :erro="erros.nome"
         @input="erros.nome = ''"
       />

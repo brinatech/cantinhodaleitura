@@ -60,6 +60,17 @@ class Api::V1::Admin::ClassificacoesControllerTest < ActionDispatch::Integration
     assert_equal "Audiodescrição", JSON.parse(response.body)["nome"]
   end
 
+  test "retorna 422 para recurso de acessibilidade fora da lista" do
+    entrar_com(@administrador)
+
+    assert_no_difference "@livro.classificacoes.count" do
+      post api_v1_admin_livro_classificacoes_url(@livro), params: { classificacao: { tipo: "acessibilidade", nome: "Braille" } }
+    end
+
+    assert_response :unprocessable_entity
+    assert JSON.parse(response.body)["erros"]["nome"].any?
+  end
+
   test "retorna 422 para classificação inválida" do
     entrar_com(@administrador)
     post api_v1_admin_livro_classificacoes_url(@livro), params: { classificacao: { tipo: "xyz", nome: "" } }
