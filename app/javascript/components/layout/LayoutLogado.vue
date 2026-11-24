@@ -5,7 +5,7 @@
   botão de menu. O painel "Ajustes de leitura" abre pelo botão Acessibilidade.
   O nome do leitor vem da sessão (stores/auth.js); "Sair" encerra a sessão.
   O menu muda com o perfil: o leitor vê as ferramentas de leitura; o administrador, só a
-  administração (Relatórios, Livros, Categorias e o Acervo para conferir como o leitor vê).
+  administração (Relatórios, Livros, Categorias, Usuários e o Acervo para conferir como o leitor vê).
 -->
 <script setup>
 import { computed, ref, watch } from 'vue'
@@ -35,6 +35,7 @@ const menuLeitor = [
 // o livro aberto de lá (/acervo/:id) também deixa "Acervo" destacado ("tambem").
 const menuAdmin = [
   { texto: 'Relatórios', to: '/admin/relatorios', icone: 'grafico' },
+  { texto: 'Usuários', to: '/admin/usuarios', icone: 'usuario' },
   { texto: 'Livros', to: '/admin/livros', icone: 'livro' },
   { texto: 'Categorias', to: '/admin/categorias', icone: 'marcador' },
   { texto: 'Acervo', to: '/admin/acervo', icone: 'bussola', tambem: '/acervo/' },
