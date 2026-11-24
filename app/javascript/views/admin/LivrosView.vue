@@ -229,6 +229,11 @@ onMounted(carregar)
                             </span>
                         </div>
                         <div class="item-acoes">
+                            <!-- Abre o livro do jeito que o leitor vê (capa, texto, áudio); o "Voltar" de lá volta para cá -->
+                            <Botao tipo="contorno" :aria-label="`Ver ${livro.titulo} como leitor`"
+                                :to="{ name: 'livro-detalhe-logado', params: { id: livro.id } }">
+                                Ver como leitor
+                            </Botao>
                             <Botao tipo="contorno" :aria-label="`Editar ${livro.titulo}`" @click="comecarEdicao(livro)">
                                 Editar
                             </Botao>
@@ -330,15 +335,17 @@ onMounted(carregar)
     display: flex;
     align-items: center;
     justify-content: space-between;
+    flex-wrap: wrap;
     gap: var(--espaco-16);
     padding: var(--espaco-12) var(--espaco-16);
     border-radius: var(--raio-12);
     background: var(--fundo-nuvem);
 }
 
+/* O texto nunca fica mais estreito que 200px: se os botões não couberem ao lado, eles descem (flex-wrap) */
 .item-texto {
     display: flex;
-    flex: 1;
+    flex: 1 1 200px;
     flex-direction: column;
     gap: var(--espaco-4);
     min-width: 0;
@@ -375,9 +382,9 @@ onMounted(carregar)
 .item-acoes {
     display: flex;
     flex-wrap: wrap;
-    flex-shrink: 0;
     justify-content: flex-end;
     gap: var(--espaco-8);
+    margin-left: auto; /* quando desce para a linha de baixo, fica à direita */
 }
 
 @media (max-width: 520px) {
@@ -388,6 +395,11 @@ onMounted(carregar)
     .item {
         flex-direction: column;
         align-items: stretch;
+    }
+
+    /* Em coluna, o "mínimo de 200px" viraria altura: aqui o texto ocupa só o que precisa */
+    .item-texto {
+        flex-basis: auto;
     }
 
     .item-acoes>* {

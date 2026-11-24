@@ -23,7 +23,7 @@ app.use(router)
 auth.sincronizarAbas(() => {
   const { meta } = router.currentRoute.value
   if (meta.logada && !auth.usuario) router.push('/entrar')
-  else if (meta.visitante && auth.usuario) router.push('/minhas-leituras')
+  else if (meta.visitante && auth.usuario) router.push(auth.inicio) // leitor: minhas leituras; admin: relatórios
 })
 
 app.mount('#vue-app')

@@ -4,6 +4,8 @@
   página no slot. Em telas menores o menu lateral vira uma gaveta aberta pelo
   botão de menu. O painel "Ajustes de leitura" abre pelo botão Acessibilidade.
   O nome do leitor vem da sessão (stores/auth.js); "Sair" encerra a sessão.
+  O menu muda com o perfil: o leitor vê as ferramentas de leitura; o administrador, só a
+  administração (Relatórios, Livros, Categorias e o Acervo para conferir como o leitor vê).
 -->
 <script setup>
 import { computed, ref, watch } from 'vue'
@@ -18,26 +20,32 @@ import logo from '../../images/logo-header.png'
 
 const auth = useAuthStore()
 const leitor = computed(() => ({ nome: auth.usuario?.nome ?? '' }))
-// Só para o admin saber que está com poderes extras; quem protege as ações é o Rails
-const administrador = computed(() => auth.usuario?.tipo_usuario === 'administrador')
+// Cada perfil tem o seu menu (o perfil vem da conta, num login só). Conveniência: quem protege é o Rails
+const administrador = computed(() => auth.ehAdministrador)
 
-const principais = [
+// Leitor: as ferramentas de leitura
+const menuLeitor = [
   { texto: 'Minhas leituras', to: '/minhas-leituras', icone: 'livro' },
   { texto: 'Acervo', to: '/acervo', icone: 'bussola' },
   { texto: 'Favoritos', to: '/favoritos', icone: 'coracao' },
   { texto: 'Listas de leitura', to: '/listas-de-leitura', icone: 'lista' },
   { texto: 'Histórico', to: '/historico', icone: 'historico' },
 ]
-// Só aparece para administrador (conveniência: quem protege é o Rails)
-const administracao = computed(() =>
-  auth.usuario?.tipo_usuario === 'administrador'
-    ? [
-        { texto: 'Livros', to: '/admin/livros', icone: 'livro' },
-        { texto: 'Categorias', to: '/admin/categorias', icone: 'marcador' },
-        { texto: 'Relatórios', to: '/admin/relatorios', icone: 'grafico' },
-      ]
-    : [],
-)
+// Administrador: só a administração. "Acervo" mostra a estante como o leitor vê (para conferir capas);
+// o livro aberto de lá (/acervo/:id) também deixa "Acervo" destacado ("tambem").
+const menuAdmin = [
+  { texto: 'Relatórios', to: '/admin/relatorios', icone: 'grafico' },
+  { texto: 'Livros', to: '/admin/livros', icone: 'livro' },
+  { texto: 'Categorias', to: '/admin/categorias', icone: 'marcador' },
+  { texto: 'Acervo', to: '/admin/acervo', icone: 'bussola', tambem: '/acervo/' },
+]
+const principais = computed(() => (administrador.value ? menuAdmin : menuLeitor))
+
+// Destacado na página do item e nas subpáginas: "Listas de leitura" em /listas-de-leitura/5,
+// "Livros" em /admin/livros/3/classificacoes
+const estaAtivo = (item) =>
+  rota.path === item.to || rota.path.startsWith(`${item.to}/`) || Boolean(item.tambem && rota.path.startsWith(item.tambem))
+
 const secundarios = [
   { texto: 'Meu perfil', to: '/meu-perfil', icone: 'usuario' },
   { texto: 'Sobre o projeto', to: '/sobre', icone: 'info' },
@@ -59,7 +67,12 @@ watch(() => rota.fullPath, () => (menuAberto.value = false))
 const buscaDaRota = () => (typeof rota.query.busca === 'string' ? rota.query.busca : '')
 const busca = ref(buscaDaRota())
 watch(() => rota.query.busca, () => (busca.value = buscaDaRota()))
-const buscar =() => roteador.push({ path: '/acervo', query: busca.value.trim() ? { busca: busca.value.trim() } : {} })
+// A busca abre o acervo de cada perfil (o do admin é /admin/acervo)
+const buscar = () =>
+  roteador.push({
+    path: administrador.value ? '/admin/acervo' : '/acervo',
+    query: busca.value.trim() ? { busca: busca.value.trim() } : {},
+  })
 
 const painel = ref(null)
 </script>
@@ -67,24 +80,16 @@ const painel = ref(null)
 <template>
   <div class="logado" :class="{ 'logado--menu-aberto': menuAberto }" @keydown.esc="menuAberto = false">
     <aside id="menu-lateral" class="lateral">
-      <RouterLink class="lateral-logo" to="/minhas-leituras">
+      <!-- O logo leva ao início de cada perfil (leitor: minhas leituras; admin: relatórios) -->
+      <RouterLink class="lateral-logo" :to="auth.inicio">
         <img :src="logo" alt="Cantinho da Leitura" width="180">
       </RouterLink>
 
-      <nav class="lateral-nav" aria-label="Menu do leitor">
-        <p class="lateral-rotulo">Menu</p>
-        <!-- Também nas subpáginas: "Listas de leitura" em /listas-de-leitura/5, "Acervo" em /acervo/3 -->
-        <ItemMenuLateral v-for="item in principais" :key="item.to" :to="item.to" :icone="item.icone" :ativo="rota.path === item.to || rota.path.startsWith(`${item.to}/`)">
+      <nav class="lateral-nav" :aria-label="administrador ? 'Menu da administração' : 'Menu do leitor'">
+        <p class="lateral-rotulo">{{ administrador ? 'Administração' : 'Menu' }}</p>
+        <ItemMenuLateral v-for="item in principais" :key="item.to" :to="item.to" :icone="item.icone" :ativo="estaAtivo(item)">
           {{ item.texto }}
         </ItemMenuLateral>
-
-        <template v-if="administracao.length">
-          <p class="lateral-rotulo lateral-rotulo--secao">Administração</p>
-          <!-- startsWith: "Livros" continua destacado em /admin/livros/:id/classificacoes -->
-          <ItemMenuLateral v-for="item in administracao" :key="item.to" :to="item.to" :icone="item.icone" :ativo="rota.path.startsWith(item.to)">
-            {{ item.texto }}
-          </ItemMenuLateral>
-        </template>
 
         <hr class="lateral-divisor">
 
@@ -190,10 +195,6 @@ const painel = ref(null)
   font: var(--fonte-rotulo);
   letter-spacing: var(--letras-rotulo);
   text-transform: uppercase;
-}
-
-.lateral-rotulo--secao {
-  padding-top: var(--espaco-16);
 }
 
 /* Separa o grupo de baixo (perfil, sobre, sair): empurra para o fim do menu */

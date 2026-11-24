@@ -1,6 +1,7 @@
 <!--
   Menu superior (Figma: "Menu superior"). Cabeçalho do site.
-  Visitante mostra "Entrar"; leitor logado (leitor) mostra "Meu espaço".
+  O botão da direita segue a sessão: visitante "Entrar"; leitor logado "Meu espaço";
+  administrador "Administração" (cada um vai para o seu início).
   "links" troca os links do meio e "acaoPara" a rota do botão; sem eles, usa os
   do Figma.
   "sobreBanner": versão da tela inicial. O menu flutua sobre o banner e só o
@@ -17,6 +18,7 @@ import { RouterLink, useRoute } from 'vue-router'
 import Botao from '../ui/Botao.vue'
 import Icone from '../ui/Icone.vue'
 import BotaoAcessibilidade from './BotaoAcessibilidade.vue'
+import { useAuthStore } from '../../stores/auth.js'
 import logo from '../../images/logo-header.png'
 
 const props = defineProps({
@@ -40,8 +42,13 @@ const linksPadrao = computed(() =>
       ],
 )
 const linksDoMenu = computed(() => props.links ?? linksPadrao.value)
-const destinoDaAcao = computed(() => props.acaoPara ?? (props.leitor ? '/minhas-leituras' : '/entrar'))
-const textoDaAcao = computed(() => (props.leitor ? 'Meu espaço' : 'Entrar'))
+
+// O botão da direita segue quem está logado: visitante "Entrar"; leitor "Meu espaço";
+// administrador "Administração". Cada um vai para o seu início (stores/auth.js)
+const auth = useAuthStore()
+const logado = computed(() => props.leitor || Boolean(auth.usuario))
+const destinoDaAcao = computed(() => props.acaoPara ?? (auth.usuario ? auth.inicio : logado.value ? '/minhas-leituras' : '/entrar'))
+const textoDaAcao = computed(() => (auth.ehAdministrador ? 'Administração' : logado.value ? 'Meu espaço' : 'Entrar'))
 
 const aberto = ref(false)
 const rota = useRoute()
@@ -68,7 +75,7 @@ watch(() => rota.fullPath, () => (aberto.value = false))
       <BotaoAcessibilidade class="menu-acessibilidade" />
 
       <Botao class="menu-acao" :to="destinoDaAcao">
-        <template v-if="leitor" #icone><Icone nome="usuario" /></template>
+        <template v-if="logado" #icone><Icone nome="usuario" /></template>
         {{ textoDaAcao }}
       </Botao>
     </div>

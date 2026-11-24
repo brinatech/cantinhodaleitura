@@ -12,8 +12,10 @@ import MenuSuperior from '../components/layout/MenuSuperior.vue'
 import Rodape from '../components/layout/Rodape.vue'
 import Botao from '../components/ui/Botao.vue'
 import EstadoVazio from '../components/ui/EstadoVazio.vue'
+import { useAuthStore } from '../stores/auth.js'
 
 const rota = useRoute()
+const auth = useAuthStore()
 </script>
 
 <template>
@@ -26,8 +28,8 @@ const rota = useRoute()
         :descricao="rota.meta.titulo ? 'Essa página ainda está sendo construída.' : 'Esse endereço não existe no Cantinho da Leitura.'"
       >
         <template #acao>
-          <Botao :to="rota.meta.logada ? '/minhas-leituras' : '/'">
-            {{ rota.meta.logada ? 'Voltar às minhas leituras' : 'Voltar ao início' }}
+          <Botao :to="rota.meta.logada ? auth.inicio : '/'">
+            {{ rota.meta.logada ? (auth.ehAdministrador ? 'Voltar à administração' : 'Voltar às minhas leituras') : 'Voltar ao início' }}
           </Botao>
         </template>
       </EstadoVazio>
