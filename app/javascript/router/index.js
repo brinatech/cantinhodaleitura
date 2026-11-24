@@ -8,17 +8,6 @@ import MeuPerfilView from '../views/MeuPerfilView.vue'
 import AcervoPublicoView from '../views/AcervoPublicoView.vue' //importa o acervo publico
 import { useAuthStore } from '../stores/auth.js'
 
-// Telas que o menu e a home já apontam, mas ainda não existem.
-// Quando uma tela ficar pronta, troque o component dela aqui.
-const emBreve = () => import('../views/EmBreveView.vue')
-const telasPendentes = [
-  { path: '/sobre', titulo: 'Sobre' },
-  // shortcut: acervo do visitante (links da home). Some quando a AcervoView escolher a moldura pelo login
-  // { path: '/acervo-publico', titulo: 'Acervo' }, 
-  { path: '/acessibilidade', titulo: 'Acessibilidade' },
-  // Telas da área logada: a página provisória aparece dentro do menu lateral
-].map(({ path, titulo, logada }) => ({ path, component: emBreve, meta: { titulo, logada } }))
-
 // Modo hash (/#/rota): não precisa de rota no config/routes.rb do Rails.
 // shortcut: trocar para createWebHistory junto com o SpaController do backend.
 const routes = [
@@ -48,6 +37,8 @@ const routes = [
   },
   { path: '/acervo', component: AcervoView, meta: { logada: true, leitor: true } }, // busca chega pela barra de cima: /acervo?busca=...
   { path: '/acervo-publico', component: AcervoPublicoView }, //rota para chamar o acero publico
+  { path: '/sobre', component: () => import('../views/SobreView.vue'), meta: { titulo: 'Sobre' } },
+  { path: '/acessibilidade', component: () => import('../views/AcessibilidadeView.vue'), meta: { titulo: 'Acessibilidade' } },
   // Área do administrador. A página inicial dele é Relatórios (stores/auth.js, "inicio").
   // O livro aberto daqui usa o mesmo detalhe da área logada (/acervo/:id), sem as ferramentas de leitor.
   {
@@ -75,13 +66,12 @@ const routes = [
     component: () => import('../views/admin/RelatoriosView.vue'),
     meta: { logada: true, admin: true },
   },
-  ...telasPendentes,
   // Só em desenvolvimento: no build de produção o import abaixo é descartado
   ...(import.meta.env.DEV
     ? [{ path: '/design-system', component: () => import('../views/DesignSystemView.vue') }]
     : []),
-  // Endereço que não existe: a mesma página provisória, sem título, vira "não encontrada"
-  { path: '/:pathMatch(.*)*', component: emBreve },
+  // Endereço que não existe
+  { path: '/:pathMatch(.*)*', component: () => import('../views/NaoEncontradaView.vue'), meta: { titulo: 'Página não encontrada' } },
 ]
 
 const router = createRouter({
