@@ -7,12 +7,16 @@
   logo e os links ficam numa faixa branca de canto arredondado; o botão fica
   direto sobre a imagem. Quem usa posiciona o menu (absolute) em cima do banner.
   Até 768px o menu vira um botão que abre e fecha a lista (links + ação).
+  "Acessibilidade" (BotaoAcessibilidade) abre o mesmo painel de ajustes da área logada: o visitante
+  também precisa de letra maior, contraste etc. No celular ele fica sempre à mostra,
+  ao lado do botão de menu, em vez de escondido dentro do menu fechado.
 -->
 <script setup>
 import { computed, ref, watch } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import Botao from '../ui/Botao.vue'
 import Icone from '../ui/Icone.vue'
+import BotaoAcessibilidade from './BotaoAcessibilidade.vue'
 import logo from '../../images/logo-header.png'
 
 const props = defineProps({
@@ -60,10 +64,14 @@ watch(() => rota.fullPath, () => (aberto.value = false))
       </nav>
     </div>
 
-    <Botao class="menu-acao" :to="destinoDaAcao">
-      <template v-if="leitor" #icone><Icone nome="usuario" /></template>
-      {{ textoDaAcao }}
-    </Botao>
+    <div class="menu-acoes">
+      <BotaoAcessibilidade class="menu-acessibilidade" />
+
+      <Botao class="menu-acao" :to="destinoDaAcao">
+        <template v-if="leitor" #icone><Icone nome="usuario" /></template>
+        {{ textoDaAcao }}
+      </Botao>
+    </div>
 
     <button
       type="button"
@@ -94,6 +102,14 @@ watch(() => rota.fullPath, () => (aberto.value = false))
   display: contents; /* fora da home, logo e links ficam direto na barra */
 }
 
+/* Acessibilidade e Entrar lado a lado, na ponta direita */
+.menu-acoes {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: var(--espaco-12);
+}
+
 .menu-logo {
   display: inline-flex;
   flex-shrink: 0;
@@ -112,31 +128,46 @@ watch(() => rota.fullPath, () => (aberto.value = false))
 .menu-links {
   display: flex;
   align-items: center;
-  gap: var(--espaco-48);
+  gap: var(--espaco-24); /* espaço entre as pílulas: cada link fica "independente" */
   list-style: none;
 }
 
+/* Cada link é uma "pílula": letra maior (18px), área de clique de pelo menos 44px de altura
+   e fundo que escurece de leve ao passar o mouse (o mesmo padrão do menu lateral da área logada) */
 .menu-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 10px 18px;
+  border-radius: var(--raio-total);
   color: var(--texto-principal);
-  font: var(--fonte-interface);
+  font: var(--fonte-corpo);
   text-decoration: none;
   white-space: nowrap;
+  transition: background-color var(--duracao-rapida) var(--curva);
 }
 
 .menu-link:hover {
-  text-decoration: underline;
+  background: var(--camada-hover);
 }
 
+/* Página atual: negrito e fundo azul-claro */
 .menu-link.router-link-exact-active {
+  background: var(--fundo-suave);
   font-weight: 700;
 }
 
 .menu-logo:focus-visible,
-.menu-link:focus-visible,
 .menu-alternar:focus-visible {
   outline: 3px solid var(--borda-foco);
   outline-offset: 4px;
   border-radius: var(--raio-8);
+}
+
+/* A pílula já é redonda: o contorno do foco acompanha o formato dela */
+.menu-link:focus-visible {
+  outline: 3px solid var(--borda-foco);
+  outline-offset: 2px;
 }
 
 .menu-alternar {
@@ -162,13 +193,30 @@ watch(() => rota.fullPath, () => (aberto.value = false))
   justify-content: space-between;
   gap: var(--espaco-24);
   min-height: 83px;
-  padding: var(--espaco-12) var(--espaco-48) var(--espaco-12) var(--margem);
+  /* 96px à direita: os links não ficam em cima da curva da faixa */
+  padding: var(--espaco-12) 96px var(--espaco-12) var(--margem);
   border-radius: 0 0 41.5px 0;
   background: var(--fundo-superficie);
 }
 
 .menu--sobre-banner .menu-nav {
   flex: 0 1 auto;
+}
+
+/* ===== Telas médias (tablet deitado, notebook pequeno): a faixa da home encolhe =====
+   Espaços menores para os links não encostarem no logo */
+@media (min-width: 769px) and (max-width: 1100px) {
+  .menu-links {
+    gap: var(--espaco-4);
+  }
+
+  .menu-link {
+    padding-inline: var(--espaco-12);
+  }
+
+  .menu--sobre-banner .menu-faixa {
+    padding-right: var(--espaco-48);
+  }
 }
 
 /* ===== Celular: menu recolhível ===== */
@@ -202,6 +250,16 @@ watch(() => rota.fullPath, () => (aberto.value = false))
     order: 2;
   }
 
+  /* Celular: as ações saem do grupo para cada uma ir para o seu lugar */
+  .menu-acoes {
+    display: contents;
+  }
+
+  /* Acessibilidade sempre à mostra, antes do botão de menu */
+  .menu-acessibilidade {
+    order: 1;
+  }
+
   /* Fechado: some da tela e dos leitores de tela. Aberto: ocupa a linha de baixo */
   .menu-nav,
   .menu-acao {
@@ -217,14 +275,16 @@ watch(() => rota.fullPath, () => (aberto.value = false))
 
   .menu--aberto .menu-links {
     flex-direction: column;
-    align-items: flex-start;
-    gap: var(--espaco-8);
+    align-items: stretch;
+    gap: var(--espaco-4);
     width: 100%;
   }
 
+  /* Celular: cada link ocupa a linha inteira (fácil de tocar), com a mesma pílula */
   .menu--aberto .menu-link {
-    display: block;
-    padding: var(--espaco-8) 0;
+    display: flex;
+    width: 100%;
+    border-radius: var(--raio-12);
   }
 
   .menu--aberto .menu-acao {

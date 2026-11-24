@@ -133,6 +133,12 @@ defineExpose({ abrir })
   background: transparent;
   color: var(--texto-principal);
   cursor: pointer;
+  transition: transform var(--duracao-rapida) var(--curva), background-color var(--duracao-rapida) var(--curva);
+}
+
+.painel-fechar:hover {
+  transform: scale(var(--crescer));
+  background: var(--camada-hover);
 }
 
 .painel-fechar:focus-visible {

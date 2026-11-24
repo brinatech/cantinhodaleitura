@@ -86,13 +86,21 @@ const rotuloCategoria = computed(() => props.categoria || 'Diversos')
   border-radius: var(--raio-20);
   background: var(--fundo-pagina);
   box-shadow: var(--sombra-cartao);
+  transition: transform var(--duracao-media) var(--curva), box-shadow var(--duracao-media) var(--curva);
+}
+
+/* Card com link: "levanta" ao passar o mouse ou com o foco do teclado (o card inteiro é clicável) */
+.card:has(.card-link):hover,
+.card:has(.card-link:focus-visible) {
+  transform: translateY(var(--elevar));
+  box-shadow: var(--sombra-flutuante);
 }
 
 /* Foco (Figma): borda de 3px. Parte do traço vem do anel interno, para o card não mudar de tamanho */
 .card:has(.card-link:focus-visible),
 .card.estado-foco {
   border-color: var(--borda-foco);
-  box-shadow: inset 0 0 0 2px var(--borda-foco), var(--sombra-cartao);
+  box-shadow: inset 0 0 0 2px var(--borda-foco), var(--sombra-flutuante);
 }
 
 .card-marca {
@@ -164,6 +172,13 @@ const rotuloCategoria = computed(() => props.categoria || 'Diversos')
   background: var(--fundo-superficie);
   color: var(--texto-principal);
   cursor: pointer;
+  transition: transform var(--duracao-rapida) var(--curva), background-color var(--duracao-rapida) var(--curva);
+}
+
+/* O coração cresce um pouco ao passar o mouse */
+.card-favoritar:hover:not(:disabled) {
+  transform: scale(var(--crescer));
+  background: color-mix(in srgb, var(--fundo-superficie), var(--texto-principal) 8%);
 }
 
 .card-favoritar:focus-visible {

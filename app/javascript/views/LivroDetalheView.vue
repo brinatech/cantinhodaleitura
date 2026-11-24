@@ -22,7 +22,13 @@ const administrador = computed(() => auth.usuario?.tipo_usuario === 'administrad
 
 // /livros/:id é o detalhe do visitante; /acervo/:id é o mesmo, dentro da área logada
 const logada = computed(() => rota.meta.logada === true)
-const voltarPara = computed(() => (logada.value ? '/acervo' : '/acervo-publico'))
+// "Voltar ao acervo" volta para o acervo como estava (com a busca e os filtros do endereço),
+// se a pessoa veio de lá; senão, para o acervo sem filtros. O vue-router guarda o endereço anterior em history.state.back.
+const enderecoAnterior = window.history.state?.back
+const voltarPara = computed(() => {
+  const acervo = logada.value ? '/acervo' : '/acervo-publico'
+  return typeof enderecoAnterior === 'string' && enderecoAnterior.split('?')[0] === acervo ? enderecoAnterior : acervo
+})
 const livro = ref(null)
 const carregando = ref(true)
 const erro = ref(null)

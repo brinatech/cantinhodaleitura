@@ -49,6 +49,14 @@ const tag = computed(() => (props.to ? RouterLink : 'div'))
   background: var(--cat-suave);
   color: var(--texto-principal);
   text-decoration: none;
+  transition: transform var(--duracao-media) var(--curva), box-shadow var(--duracao-media) var(--curva);
+}
+
+/* O bloco "levanta" ao passar o mouse ou com o foco do teclado */
+.bloco:hover,
+.bloco:focus-visible {
+  transform: translateY(var(--elevar));
+  box-shadow: var(--sombra-flutuante);
 }
 
 .bloco:focus-visible {

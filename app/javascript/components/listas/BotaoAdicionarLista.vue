@@ -219,6 +219,12 @@ async function criarComLivro() {
   background: transparent;
   color: var(--texto-principal);
   cursor: pointer;
+  transition: transform var(--duracao-rapida) var(--curva), background-color var(--duracao-rapida) var(--curva);
+}
+
+.janela-fechar:hover {
+  transform: scale(var(--crescer));
+  background: var(--camada-hover);
 }
 
 .janela-fechar:focus-visible {
@@ -259,6 +265,11 @@ async function criarComLivro() {
   border-radius: var(--raio-12);
   background: var(--fundo-nuvem);
   cursor: pointer;
+  transition: background-color var(--duracao-rapida) var(--curva);
+}
+
+.janela-opcao:hover {
+  background: color-mix(in srgb, var(--fundo-nuvem), var(--texto-principal) 8%);
 }
 
 .janela-opcao:has(input:focus-visible) {

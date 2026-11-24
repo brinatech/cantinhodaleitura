@@ -7,9 +7,12 @@
   As categorias dos chips saem dos próprios livros: não precisa de endpoint de categorias.
   A busca por texto vem de fora (prop "busca"), porque o campo fica na barra de cima;
   o catálogo só avisa com "limpar-busca" quando a pessoa quer tirar a busca.
+  Os filtros ficam no endereço (?categoria=Fantasia&audio=1), como a busca (HU-02 Task 2, item 4):
+  assim o "Voltar" depois de abrir um livro, o F5 e um link compartilhado mantêm o que foi escolhido.
 -->
 <script setup>
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import Alerta from '../ui/Alerta.vue'
 import Botao from '../ui/Botao.vue'
 import CardLivro from '../ui/CardLivro.vue'
@@ -49,15 +52,34 @@ const combinaComBusca = (livro) =>
   normalizar(livro.titulo).includes(termo.value) ||
   normalizar(livro.autor ?? '').includes(termo.value)
 
-// ===== Filtros =====
-const categoriaSelecionada = ref(null) // null = "Todas as categorias"
-const soAudiobook = ref(false)
+// ===== Filtros (guardados no endereço) =====
+const rota = useRoute()
+const roteador = useRouter()
 
 // Categorias que existem nos livros, sem repetir, em ordem alfabética
 const categorias = computed(() => {
   const nomes = props.livros.map((livro) => livro.categoria?.nome).filter(Boolean)
   return [...new Set(nomes)].sort((a, b) => a.localeCompare(b, 'pt-BR'))
 })
+
+// ?categoria=Fantasia. Categoria que não existe mais (link antigo) vale como "Todas".
+// null = "Todas as categorias"
+const categoriaSelecionada = computed(() => {
+  const nome = rota.query.categoria
+  return typeof nome === 'string' && categorias.value.includes(nome) ? nome : null
+})
+const soAudiobook = computed(() => rota.query.audio === '1') // ?audio=1
+
+// Troca só o filtro pedido e mantém o resto do endereço (a busca, por exemplo).
+// replace: escolher filtros não cria passos a mais no "Voltar" do navegador.
+function mudarFiltros(mudancas) {
+  const query = { ...rota.query }
+  Object.entries(mudancas).forEach(([chave, valor]) => {
+    if (valor) query[chave] = valor
+    else delete query[chave]
+  })
+  return roteador.replace({ query })
+}
 
 const temAudio = (livro) => livro.formatos?.some((formato) => formato.tipo === 'audio')
 
@@ -71,15 +93,15 @@ const livrosFiltrados = computed(() =>
 )
 
 // Clicar na categoria já selecionada desmarca (volta para "Todas")
-const escolherCategoria = (nome) => {
-  categoriaSelecionada.value = categoriaSelecionada.value === nome ? null : nome
-}
+const escolherCategoria = (nome) => mudarFiltros({ categoria: categoriaSelecionada.value === nome ? null : nome })
+const alternarAudiobook = () => mudarFiltros({ audio: soAudiobook.value ? null : '1' })
 
-// Tira tudo: categoria, audiobook e a busca
-const limparFiltros = () => {
-  categoriaSelecionada.value = null
-  soAudiobook.value = false
-  if (props.busca) emit('limpar-busca')
+// Tira tudo: categoria, audiobook e a busca, numa troca só de endereço.
+// Espera o endereço mudar antes de avisar quem tem o campo de busca (senão as duas trocas se atropelam).
+async function limparFiltros() {
+  const tinhaBusca = Boolean(props.busca)
+  await mudarFiltros({ categoria: null, audio: null, busca: null })
+  if (tinhaBusca) emit('limpar-busca')
 }
 
 // ===== Textos =====
@@ -114,7 +136,7 @@ const textoFormato = (livro) => {
     <h2 id="titulo-catalogo" class="so-leitor">Livros do acervo</h2>
 
     <div class="catalogo-filtros" role="group" aria-label="Filtrar livros">
-      <ChipFiltro :selecionado="categoriaSelecionada === null" @click="categoriaSelecionada = null">
+      <ChipFiltro :selecionado="categoriaSelecionada === null" @click="mudarFiltros({ categoria: null })">
         Todas as categorias
       </ChipFiltro>
 
@@ -130,7 +152,7 @@ const textoFormato = (livro) => {
 
       <span class="catalogo-divisor" aria-hidden="true"></span>
 
-      <ChipFiltro :selecionado="soAudiobook" @click="soAudiobook = !soAudiobook">
+      <ChipFiltro :selecionado="soAudiobook" @click="alternarAudiobook">
         Com audiobook
       </ChipFiltro>
     </div>
@@ -148,8 +170,9 @@ const textoFormato = (livro) => {
     <p class="so-leitor" role="status">{{ avisoFavorito }}</p>
     <Alerta v-if="erroFavorito" tipo="erro">{{ erroFavorito }}</Alerta>
 
-    <ul v-if="livrosFiltrados.length" class="catalogo-grade">
-      <li v-for="livro in livrosFiltrados" :key="livro.id">
+    <!-- aparecer-em-cascata (styles/animacoes.css): os cards aparecem um depois do outro -->
+    <ul v-if="livrosFiltrados.length" class="catalogo-grade aparecer-em-cascata">
+      <li v-for="(livro, indice) in livrosFiltrados" :key="livro.id" :style="{ '--ordem': indice }">
         <CardLivro
           :titulo="livro.titulo"
           :autor="livro.autor"
