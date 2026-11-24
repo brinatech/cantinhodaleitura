@@ -17,7 +17,6 @@ const telasPendentes = [
   // { path: '/acervo-publico', titulo: 'Acervo' }, 
   { path: '/acessibilidade', titulo: 'Acessibilidade' },
   // Telas da área logada: a página provisória aparece dentro do menu lateral
-  { path: '/favoritos', titulo: 'Favoritos', logada: true },
   { path: '/listas-de-leitura', titulo: 'Listas de leitura', logada: true },
   { path: '/historico', titulo: 'Histórico', logada: true },
 ].map(({ path, titulo, logada }) => ({ path, component: emBreve, meta: { titulo, logada } }))
@@ -33,15 +32,29 @@ const routes = [
   { path: '/redefinir-senha', component: AcessoView },
   { path: '/minhas-leituras', component: MinhasLeiturasView, meta: { logada: true } },
   { path: '/meu-perfil', component: MeuPerfilView, meta: { logada: true } },
+  { path: '/favoritos', component: () => import('../views/FavoritosView.vue'), meta: { logada: true } },
   { path: '/livros/:id', name: 'livro-detalhe', component: LivroDetalheView },
   // Mesma tela, na moldura da área logada (menu lateral). O acervo logado (/acervo) leva a esta.
   { path: '/acervo/:id', name: 'livro-detalhe-logado', component: LivroDetalheView, meta: { logada: true } },
+  // Leitura do livro (HU-10 Task 4): a do visitante e a da área logada, como o detalhe
+  { path: '/livros/:id/ler', name: 'livro-leitura', component: () => import('../views/LeitorLivroView.vue') },
+  {
+    path: '/acervo/:id/ler',
+    name: 'livro-leitura-logado',
+    component: () => import('../views/LeitorLivroView.vue'),
+    meta: { logada: true },
+  },
   { path: '/acervo', component: AcervoView, meta: { logada: true } }, // busca chega pela barra de cima: /acervo?busca=...
   { path: '/acervo-publico', component: AcervoPublicoView }, //rota para chamar o acero publico
   // Área admin (provisória até a tela admin de livros, HU-07 Task 4)
   {
     path: '/admin/livros/:id/classificacoes',
     component: () => import('../views/admin/ClassificacoesLivroView.vue'),
+    meta: { logada: true, admin: true },
+  },
+    {
+    path: '/admin/livros',
+    component: () => import('../views/admin/LivrosView.vue'),
     meta: { logada: true, admin: true },
   },
   {

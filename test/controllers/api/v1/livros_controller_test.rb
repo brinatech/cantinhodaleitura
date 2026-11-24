@@ -132,7 +132,7 @@ class Api::V1::LivrosControllerTest < ActionDispatch::IntegrationTest
       categoria: categoria,
       usuario_cadastro: usuario
     )
-            # Simula um registro antigo, de antes da validação de nome
+    # Simula um registro antigo, de antes da validação de nome
     classificacao = Classificacao.new(livro: livro, tipo: "acessibilidade", nome: nil, descricao: nil)
     classificacao.save!(validate: false)
 
@@ -168,5 +168,15 @@ class Api::V1::LivrosControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :not_found
     assert_equal "Livro não encontrado", JSON.parse(response.body)["erro"]
+  end
+
+  test "capa enviada pelo admin vira o capa_url" do
+    livro = Livro.create!(titulo: "Livro com capa enviada", categoria: categorias(:one), usuario_cadastro: usuarios(:one))
+    livro.capa.attach(io: StringIO.new("imagem"), filename: "capa.png", content_type: "image/png")
+
+    get api_v1_livro_url(livro)
+
+    assert_response :success
+    assert_match %r{/rails/active_storage/blobs/.+/capa\.png}, JSON.parse(response.body)["capa_url"]
   end
 end

@@ -1,7 +1,6 @@
 <!--
-  Página admin provisória: editar as classificações de um livro.
-  Quando existir a tela admin de livros (HU-07 Task 4), o componente ClassificacoesLivro
-  pode ir para dentro dela e esta página deixa de ser necessária.
+  Página admin: editar as classificações de um livro.
+  Abre pelo botão "Classificações" da tela admin de livros (/admin/livros), para onde o "Voltar" leva.
 -->
 <script setup>
 import { computed, ref, watch } from 'vue'
@@ -28,7 +27,7 @@ watch(livroId, async (id) => {
 <template>
   <LayoutLogado>
     <div class="admin-pagina">
-      <Botao class="admin-voltar" tipo="contorno" :to="`/acervo/${livroId}`">← Voltar ao livro</Botao>
+      <Botao class="admin-voltar" tipo="contorno" to="/admin/livros">← Voltar aos livros</Botao>
 
       <div>
         <p class="admin-rotulo">Administração</p>

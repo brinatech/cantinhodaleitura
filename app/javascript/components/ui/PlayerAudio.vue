@@ -18,6 +18,8 @@ const props = defineProps({
   tempoAtual: { type: Number, default: 0 },
   duracao: { type: Number, required: true },
   velocidade: { type: String, default: '1x' },
+  // Versão em faixa (sem Figma): uma linha só, para ficar presa embaixo da tela de leitura
+  compacto: { type: Boolean, default: false },
 })
 
 const emit = defineEmits(['alternar', 'voltar10', 'avancar10', 'velocidade', 'buscar'])
@@ -54,7 +56,7 @@ function clicar(evento) {
 </script>
 
 <template>
-  <section class="player" aria-label="Player de áudio">
+  <section class="player" :class="{ 'player--compacto': compacto }" aria-label="Player de áudio">
     <div class="player-livro">
       <div class="player-capa">
         <img v-if="capaUrl" :src="capaUrl" alt="">
@@ -246,5 +248,80 @@ function clicar(evento) {
 .velocidade:focus-visible {
   outline: 3px solid var(--borda-foco);
   outline-offset: 3px;
+}
+
+/* ===== Compacto: uma faixa só (livro | controles | progresso) ===== */
+.player--compacto {
+  display: grid;
+  grid-template-areas: 'livro controles progresso';
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1.4fr);
+  align-items: center;
+  gap: var(--espaco-16);
+  padding: var(--espaco-12) var(--espaco-16);
+  background: var(--fundo-superficie);
+  box-shadow: var(--sombra-flutuante);
+}
+
+.player--compacto .player-livro {
+  grid-area: livro;
+  gap: var(--espaco-12);
+  min-width: 0;
+}
+
+.player--compacto .player-capa {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--raio-8);
+}
+
+.player--compacto .player-textos {
+  min-width: 0;
+}
+
+.player--compacto .player-titulo {
+  overflow: hidden;
+  font: var(--fonte-botao);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.player--compacto .player-capitulo {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.player--compacto .player-controles {
+  grid-area: controles;
+  flex-wrap: nowrap;
+  gap: var(--espaco-8);
+}
+
+.player--compacto .redondo {
+  padding: var(--espaco-8);
+}
+
+.player--compacto .principal {
+  padding: var(--espaco-12);
+}
+
+.player--compacto .player-progresso {
+  grid-area: progresso;
+  gap: var(--espaco-4);
+}
+
+/* Celular: some o título; controles em cima e a barra de tempo embaixo */
+@media (max-width: 640px) {
+  .player--compacto {
+    grid-template-areas:
+      'controles'
+      'progresso';
+    grid-template-columns: 1fr;
+    gap: var(--espaco-8);
+  }
+
+  .player--compacto .player-livro {
+    display: none;
+  }
 }
 </style>

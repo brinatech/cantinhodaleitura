@@ -10,6 +10,13 @@ class ApplicationController < ActionController::Base
 
   private
 
+  # Endereço da capa: a imagem enviada pelo admin; se não houver, o link antigo da coluna capa_url
+  def capa_url_de(livro)
+    return rails_blob_path(livro.capa, disposition: "inline") if livro.capa.attached?
+
+    livro.capa_url
+  end
+
   def usuario_json(usuario)
     {
       id: usuario.id,
