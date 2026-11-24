@@ -112,10 +112,12 @@ const rotuloCategoria = computed(() => props.categoria || 'Diversos')
 }
 
 /* ===== Capa ===== */
+/* Como no Figma: a capa ocupa a largura toda do card, num formato quase quadrado (5:6).
+   A altura acompanha a largura do card. */
 .card-capa {
   position: relative;
   width: 100%;
-  height: 260px;
+  aspect-ratio: 5 / 6;
   flex-shrink: 0;
   overflow: hidden;
   border-radius: var(--raio-12);
@@ -125,7 +127,10 @@ const rotuloCategoria = computed(() => props.categoria || 'Diversos')
 .card-capa-img {
   width: 100%;
   height: 100%;
-  object-fit: contain; /* capas reais são verticais: não corta título nem autor; sobra o fundo da categoria */
+  /* A capa preenche o espaço todo. Uma capa 2:3 (800 × 1200 px) perde ~20% da parte de baixo;
+     o topo, onde costumam ficar o título e o autor, aparece inteiro. */
+  object-fit: cover;
+  object-position: center top;
 }
 
 .card-capa-icone {
@@ -250,10 +255,6 @@ const rotuloCategoria = computed(() => props.categoria || 'Diversos')
   /* A marca não cabe numa linha só; é enfeite (aria-hidden), então sai */
   .card-marca {
     display: none;
-  }
-
-  .card-capa {
-    height: 190px;
   }
 
   /* O selo desce para o pé da capa: em cima, ele bateria no coração */

@@ -40,7 +40,7 @@
 
 .capa {
   width: 100%;
-  height: 260px;
+  aspect-ratio: 5 / 6; /* igual à capa do CardLivro: o card não "pula" quando os livros chegam */
   border-radius: var(--raio-12);
 }
 
