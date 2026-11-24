@@ -164,7 +164,7 @@ async function enviar() {
       <main class="acesso-centro">
         <img class="acesso-logo" :src="logo" alt="Cantinho da Leitura" width="160">
 
-        <form id="painel-acesso" class="acesso-campos" :role="comAbas ? 'tabpanel' : undefined" aria-label="Acesso" novalidate @submit.prevent="enviar">
+        <form id="painel-acesso" class="acesso-campos" aria-label="Acesso" novalidate @submit.prevent="enviar">
           <AbasAcesso v-if="comAbas" v-model="aba" painel="painel-acesso" />
 
           <div class="acesso-titulo">

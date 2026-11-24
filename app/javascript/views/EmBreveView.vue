@@ -24,6 +24,7 @@ const auth = useAuthStore()
 
     <component :is="rota.meta.logada ? 'div' : 'main'" class="em-breve">
       <EstadoVazio
+        :nivel="1"
         :titulo="rota.meta.titulo ? `${rota.meta.titulo}: em breve` : 'Página não encontrada'"
         :descricao="rota.meta.titulo ? 'Essa página ainda está sendo construída.' : 'Esse endereço não existe no Cantinho da Leitura.'"
       >

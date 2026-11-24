@@ -1,3 +1,4 @@
+import { nextTick } from 'vue'
 import { createRouter, createWebHashHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import AcessoView from '../views/AcessoView.vue'
@@ -103,6 +104,19 @@ router.beforeEach((para) => {
     // O acervo do admin é o /admin/acervo (a busca da barra de cima vai junto)
     return para.path === '/acervo' ? { path: '/admin/acervo', query: para.query } : auth.inicio
   }
+})
+
+// Tela nova: leva o foco ao título (<h1>), para o leitor de tela anunciar a página e o Tab recomeçar dali.
+// Fica de fora: a primeira tela, e só mudar a busca/filtros na URL (não pode roubar o foco de quem digita).
+router.afterEach((para, de) => {
+  if (!de.matched.length || para.path === de.path) return
+  nextTick(() => {
+    const titulo = document.querySelector('h1')
+    if (!titulo) return // tela que ainda está carregando: segue sem mover o foco
+    titulo.tabIndex = -1 // só para receber foco por código; não entra na ordem do Tab
+    titulo.style.outline = 'none' // não é um controle: sem anel
+    titulo.focus({ preventScroll: true })
+  })
 })
 
 export default router
