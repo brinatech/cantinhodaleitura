@@ -96,6 +96,16 @@ class Relatorios::BibliotecaQueryTest < ActiveSupport::TestCase
     assert_equal 0, relatorio(Date.new(2026, 9, 1), Date.new(2026, 9, 30))[:leitores_ativos]
   end
 
+  test "leitor com conta excluída deixa de contar como ativo a partir da exclusão" do
+    acesso(@tunel, "leitura", BRASILIA.local(2026, 10, 2), usuario: @leitor)
+    acesso(@tunel, "leitura", BRASILIA.local(2026, 11, 2), usuario: @leitor)
+    travel_to(BRASILIA.local(2026, 11, 10)) { ExcluirConta.call(usuario: @leitor) }
+
+    assert_equal 1, relatorio[:leitores_ativos], "outubro foi antes da exclusão: continua contando"
+    assert_equal 0, relatorio(Date.new(2026, 11, 1), Date.new(2026, 11, 30))[:leitores_ativos]
+    assert_operator relatorio[:leitores_ativos], :<=, relatorio[:leitores_cadastrados]
+  end
+
   test "conta excluída deixa de contar como leitor a partir da exclusão" do
     antes = relatorio[:leitores_cadastrados]
 

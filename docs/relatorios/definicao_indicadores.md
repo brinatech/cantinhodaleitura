@@ -18,7 +18,7 @@ já gravados; não existe tabela de relatórios.
 | Livros novos no período | livros com `created_at` dentro do período | `livros` |
 | Livros cadastrados por mês | contagem por mês (`created_at`), dentro do período | `livros` |
 | Leitores cadastrados | contas com `tipo_usuario = leitor`, criadas até o fim do período (conta excluída pelo próprio usuário deixa de contar a partir da exclusão) | `usuarios` |
-| Leitores ativos | leitores **diferentes** com pelo menos um acesso (visualização, leitura ou download) no período; quem acessou várias vezes conta 1; visitantes e administradores não entram. O painel mostra também a % sobre os cadastrados | `acesso_materials` + `usuarios` |
+| Leitores ativos | leitores **diferentes** com pelo menos um acesso (visualização, leitura ou download) no período; quem acessou várias vezes conta 1; visitantes e administradores não entram; conta excluída pelo próprio usuário deixa de contar a partir da exclusão (mesma regra de leitores cadastrados). O painel mostra também a % sobre os cadastrados | `acesso_materials` + `usuarios` |
 | Visualizações | acessos `visualizacao` no período | `acesso_materials` |
 | Leituras | acessos `leitura` no período | `acesso_materials` |
 | Downloads | acessos `download` no período | `acesso_materials` |
