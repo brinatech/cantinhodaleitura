@@ -93,10 +93,6 @@ async function enviar() {
     <MenuSuperior />
 
     <main class="menor">
-      <Alerta class="menor-proposta">
-        Versão proposta: este cadastro ainda precisa ser aprovado pela ONG parceira antes de ser usado com crianças de verdade.
-      </Alerta>
-
       <!-- Depois de enviar: confirme no e-mail -->
       <section v-if="enviado" class="cartao" aria-labelledby="titulo-enviado">
         <h1 id="titulo-enviado" class="cartao-titulo-grande">Agora confirme no seu e-mail</h1>

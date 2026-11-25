@@ -20,6 +20,7 @@ module Relatorios
         dados_desde: primeiro_acesso,
         livros: livros,
         leitores_cadastrados: leitores_cadastrados,
+        leitores_ativos: leitores_ativos,
         acessos: acessos,
         mais_acessados: mais_acessados
       }
@@ -47,6 +48,18 @@ module Relatorios
       Usuario.where(tipo_usuario: "leitor", created_at: ..fim_do_periodo)
              .where("usuarios.excluido_em IS NULL OR usuarios.excluido_em > ?", fim_do_periodo)
              .count
+    end
+
+    # Leitores ativos (proposta da equipe, opção "b" da definição): leitores DIFERENTES com pelo menos um
+    # acesso no período (abriu a página de um livro, leu/ouviu ou baixou). Quem acessou 10 vezes conta 1.
+    # Só número: nenhum nome sai daqui. Visitantes, administradores e contas já excluídas (HU-21) não entram.
+    def leitores_ativos
+      AcessoMaterial.where(data_acesso: periodo)
+                    .joins(:usuario)
+                    .where(usuarios: { tipo_usuario: "leitor" })
+                    .where("usuarios.excluido_em IS NULL OR usuarios.excluido_em > ?", fim_do_periodo) # mesma regra de leitores_cadastrados
+                    .distinct
+                    .count(:usuario_id)
     end
 
     # { "leitura" => { total:, leitores:, visitantes: }, ... }, com zero para o tipo sem acessos

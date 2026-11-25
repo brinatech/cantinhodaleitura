@@ -81,6 +81,31 @@ class Relatorios::BibliotecaQueryTest < ActiveSupport::TestCase
     assert_includes Usuario.where(created_at: ..BRASILIA.local(2026, 10, 31).end_of_day), @leitor
   end
 
+  test "leitores ativos: leitores diferentes com algum acesso no período, sem visitantes nem admin" do
+    outra = Usuario.create!(nome: "Outra", email: "outra-ativa@example.com", password: "password123")
+    admin = Usuario.create!(nome: "Admin", email: "admin-ativo@example.com", password: "password123", tipo_usuario: "administrador")
+    3.times { acesso(@tunel, "leitura", BRASILIA.local(2026, 10, 2), usuario: @leitor) } # repetido conta 1
+    acesso(@barco, "visualizacao", BRASILIA.local(2026, 10, 3), usuario: @leitor)
+    acesso(@lua, "download", BRASILIA.local(2026, 10, 20), usuario: outra)
+    acesso(@tunel, "leitura", BRASILIA.local(2026, 10, 5))                    # visitante
+    acesso(@tunel, "leitura", BRASILIA.local(2026, 10, 5), usuario: admin)    # administrador
+    acesso(@tunel, "leitura", BRASILIA.local(2026, 11, 2), usuario: outra)    # fora do período
+
+    assert_equal 2, relatorio[:leitores_ativos]
+    assert_equal 1, relatorio(Date.new(2026, 11, 1), Date.new(2026, 11, 30))[:leitores_ativos]
+    assert_equal 0, relatorio(Date.new(2026, 9, 1), Date.new(2026, 9, 30))[:leitores_ativos]
+  end
+
+  test "leitor com conta excluída deixa de contar como ativo a partir da exclusão" do
+    acesso(@tunel, "leitura", BRASILIA.local(2026, 10, 2), usuario: @leitor)
+    acesso(@tunel, "leitura", BRASILIA.local(2026, 11, 2), usuario: @leitor)
+    travel_to(BRASILIA.local(2026, 11, 10)) { ExcluirConta.call(usuario: @leitor) }
+
+    assert_equal 1, relatorio[:leitores_ativos], "outubro foi antes da exclusão: continua contando"
+    assert_equal 0, relatorio(Date.new(2026, 11, 1), Date.new(2026, 11, 30))[:leitores_ativos]
+    assert_operator relatorio[:leitores_ativos], :<=, relatorio[:leitores_cadastrados]
+  end
+
   test "conta excluída deixa de contar como leitor a partir da exclusão" do
     antes = relatorio[:leitores_cadastrados]
 

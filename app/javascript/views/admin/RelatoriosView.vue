@@ -2,7 +2,8 @@
   Relatórios da biblioteca (HU-22 Task 4), só para administradores. Sem tela no Figma.
   Filtro de período, cards com os números, a tabela dos livros mais acessados e a dos
   livros cadastrados por mês. Tabelas (e não gráficos) para funcionar com leitor de tela.
-  "Usuários ativos" fica de fora até a SESFA definir o que é ativo: no lugar, "leitores cadastrados".
+  "Leitores ativos" (proposta da equipe, a validar com a SESFA): leitores diferentes que abriram, leram ou
+  baixaram algum livro no período. "Leitores cadastrados" continua ao lado, para comparar.
   Definições em docs/relatorios/definicao_indicadores.md.
 -->
 <script setup>
@@ -72,6 +73,12 @@ const mesBr = (texto) => {
   return new Date(ano, mes - 1, 1).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
 }
 
+// " · 40% dos cadastrados" (sem cadastrados, não mostra porcentagem)
+const porcentagemAtivos = (dados) =>
+  dados.leitores_cadastrados
+    ? ` · ${Math.round((dados.leitores_ativos / dados.leitores_cadastrados) * 100)}% dos cadastrados`
+    : ''
+
 const detalheAcesso = (dados) => `${numero(dados.leitores)} de leitores · ${numero(dados.visitantes)} de visitantes`
 
 const cards = computed(() => {
@@ -84,6 +91,13 @@ const cards = computed(() => {
       detalhe: `${numero(dados.livros.novos_no_periodo)} novos no período`,
       icone: 'livro',
       cor: 'laranja',
+    },
+    {
+      rotulo: 'Leitores ativos',
+      valor: numero(dados.leitores_ativos),
+      detalhe: `abriram, leram ou baixaram um livro${porcentagemAtivos(dados)}`,
+      icone: 'estrela',
+      cor: 'ceu',
     },
     { rotulo: 'Leitores cadastrados', valor: numero(dados.leitores_cadastrados), detalhe: 'contas de leitor', icone: 'usuario', cor: 'rosa' },
     { rotulo: 'Visualizações', valor: numero(dados.acessos.visualizacao.total), detalhe: detalheAcesso(dados.acessos.visualizacao), icone: 'olho', cor: 'ceu' },

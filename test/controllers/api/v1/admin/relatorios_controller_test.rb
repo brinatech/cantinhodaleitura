@@ -29,6 +29,7 @@ class Api::V1::Admin::RelatoriosControllerTest < ActionDispatch::IntegrationTest
     assert resposta["livros"].key?("total")
     assert resposta.key?("mais_acessados")
     assert resposta.key?("leitores_cadastrados")
+    assert resposta.key?("leitores_ativos")
   end
 
   test "aceita um período escolhido" do
