@@ -26,7 +26,8 @@ const FORMATOS = {
 }
 
 // Capa: só imagem, até 5 MB (o mesmo limite do Rails).
-// Proporção ideal 2:3 (em pé, como capa de livro): é a que preenche os cards do acervo sem sobras.
+// Proporção ideal 2:3 (em pé, como capa de livro). No card do acervo a capa preenche um espaço quase
+// quadrado (como no Figma): de uma capa 2:3 só sai um pedaço da parte de baixo; o topo aparece inteiro.
 const CAPA = { aceita: '.jpg,.jpeg,.png,.webp', tamanhoMaximo: 5 * 1024 * 1024, proporcao: 2 / 3, tolerancia: 0.12 }
 
 const formulario = reactive({
@@ -55,7 +56,7 @@ function trocarPrevia(arquivo) {
 
 onBeforeUnmount(() => trocarPrevia(null))
 
-// Aviso (não bloqueia) quando a imagem foge da proporção 2:3. Ela funciona, só sobra cor nas laterais.
+// Aviso (não bloqueia) quando a imagem foge da proporção 2:3. Ela funciona, mas o card pode cortar mais dela.
 const avisoProporcao = ref('')
 
 function conferirProporcao(endereco) {
@@ -70,7 +71,8 @@ function conferirProporcao(endereco) {
     const formato = largura > altura ? 'deitada' : largura === altura ? 'quadrada' : 'mais estreita que uma capa'
     avisoProporcao.value =
       `Esta imagem tem ${largura} × ${altura} px e está ${formato}. ` +
-      'Ela vai funcionar, mas sobram faixas de cor no card. O ideal é 800 px de largura × 1200 px de altura.'
+      'Ela vai funcionar, mas no card do acervo podem ficar de fora partes das bordas. ' +
+      'O ideal é 800 px de largura × 1200 px de altura, com título e autor na parte de cima.'
   }
   imagem.src = endereco
 }
