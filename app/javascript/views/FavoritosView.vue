@@ -77,6 +77,7 @@ onMounted(carregar)
         <ul class="favoritos-grade">
           <li v-for="livro in livros" :key="livro.id">
             <CardLivro
+              :nivel="2"
               :titulo="livro.titulo"
               :autor="livro.autor"
               :categoria="livro.categoria?.nome"

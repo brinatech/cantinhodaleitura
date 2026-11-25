@@ -7,6 +7,7 @@ import IconeBolha from '../ui/IconeBolha.vue'
 
 defineProps({
   rotulo: { type: String, required: true },
+  nivel: { type: Number, default: 3, validator: (valor) => valor >= 1 && valor <= 6 }, // nível do título: 2 quando a tela não tem um <h2> antes dos cards
   valor: { type: [Number, String], required: true },
   detalhe: { type: String, default: '' },
   icone: { type: String, default: 'livro' },
@@ -18,7 +19,7 @@ defineProps({
   <article class="indicador">
     <IconeBolha :icone="icone" :cor="cor" :tamanho="40" :tamanho-icone="22" />
     <div class="indicador-textos">
-      <h3 class="indicador-rotulo">{{ rotulo }}</h3>
+      <component :is="`h${nivel}`" class="indicador-rotulo">{{ rotulo }}</component>
       <p class="indicador-valor">{{ valor }}</p>
       <p v-if="detalhe" class="indicador-detalhe">{{ detalhe }}</p>
     </div>

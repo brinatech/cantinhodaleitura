@@ -174,6 +174,7 @@ watch(() => rota.params.id, carregar, { immediate: true })
         <ul v-else class="lista-grade">
           <li v-for="livro in lista.livros" :key="livro.id" class="lista-item">
             <CardLivro
+              :nivel="2"
               :titulo="livro.titulo"
               :autor="livro.autor || ''"
               :categoria="livro.categoria?.nome"
@@ -185,7 +186,7 @@ watch(() => rota.params.id, carregar, { immediate: true })
               tipo="contorno"
               class="lista-tirar"
               :disabled="removendo === livro.id"
-              :aria-label="`Tirar ${livro.titulo} da lista`"
+              :aria-label="`${removendo === livro.id ? 'Tirando...' : 'Tirar da lista'}: ${livro.titulo}`"
               @click="tirar(livro)"
             >
               {{ removendo === livro.id ? 'Tirando...' : 'Tirar da lista' }}

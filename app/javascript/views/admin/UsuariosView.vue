@@ -94,7 +94,7 @@ const dataBr = (valor) => valor ? new Date(valor).toLocaleDateString('pt-BR') : 
 
 <template>
   <LayoutLogado>
-    <main class="usuarios-admin">
+    <div class="usuarios-admin"> <!-- o <main> é do LayoutLogado: dois <main> confundem o leitor de tela -->
       <header class="usuarios-topo">
         <p class="usuarios-rotulo">Administração</p>
         <h1>Usuários</h1>
@@ -203,7 +203,7 @@ const dataBr = (valor) => valor ? new Date(valor).toLocaleDateString('pt-BR') : 
         </div>
         <EstadoVazio v-else titulo="Nenhuma conta encontrada" descricao="Mude a busca ou o filtro de status." />
       </template>
-    </main>
+    </div>
   </LayoutLogado>
 </template>
 
@@ -214,9 +214,10 @@ const dataBr = (valor) => valor ? new Date(valor).toLocaleDateString('pt-BR') : 
 .usuarios-topo h1 { margin: 0; font: var(--fonte-titulo); }
 .usuarios-topo > p:last-child { margin: 10px 0 0; color: var(--texto-secundario); }
 .usuarios-filtros { display: flex; flex-wrap: wrap; align-items: end; gap: 16px; margin: 28px 0 12px; padding: 20px; border: 1px solid var(--borda-padrao); border-radius: var(--raio-20); background: var(--fundo-superficie); }
-.usuarios-campo { display: grid; flex: 1 1 280px; gap: 8px; color: var(--texto-principal); font: var(--fonte-rotulo); }
+.usuarios-campo { display: grid; grid-template-columns: minmax(0, 1fr); flex: 1 1 min(280px, 100%); gap: 8px; color: var(--texto-principal); font: var(--fonte-rotulo); }
 .usuarios-campo--status { flex: 0 1 220px; }
 .usuarios-campo input, .usuarios-campo select, .usuarios-papel-edicao select { min-height: 44px; padding: 9px 12px; border: 1px solid var(--borda-padrao); border-radius: var(--raio-8); background: var(--fundo-superficie); color: var(--texto-principal); font: var(--fonte-corpo); }
+.usuarios-campo input, .usuarios-campo select { box-sizing: border-box; width: 100%; min-width: 0; }
 .usuarios-campo :focus-visible, .usuarios-papel-edicao select:focus-visible, .usuarios-admin button:focus-visible { outline: 3px solid var(--borda-foco); outline-offset: 2px; }
 .usuarios-contagem { color: var(--texto-secundario); font: var(--fonte-rotulo); }
 .usuarios-tabela-wrap { overflow-x: auto; border: 1px solid var(--borda-padrao); border-radius: var(--raio-20); background: var(--fundo-superficie); }
@@ -225,7 +226,7 @@ const dataBr = (valor) => valor ? new Date(valor).toLocaleDateString('pt-BR') : 
 .usuarios-tabela th { color: var(--texto-secundario); font: var(--fonte-rotulo); }
 .usuarios-tabela tbody tr:last-child td { border-bottom: 0; }
 .usuarios-tabela td:first-child { min-width: 210px; }
-.usuarios-email { display: block; margin-top: 4px; color: var(--texto-secundario); font-size: .9rem; }
+.usuarios-email { display: block; overflow-wrap: anywhere; margin-top: 4px; color: var(--texto-secundario); font-size: .9rem; }
 .usuarios-menor { display: inline-block; margin-right: 6px; padding: 2px 8px; border-radius: 999px; background: var(--apoio-rosa-suave); color: var(--texto-principal); font: var(--fonte-rotulo); }
 .usuarios-papel-edicao { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .usuarios-papel { color: var(--texto-secundario); }

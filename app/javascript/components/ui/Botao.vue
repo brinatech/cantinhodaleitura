@@ -66,6 +66,7 @@ const tag = computed(() => (props.to ? RouterLink : props.href ? 'a' : 'button')
   font: var(--fonte-botao);
   text-decoration: none;
   white-space: nowrap;
+  max-width: 100%;
   cursor: pointer;
   transition: --camada var(--duracao-rapida) var(--curva); /* o hover escurece suave (ver @property abaixo) */
 }
@@ -111,6 +112,14 @@ const tag = computed(() => (props.to ? RouterLink : props.href ? 'a' : 'button')
   display: inline-flex;
   width: 24px;
   height: 24px;
+}
+
+/* Celular (e texto A++): rótulo comprido quebra em linhas em vez de passar do cartão */
+@media (max-width: 480px) {
+  .botao {
+    white-space: normal;
+    text-align: center;
+  }
 }
 
 /* Registra --camada como cor: só assim o navegador consegue animar a troca (sem isso, ela é instantânea) */

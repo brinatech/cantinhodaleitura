@@ -160,7 +160,8 @@ onMounted(carregarLivros)
 
 /* Mesma largura máxima da busca da barra de cima (LayoutLogado) */
 .acervo-busca {
-  flex: 1 1 320px;
+  flex: 1 1 min(320px, 100%); /* em tela de 320px a base fixa de 320px passava da borda */
+  min-width: 0; /* sem isso o campo não encolhe abaixo da largura natural do input e passa da borda a 320px */
   max-width: 440px;
 }
 

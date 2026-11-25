@@ -62,7 +62,7 @@ const painel = ref(null)
 .acessibilidade-etiqueta {
   position: absolute;
   top: calc(100% + var(--espaco-8));
-  left: 50%;
+  right: 0; /* alinhada à direita do botão: centralizada, ela passava da borda do celular e criava rolagem lateral */
   z-index: 10;
   padding: var(--espaco-4) var(--espaco-12);
   border-radius: var(--raio-8);
@@ -72,7 +72,6 @@ const painel = ref(null)
   white-space: nowrap;
   pointer-events: none;
   opacity: 0;
-  transform: translateX(-50%);
   transition: opacity var(--duracao-rapida) var(--curva);
 }
 
