@@ -36,8 +36,6 @@ const rotuloCategoria = computed(() => props.categoria || 'Diversos')
 
 <template>
   <article class="card" :class="`cat-${chave}`">
-    <p class="card-marca" aria-hidden="true">Cantinho · da · leitura</p>
-
     <div class="card-capa">
       <img v-if="capaUrl" class="card-capa-img" :src="capaUrl" alt="">
       <Icone v-else class="card-capa-icone" nome="livro" :tamanho="48" />
