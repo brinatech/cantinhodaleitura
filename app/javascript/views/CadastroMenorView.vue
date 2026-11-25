@@ -94,7 +94,7 @@ async function enviar() {
 
     <main class="menor">
       <Alerta class="menor-proposta">
-        Versão proposta: este cadastro ainda precisa ser aprovado pela SESFA antes de ser usado com crianças de verdade.
+        Versão proposta: este cadastro ainda precisa ser aprovado pela ONG parceira antes de ser usado com crianças de verdade.
       </Alerta>
 
       <!-- Depois de enviar: confirme no e-mail -->
