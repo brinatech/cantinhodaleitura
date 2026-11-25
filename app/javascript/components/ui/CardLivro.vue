@@ -109,6 +109,16 @@ const rotuloCategoria = computed(() => props.categoria || 'Diversos')
   letter-spacing: var(--letras-selo);
   text-transform: uppercase;
   white-space: nowrap;
+  max-width: 100%; /* nunca passa da largura do card (com A+ / A++ a letra cresce) */
+  overflow: hidden;
+}
+
+/* A marca precisa de ~14,5rem numa linha só. Em rem, o limite cresce junto com o A+ / A++:
+   se não couber, ela sai (é enfeite, aria-hidden) em vez de ser cortada. */
+@container (max-width: 14.5rem) {
+  .card-marca {
+    display: none;
+  }
 }
 
 /* ===== Capa ===== */
@@ -217,7 +227,7 @@ const rotuloCategoria = computed(() => props.categoria || 'Diversos')
 .card-titulo {
   display: -webkit-box;
   width: 100%;
-  height: 48px; /* 2 linhas */
+  height: 3rem; /* 2 linhas de 1rem × 1,5: cresce junto com o A+ / A++ (em px, a 2ª linha era cortada) */
   overflow: hidden;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;

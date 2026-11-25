@@ -40,3 +40,25 @@
   --cat-capa: var(--categoria-classicos);
   --cat-texto: var(--texto-sobre-cor);
 }
+
+/* Categorias novas (fora do Figma) */
+.cat-infantil {
+  --cat: var(--categoria-infantil);
+  --cat-suave: var(--categoria-infantil-suave);
+  --cat-capa: var(--categoria-infantil);
+  --cat-texto: var(--texto-sobre-cor);
+}
+
+.cat-poesia {
+  --cat: var(--categoria-poesia);
+  --cat-suave: var(--categoria-poesia-suave);
+  --cat-capa: var(--categoria-poesia);
+  --cat-texto: var(--texto-sobre-cor);
+}
+
+.cat-ciencias {
+  --cat: var(--categoria-ciencias);
+  --cat-suave: var(--categoria-ciencias-suave);
+  --cat-capa: var(--categoria-ciencias);
+  --cat-texto: var(--texto-sobre-cor);
+}

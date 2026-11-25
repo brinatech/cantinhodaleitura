@@ -21,6 +21,9 @@ const iconesPorCategoria = {
   fantasia: 'varinha',
   natureza: 'folha',
   classicos: 'livro',
+  infantil: 'estrela',
+  poesia: 'texto',
+  ciencias: 'info',
 }
 
 const chave = computed(() => chaveCategoria(props.categoria))
