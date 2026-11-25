@@ -41,6 +41,11 @@ export const useAuthStore = defineStore('auth', {
         canal?.postMessage('mudou')
       }
     },
+    // A sessão já acabou no servidor (ex.: a pessoa excluiu a conta): só esquece aqui e avisa as outras abas
+    esquecer() {
+      this.usuario = null
+      canal?.postMessage('mudou')
+    },
     // Outras abas: quando uma entra ou sai, esta revalida. Voltar para a aba também revalida
     // (sessão que expirou). "aoMudar" decide o que fazer com a tela aberta.
     sincronizarAbas(aoMudar) {

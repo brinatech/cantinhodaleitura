@@ -31,6 +31,7 @@ const modo = computed(() => ({ '/criar-conta': 'criar', '/esqueci-senha': 'esque
 const criando = computed(() => modo.value === 'criar')
 const comAbas = computed(() => modo.value === 'entrar' || modo.value === 'criar')
 const senhaRedefinida = computed(() => modo.value === 'entrar' && rota.query.aviso === 'senha-redefinida')
+const contaExcluida = computed(() => modo.value === 'entrar' && rota.query.aviso === 'conta-excluida') // HU-21
 const aba = computed({
   get: () => (criando.value ? 'criar-conta' : 'entrar'),
   set: (valor) => roteador.push(`/${valor}`),
@@ -185,6 +186,7 @@ async function enviar() {
           <Alerta v-if="avisoDoServidor" tipo="erro">{{ avisoDoServidor }}</Alerta>
           <Alerta v-if="avisoDeSucesso" tipo="sucesso">{{ avisoDeSucesso }}</Alerta>
           <Alerta v-if="senhaRedefinida" tipo="sucesso">Senha nova salva. Agora é só entrar.</Alerta>
+        <Alerta v-if="contaExcluida" tipo="sucesso">Sua conta foi excluída. Se quiser voltar, é só criar uma conta nova.</Alerta>
 
           <div class="acesso-entradas">
             <CampoFormulario

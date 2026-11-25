@@ -19,7 +19,7 @@ module Relatorios
         periodo: { inicio: @inicio.iso8601, fim: @fim.iso8601 },
         dados_desde: primeiro_acesso,
         livros: livros,
-        leitores_cadastrados: Usuario.where(tipo_usuario: "leitor").where(created_at: ..fim_do_periodo).count,
+        leitores_cadastrados: leitores_cadastrados,
         acessos: acessos,
         mais_acessados: mais_acessados
       }
@@ -39,6 +39,14 @@ module Relatorios
         por_mes: Livro.where(created_at: periodo).group(MES_DE_CADASTRO).order(MES_DE_CADASTRO).count
                       .map { |mes, total| { mes: mes, total: total } }
       }
+    end
+
+    # Leitores com conta no fim do período. Conta excluída pelo próprio usuário (HU-21) deixa de contar
+    # a partir da data da exclusão; em períodos anteriores a ela, continua contando.
+    def leitores_cadastrados
+      Usuario.where(tipo_usuario: "leitor", created_at: ..fim_do_periodo)
+             .where("usuarios.excluido_em IS NULL OR usuarios.excluido_em > ?", fim_do_periodo)
+             .count
     end
 
     # { "leitura" => { total:, leitores:, visitantes: }, ... }, com zero para o tipo sem acessos

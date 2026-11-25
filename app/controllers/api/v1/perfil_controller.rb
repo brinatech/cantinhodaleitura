@@ -27,6 +27,22 @@ module Api
         end
       end
 
+      # DELETE /api/v1/perfil com { senha_atual } — o próprio usuário exclui a conta (HU-21).
+      # Anonimiza em vez de apagar (ExcluirConta). Conta de administrador não se exclui por aqui,
+      # para a biblioteca não ficar sem administrador.
+      def destroy
+        if current_usuario.tipo_usuario == "administrador"
+          return render json: { erro: "Contas de administrador não podem ser excluídas por aqui." }, status: :forbidden
+        end
+        return render_erros(senha_atual: [ "está incorreta" ]) unless current_usuario.authenticate(params[:senha_atual].to_s)
+
+        ExcluirConta.call(usuario: current_usuario)
+        reset_session
+        # A sessão nova troca o token CSRF: o front guarda este para o próximo login/cadastro
+        response.set_header("X-CSRF-Token", form_authenticity_token)
+        head :no_content
+      end
+
       private
 
       def render_erros(erros)

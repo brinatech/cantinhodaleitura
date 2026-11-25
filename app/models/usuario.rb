@@ -20,6 +20,11 @@ class Usuario < ApplicationRecord
   has_many :historico_leituras
   has_many :marcador_paginas
 
+  # Conta excluída pelo próprio usuário (HU-21): anonimizada, desativada e sem volta
+  def excluido?
+    excluido_em.present?
+  end
+
   def serializable_hash(options = nil)
     options = (options || {}).dup
     options[:except] = Array(options[:except]) | [ "password_digest" ]
