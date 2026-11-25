@@ -29,7 +29,7 @@ import Selo from '../components/ui/Selo.vue'
         <Botao to="/acervo-publico">Explorar o acervo</Botao>
       </section>
 
-      <p class="nota">O Cantinho da Leitura é um protótipo acadêmico desenvolvido em parceria com a SESFA. As informações e os materiais exibidos podem ser de demonstração.</p>
+      <p class="nota">O Cantinho da Leitura é um protótipo acadêmico desenvolvido em parceria com uma ONG. As informações e os materiais exibidos podem ser de demonstração.</p>
     </main>
     <Rodape />
   </div>

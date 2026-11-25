@@ -1,12 +1,15 @@
 <!--
   Rodapé (Figma: "Rodapé"). Rodapé padrão de todas as páginas públicas.
-  As ilustrações (nuvem, leitor) são opcionais e entram no slot "decoracao",
-  posicionadas por quem usa; ficam atrás do texto e fora do alcance do mouse.
-  Os textos de contato da SESFA ainda são os do Figma ("a definir pela equipe").
+  As ilustrações (nuvem e menino lendo) já vêm por padrão em todas as páginas; quem quiser
+  outra decoração passa o slot "decoracao". Ficam fora do alcance do mouse.
+  A coluna de contato da ONG (Figma) foi tirada a pedido da equipe: o nome da ONG não aparece nas telas.
 -->
 <script setup>
 import { RouterLink } from 'vue-router'
 import logo from '../../images/imgs-footer/logo-footer.png'
+import nuvem from '../../images/imgs-footer/nuvem-footer.png'
+import livro from '../../images/imgs-footer/livro.png'
+import garoto from '../../images/imgs-footer/garoto-cadeira.png'
 
 const links = [
   { texto: 'Sobre o projeto', to: '/sobre' },
@@ -17,7 +20,16 @@ const links = [
 
 <template>
   <footer class="rodape">
-    <div class="rodape-decoracao" aria-hidden="true"><slot name="decoracao" /></div>
+    <div class="rodape-decoracao" aria-hidden="true">
+      <!-- Padrão de todas as páginas (o da Home). Quem quiser outra decoração passa o slot "decoracao". -->
+      <slot name="decoracao">
+        <img class="rodape-nuvem" :src="nuvem" alt="">
+        <div class="rodape-ilustracao">
+          <img class="rodape-livro" :src="livro" alt="">
+          <img class="rodape-garoto" :src="garoto" alt="">
+        </div>
+      </slot>
+    </div>
 
     <div class="rodape-colunas">
       <div class="rodape-marca">
@@ -33,20 +45,11 @@ const links = [
           </li>
         </ul>
       </nav>
-
-      <div class="rodape-coluna">
-        <h2 class="rodape-titulo">SESFA</h2>
-        <ul>
-          <li>ONG parceira</li>
-          <li>Contato a definir pela equipe</li>
-          <li>Redes sociais a definir</li>
-        </ul>
-      </div>
     </div>
 
     <hr class="rodape-divisor">
 
-    <p class="rodape-nota">Cantinho da Leitura · SESFA &nbsp;/&nbsp; Protótipo acadêmico · Conteúdo de demonstração</p>
+    <p class="rodape-nota">Cantinho da Leitura &nbsp;/&nbsp; Protótipo acadêmico · Conteúdo de demonstração</p>
   </footer>
 </template>
 
@@ -69,15 +72,55 @@ const links = [
   pointer-events: none;
 }
 
+/* Decoração padrão (veio da Home): nuvem embaixo à esquerda, menino lendo à direita */
+.rodape-nuvem {
+  position: absolute;
+  left: -40px;
+  bottom: -20px;
+  width: 340px;
+}
+
+.rodape-ilustracao {
+  position: absolute;
+  top: var(--espaco-48);
+  right: clamp(var(--espaco-24), 9.8vw, 141px); /* a mesma margem lateral do rodapé */
+  width: 294px;
+  height: 249px;
+  z-index: 1; /* fica na frente da linha divisória (a nuvem continua atrás) */
+}
+
+.rodape-livro {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+}
+
+.rodape-garoto {
+  position: absolute;
+  top: 0;
+  left: 61px;
+  width: 159px;
+}
+
+/* Em telas menores a ilustração cobriria os links: some */
+@media (max-width: 1024px) {
+  .rodape-ilustracao {
+    display: none;
+  }
+}
+
 .rodape-colunas,
 .rodape-divisor,
 .rodape-nota {
   position: relative; /* acima da decoração */
 }
 
+/* 3 faixas: marca | links | vazio. As laterais têm o mesmo tamanho (1fr),
+   então a coluna de links fica no centro da página. */
 .rodape-colunas {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   gap: var(--espaco-32) 64px;
 }
 
@@ -98,13 +141,27 @@ const links = [
   gap: var(--espaco-12);
 }
 
+/* No celular: uma faixa só, links embaixo da marca, alinhados à esquerda */
+@media (max-width: 768px) {
+  .rodape-colunas {
+    grid-template-columns: 1fr;
+  }
+}
+
 .rodape-titulo {
   color: var(--texto-principal);
   font: var(--fonte-botao);
+  font-size: 1.195rem; /* ~19px: um pouco maior que o texto do rodapé */
+  letter-spacing: 0.03em;
 }
 
 .rodape-coluna ul {
   list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-4, 4px);
+  font-size: 1.0825rem; /* ~17,3px */
+  letter-spacing: 0.02em;
 }
 
 .rodape-link {

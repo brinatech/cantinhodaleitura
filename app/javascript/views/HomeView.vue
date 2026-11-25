@@ -23,9 +23,6 @@ import nuvemRoxa from '../images/imgs-baixo-banner/nuvem-roxa.png'
 import nuvemArcoiris from '../images/imgs-baixo-banner/nuvem-arcoiris.png'
 import arcoIrisEstrela from '../images/imgs-baixo-banner/arco-iris-estrela.png'
 import fundoChamada from '../images/imgs-cima-footer/fundo-cima-footer.png'
-import nuvemRodape from '../images/imgs-footer/nuvem-footer.png'
-import livroRodape from '../images/imgs-footer/livro.png'
-import garotoRodape from '../images/imgs-footer/garoto-cadeira.png'
 
 // Livros em destaque: os 5 mais lidos do acervo (leituras registradas pela HU-10 Task 3).
 // Sem leituras ainda (acervo novo), a API completa com os mais recentes.
@@ -130,15 +127,7 @@ onMounted(async () => {
       </section>
     </main>
 
-    <Rodape>
-      <template #decoracao>
-        <img class="rodape-nuvem" :src="nuvemRodape" alt="">
-        <div class="rodape-ilustracao">
-          <img class="rodape-livro" :src="livroRodape" alt="">
-          <img class="rodape-garoto" :src="garotoRodape" alt="">
-        </div>
-      </template>
-    </Rodape>
+    <Rodape />
   </div>
 </template>
 
@@ -341,36 +330,6 @@ onMounted(async () => {
   min-width: 300px;
 }
 
-/* ===== Rodapé: ilustrações ===== */
-.rodape-nuvem {
-  position: absolute;
-  left: -40px;
-  bottom: -20px;
-  width: 340px;
-}
-
-.rodape-ilustracao {
-  position: absolute;
-  top: var(--espaco-48);
-  right: var(--margem);
-  width: 294px;
-  height: 249px;
-}
-
-.rodape-livro {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-}
-
-.rodape-garoto {
-  position: absolute;
-  top: 0;
-  left: 61px;
-  width: 159px;
-}
-
 /* ===== Responsividade ===== */
 @media (max-width: 1280px) {
   .deco-nuvem-arcoiris {
@@ -400,8 +359,7 @@ onMounted(async () => {
   }
 
   .deco-nuvem,
-  .deco-nuvem-roxa,
-  .rodape-ilustracao {
+  .deco-nuvem-roxa {
     display: none;
   }
 
