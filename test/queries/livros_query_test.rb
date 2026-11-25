@@ -80,6 +80,17 @@ class LivrosQueryTest < ActiveSupport::TestCase
     assert Livro.exists?
   end
 
+  test "ignora espaços em branco nas pontas dos filtros" do
+    assert_equal [ @dragao.id ], buscar(q: "  ANA  ", formato: "  audio  ", classificacao: "  6+  ")
+  end
+
+  test "encontra um título que contém os caracteres literais % e _" do
+    @dragao.update!(titulo: "Desconto 100%_real")
+    @mapa.update!(titulo: "Desconto 100 por cento real")
+
+    assert_equal [ @dragao.id ], buscar(q: "%_")
+  end
+
   private
 
   def buscar(**params)
