@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_24_034744) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_24_041745) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -164,7 +164,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_24_034744) do
     t.boolean "ativo", default: true, null: false
     t.datetime "ultimo_acesso_em"
     t.datetime "excluido_em"
+    t.boolean "menor", default: false, null: false
+    t.string "nome_usuario", limit: 30
+    t.string "responsavel_nome", limit: 100
+    t.string "responsavel_email", limit: 150
+    t.datetime "autorizado_em"
     t.index ["email"], name: "index_usuarios_on_email", unique: true
+    t.index ["nome_usuario"], name: "index_usuarios_on_nome_usuario", unique: true
   end
 
   add_foreign_key "acesso_materials", "livros"

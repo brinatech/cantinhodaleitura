@@ -16,9 +16,16 @@ module Api
       end
 
       def create
-        usuario = Usuario.find_by(email: params[:email].to_s.strip.downcase)
+        # O campo continua se chamando "email", mas aceita o nome de usuário das contas de menores (HU-20)
+        usuario = Usuario.para_login(params[:email])
 
         if usuario&.ativo? && usuario.authenticate(params[:password].to_s)
+          if usuario.aguardando_autorizacao?
+            return render json: { erro: "Esta conta ainda não foi autorizada. O responsável precisa abrir o link que enviamos para o e-mail dele." },
+                          status: :forbidden
+          end
+
+
           reset_session
           session[:usuario_id] = usuario.id
           usuario.update!(ultimo_acesso_em: Time.current)

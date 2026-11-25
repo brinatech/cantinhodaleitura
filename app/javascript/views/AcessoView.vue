@@ -55,7 +55,10 @@ const emailValido = (texto) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(texto.trim())
 function validar() {
   const m = modo.value
   erros.nome = m === 'criar' && !campos.nome.trim() ? 'Diga como você quer ser chamado.' : ''
-  erros.email = m === 'redefinir' || emailValido(campos.email) ? '' : 'Digite um e-mail válido, como maria@email.com.'
+  // Entrar e Esqueci aceitam também o nome de usuário das contas de criança (HU-20); Criar conta pede e-mail
+  if (m === 'redefinir') erros.email = ''
+  else if (m === 'criar') erros.email = emailValido(campos.email) ? '' : 'Digite um e-mail válido, como maria@email.com.'
+  else erros.email = campos.email.trim() ? '' : 'Digite seu e-mail ou nome de usuário.'
   if (m === 'esqueci') erros.senha = ''
   else if (!campos.senha) erros.senha = m === 'entrar' ? 'Digite sua senha.' : 'Crie uma senha.'
   else if (m !== 'entrar' && campos.senha.length < 8) erros.senha = 'Use pelo menos 8 caracteres.'
@@ -95,7 +98,7 @@ function mostrarErroDoServidor(erro) {
   if (doCampo.length) return
 
   if (erro.status === 401) {
-    erros.senha = 'E-mail ou senha incorretos.'
+    erros.senha = 'E-mail (ou nome de usuário) ou senha incorretos.'
     avisoDoServidor.value = 'Não encontramos uma conta com esses dados. Confira e tente de novo.'
   } else if (erro.erros?.token) {
     avisoDoServidor.value = 'Este link venceu ou já foi usado. Peça um novo em "Esqueci minha senha".'
@@ -177,16 +180,16 @@ async function enviar() {
             </h1>
             <p class="acesso-subtitulo">
               <template v-if="modo === 'criar'">É rápido e gratuito. Só precisamos do básico para guardar suas leituras.</template>
-              <template v-else-if="modo === 'esqueci'">Digite o e-mail da sua conta. Vamos enviar um link para você criar uma senha nova.</template>
+              <template v-else-if="modo === 'esqueci'">Digite o e-mail ou o nome de usuário da conta. Vamos enviar um link para criar uma senha nova.</template>
               <template v-else-if="modo === 'redefinir'">Escolha uma senha nova para voltar ao seu cantinho.</template>
-              <template v-else>Use seu e-mail e senha para continuar suas leituras.</template>
+              <template v-else>Use seu e-mail (ou nome de usuário) e senha para continuar suas leituras.</template>
             </p>
           </div>
 
           <Alerta v-if="avisoDoServidor" tipo="erro">{{ avisoDoServidor }}</Alerta>
           <Alerta v-if="avisoDeSucesso" tipo="sucesso">{{ avisoDeSucesso }}</Alerta>
           <Alerta v-if="senhaRedefinida" tipo="sucesso">Senha nova salva. Agora é só entrar.</Alerta>
-        <Alerta v-if="contaExcluida" tipo="sucesso">Sua conta foi excluída. Se quiser voltar, é só criar uma conta nova.</Alerta>
+          <Alerta v-if="contaExcluida" tipo="sucesso">Sua conta foi excluída. Se quiser voltar, é só criar uma conta nova.</Alerta>
 
           <div class="acesso-entradas">
             <CampoFormulario
@@ -203,10 +206,11 @@ async function enviar() {
             <CampoFormulario
               v-if="modo !== 'redefinir'"
               v-model="campos.email"
-              label="E-mail"
-              type="email"
-              placeholder="seu@email.com"
-              :ajuda="modo === 'esqueci' ? 'O e-mail que você usou para criar a conta.' : 'Usaremos só para entrar na sua conta.'"
+              :label="criando ? 'E-mail' : 'E-mail ou nome de usuário'"
+              :type="criando ? 'email' : 'text'"
+              :placeholder="criando ? 'seu@email.com' : 'seu@email.com ou joao.silva'"
+              :ajuda="modo === 'esqueci' ? 'Conta de criança: o link vai para o e-mail do responsável.' : criando ? 'Usaremos só para entrar na sua conta.' : 'Conta de criança entra com o nome de usuário.'"
+              autocapitalize="none"
               :erro="erros.email"
               name="email"
               autocomplete="email"
@@ -228,7 +232,10 @@ async function enviar() {
 
           <RouterLink v-if="modo === 'entrar'" class="acesso-esqueci" to="/esqueci-senha">Esqueci minha senha</RouterLink>
 
-          <Alerta v-if="criando">Tem menos de 18 anos? Peça a um responsável para criar a conta com você.</Alerta>
+          <Alerta v-if="criando">
+            Tem menos de 18 anos? Peça a um responsável para
+            <RouterLink class="acesso-link" to="/criar-conta-crianca">criar uma conta para criança ou adolescente</RouterLink>.
+          </Alerta>
 
           <Botao v-if="criando" tipo="destaque" type="submit" :disabled="enviando">
             <template #icone><Icone nome="estrela" /></template>
@@ -401,9 +408,16 @@ async function enviar() {
   text-align: center;
 }
 
-.acesso-ja-tem a {
+.acesso-ja-tem a,
+.acesso-link {
   color: var(--texto-principal);
   font: var(--fonte-botao);
+}
+
+.acesso-link:focus-visible {
+  outline: 3px solid var(--borda-foco);
+  outline-offset: 3px;
+  border-radius: var(--raio-8);
 }
 
 /* Adesivos no canto de baixo (decorativos) */

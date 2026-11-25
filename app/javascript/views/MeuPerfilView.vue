@@ -128,7 +128,12 @@ async function confirmarExclusao() {
         <h2 class="cartao-titulo">Seus dados</h2>
         <Alerta v-if="avisoDados.texto" :tipo="avisoDados.tipo">{{ avisoDados.texto }}</Alerta>
         <CampoFormulario v-model="dados.nome" label="Como você quer ser chamado?" name="nome" autocomplete="nickname" :erro="errosDados.nome" @input="errosDados.nome = ''" />
-        <CampoFormulario v-model="dados.email" label="E-mail" type="email" name="email" autocomplete="email" :erro="errosDados.email" @input="errosDados.email = ''" />
+        <!-- Conta de criança (HU-20): entra pelo nome de usuário; o e-mail de contato é o do responsável -->
+        <p v-if="dados.menor" class="cartao-texto">
+          Você entra com o nome de usuário <strong>{{ dados.nome_usuario }}</strong>. Para trocar a senha sem lembrar a
+          atual, peça ao seu responsável: o link chega no e-mail dele.
+        </p>
+        <CampoFormulario v-else v-model="dados.email" label="E-mail" type="email" name="email" autocomplete="email" :erro="errosDados.email" @input="errosDados.email = ''" />
         <Botao type="submit" :disabled="carregando || salvando">Salvar dados</Botao>
       </form>
 

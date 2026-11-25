@@ -18,6 +18,9 @@ const routes = [
   { path: '/criar-conta', component: AcessoView, meta: { visitante: true } },
   { path: '/esqueci-senha', component: AcessoView },
   { path: '/redefinir-senha', component: AcessoView },
+  // HU-20 (versão proposta): o responsável cria a conta da criança e depois autoriza pelo link do e-mail
+  { path: '/criar-conta-crianca', component: () => import('../views/CadastroMenorView.vue'), meta: { visitante: true } },
+  { path: '/autorizar-menor', component: () => import('../views/AutorizacaoMenorView.vue') },
   // leitor: telas pessoais do leitor. O administrador não tem essas ferramentas (vai para a área dele)
   { path: '/minhas-leituras', component: MinhasLeiturasView, meta: { logada: true, leitor: true } },
   { path: '/meu-perfil', component: MeuPerfilView, meta: { logada: true } },

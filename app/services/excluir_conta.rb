@@ -28,7 +28,13 @@ class ExcluirConta
         password: SecureRandom.base58(32), # ninguém sabe esta senha; o token de recuperação antigo deixa de valer
         ativo: false,
         ultimo_acesso_em: nil,
-        excluido_em: Time.current
+        excluido_em: Time.current,
+        # Conta de menor (HU-20): os dados do responsável e o nome de usuário também saem
+        menor: false,
+        nome_usuario: nil,
+        responsavel_nome: nil,
+        responsavel_email: nil,
+        autorizado_em: nil
       )
     end
 

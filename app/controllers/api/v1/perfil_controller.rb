@@ -9,7 +9,9 @@ module Api
 
       # Sempre o usuário da sessão: nunca um id vindo da URL. tipo_usuario não é aceito.
       def update
-        if current_usuario.update(params.require(:usuario).permit(:nome, :email))
+        # Conta de menor (HU-20) só troca o nome: o e-mail de contato é o do responsável
+        permitidos = current_usuario.menor? ? [ :nome ] : [ :nome, :email ]
+        if current_usuario.update(params.require(:usuario).permit(*permitidos))
           render json: usuario_json(current_usuario)
         else
           render json: { erros: current_usuario.errors.to_hash }, status: :unprocessable_entity
