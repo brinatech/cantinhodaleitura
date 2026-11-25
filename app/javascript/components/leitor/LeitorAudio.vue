@@ -10,7 +10,6 @@
 import { computed, onBeforeUnmount, ref } from 'vue'
 import Alerta from '../ui/Alerta.vue'
 import Botao from '../ui/Botao.vue'
-import Icone from '../ui/Icone.vue'
 import PlayerAudio from '../ui/PlayerAudio.vue'
 
 const props = defineProps({
@@ -161,7 +160,8 @@ onBeforeUnmount(() => som.value?.pause())
       @buscar="buscar"
     />
 
-    <!-- Só na versão completa (livro sem PDF): avisos e "Baixar" embaixo do player -->
+    <!-- Só na versão completa (livro sem PDF): avisos embaixo do player.
+         Sem botão de baixar o áudio: a biblioteca não oferece download (decisão da equipe). -->
     <template v-if="!compacto">
       <p v-if="carregando && !erro" class="audio-nota" role="status">Carregando o audiobook...</p>
 
@@ -169,11 +169,6 @@ onBeforeUnmount(() => som.value?.pause())
         <Alerta tipo="erro">{{ erro }}</Alerta>
         <Botao tipo="contorno" class="audio-acao" @click="tentarDeNovo">Tentar de novo</Botao>
       </template>
-
-      <Botao tipo="contorno" class="audio-acao" :href="url">
-        <template #icone><Icone nome="seta-baixo" /></template>
-        Baixar o áudio
-      </Botao>
     </template>
   </section>
 </template>
