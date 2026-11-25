@@ -48,6 +48,8 @@ const grupos = [
     nomes: [
       'categoria-aventura', 'categoria-aventura-suave', 'categoria-fantasia', 'categoria-fantasia-suave',
       'categoria-natureza', 'categoria-natureza-suave', 'categoria-classicos', 'categoria-classicos-suave',
+      'categoria-infantil', 'categoria-infantil-suave', 'categoria-poesia', 'categoria-poesia-suave',
+      'categoria-ciencias', 'categoria-ciencias-suave',
     ],
   },
 ]
@@ -75,7 +77,7 @@ const rotuloIcone = (nome) => nome.charAt(0).toUpperCase() + nome.slice(1).repla
 
 const tons = ['ceu', 'suave', 'coral', 'laranja', 'rosa']
 
-const coresChip = ['neutro', 'aventura', 'fantasia', 'natureza', 'classicos']
+const coresChip = ['neutro', 'aventura', 'fantasia', 'natureza', 'classicos', 'infantil', 'poesia', 'ciencias']
 const estadosChip = [
   { nome: 'Padrão' },
   { nome: 'Selecionado', selecionado: true },

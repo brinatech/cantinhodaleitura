@@ -30,4 +30,19 @@ class LivroTest < ActiveSupport::TestCase
     assert_not livro.valid?
     assert_includes livro.errors[:capa], "pode ter no máximo 5 MB"
   end
+
+  test "aceita livro sem capa" do
+    livro = Livro.new(titulo: "Livro sem capa", categoria: categorias(:one), usuario_cadastro: usuarios(:one))
+
+    assert livro.valid?
+    assert_not livro.capa.attached?
+  end
+
+  test "exige categoria e usuário responsável pelo cadastro" do
+    livro = Livro.new(titulo: "Livro sem dados obrigatórios")
+
+    assert_not livro.valid?
+    assert livro.errors[:categoria].present?
+    assert livro.errors[:usuario_cadastro].present?
+  end
 end

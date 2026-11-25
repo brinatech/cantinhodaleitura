@@ -90,7 +90,7 @@ async function confirmarRecusa() {
 
     <main class="autorizacao" :aria-busy="estado === 'carregando'">
       <Alerta>
-        Versão proposta: este fluxo ainda precisa ser aprovado pela SESFA antes de ser usado com crianças de verdade.
+        Versão proposta: este fluxo ainda precisa ser aprovado pela ONG parceira antes de ser usado com crianças de verdade.
       </Alerta>
 
       <p v-if="estado === 'carregando'" class="texto" role="status">Carregando o pedido de autorização...</p>

@@ -6,7 +6,7 @@ Sistema de Biblioteca Virtual desenvolvido com **Ruby on Rails**, **Vue.js**, **
 
 | Tecnologia | Versão / Descrição |
 |---|---|
-| Ruby | 3.4.12 |
+| Ruby | 3.4.13 |
 | Ruby on Rails | 8.1.4.1 |
 | Node.js | 26.13.0 |
 | Vue.js | Framework JavaScript |

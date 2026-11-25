@@ -1,7 +1,7 @@
 <!--
   Chip de filtro (Figma: "Chip de filtro"). Filtro do acervo.
   cor="neutro" para filtros gerais (Todos, formato); cor="<categoria>" para
-  categorias de livro (aventura, fantasia, natureza, classicos).
+  categorias de livro (aventura, fantasia, natureza, classicos; e as da equipe: infantil, poesia, ciencias).
   Selecionado sempre mostra o check além da cor. É um botão liga/desliga
   (aria-pressed). O texto vai no slot. O chip não troca de estado sozinho:
   quem usa controla, ex.: <ChipFiltro :selecionado="ativo" @click="ativo = !ativo">.
@@ -10,13 +10,13 @@
 -->
 <script setup>
 import Icone from './Icone.vue'
-import './categorias.js'
+import { CATEGORIAS_COM_COR } from './categorias.js'
 
 defineProps({
   cor: {
     type: String,
     default: 'neutro',
-    validator: (valor) => ['neutro', 'aventura', 'fantasia', 'natureza', 'classicos'].includes(valor),
+    validator: (valor) => ['neutro', ...CATEGORIAS_COM_COR].includes(valor),
   },
   selecionado: { type: Boolean, default: false },
 })

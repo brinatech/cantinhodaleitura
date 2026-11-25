@@ -102,7 +102,7 @@ const cards = computed(() => {
     { rotulo: 'Leitores cadastrados', valor: numero(dados.leitores_cadastrados), detalhe: 'contas de leitor', icone: 'usuario', cor: 'rosa' },
     { rotulo: 'Visualizações', valor: numero(dados.acessos.visualizacao.total), detalhe: detalheAcesso(dados.acessos.visualizacao), icone: 'olho', cor: 'ceu' },
     { rotulo: 'Leituras', valor: numero(dados.acessos.leitura.total), detalhe: detalheAcesso(dados.acessos.leitura), icone: 'livro', cor: 'coral' },
-    { rotulo: 'Downloads', valor: numero(dados.acessos.download.total), detalhe: detalheAcesso(dados.acessos.download), icone: 'seta-baixo', cor: 'suave' },
+    // Sem card de "Downloads": o site não oferece mais botão de baixar (a API ainda conta, se alguém baixar pelo link)
   ]
 })
 

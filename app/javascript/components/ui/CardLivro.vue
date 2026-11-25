@@ -109,13 +109,25 @@ const rotuloCategoria = computed(() => props.categoria || 'Diversos')
   letter-spacing: var(--letras-selo);
   text-transform: uppercase;
   white-space: nowrap;
+  max-width: 100%; /* nunca passa da largura do card (com A+ / A++ a letra cresce) */
+  overflow: hidden;
+}
+
+/* A marca precisa de ~14,5rem numa linha só. Em rem, o limite cresce junto com o A+ / A++:
+   se não couber, ela sai (é enfeite, aria-hidden) em vez de ser cortada. */
+@container (max-width: 14.5rem) {
+  .card-marca {
+    display: none;
+  }
 }
 
 /* ===== Capa ===== */
+/* Como no Figma: a capa ocupa a largura toda do card, num formato quase quadrado (5:6).
+   A altura acompanha a largura do card. */
 .card-capa {
   position: relative;
   width: 100%;
-  height: 260px;
+  aspect-ratio: 5 / 6;
   flex-shrink: 0;
   overflow: hidden;
   border-radius: var(--raio-12);
@@ -125,7 +137,10 @@ const rotuloCategoria = computed(() => props.categoria || 'Diversos')
 .card-capa-img {
   width: 100%;
   height: 100%;
-  object-fit: contain; /* capas reais são verticais: não corta título nem autor; sobra o fundo da categoria */
+  /* A capa preenche o espaço todo. Uma capa 2:3 (800 × 1200 px) perde ~20% da parte de baixo;
+     o topo, onde costumam ficar o título e o autor, aparece inteiro. */
+  object-fit: cover;
+  object-position: center top;
 }
 
 .card-capa-icone {
@@ -212,7 +227,7 @@ const rotuloCategoria = computed(() => props.categoria || 'Diversos')
 .card-titulo {
   display: -webkit-box;
   width: 100%;
-  height: 48px; /* 2 linhas */
+  height: 3rem; /* 2 linhas de 1rem × 1,5: cresce junto com o A+ / A++ (em px, a 2ª linha era cortada) */
   overflow: hidden;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
@@ -250,10 +265,6 @@ const rotuloCategoria = computed(() => props.categoria || 'Diversos')
   /* A marca não cabe numa linha só; é enfeite (aria-hidden), então sai */
   .card-marca {
     display: none;
-  }
-
-  .card-capa {
-    height: 190px;
   }
 
   /* O selo desce para o pé da capa: em cima, ele bateria no coração */

@@ -197,4 +197,32 @@ class Api::V1::LivrosControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_match %r{/rails/active_storage/blobs/.+/capa\.png}, JSON.parse(response.body)["capa_url"]
   end
+
+  test "visitantes veem livros cadastrados por administradores diferentes" do
+    primeiro = usuarios(:one)
+    segundo = usuarios(:two)
+    primeiro.update!(tipo_usuario: "administrador")
+    segundo.update!(tipo_usuario: "administrador")
+    categoria = categorias(:one)
+    primeiro_livro = Livro.create!(titulo: "Livro do primeiro administrador", categoria: categoria, usuario_cadastro: primeiro)
+    segundo_livro = Livro.create!(titulo: "Livro do segundo administrador", categoria: categoria, usuario_cadastro: segundo)
+
+    get api_v1_livros_url, params: { q: "administrador" }
+
+    assert_response :ok
+    assert_equal [ primeiro_livro.id, segundo_livro.id ].sort, response.parsed_body.pluck("id").sort
+  end
+
+  test "mantém o livro no catálogo sem expor download para um caminho legado" do
+    livro = livros(:one)
+    material_legado = arquivo_materials(:one)
+    assert_equal livro.id, material_legado.livro_id
+    assert_not material_legado.arquivo.attached?
+
+    get api_v1_livro_url(livro)
+
+    assert_response :ok
+    assert_equal livro.id, response.parsed_body.fetch("id")
+    assert_empty response.parsed_body.fetch("formatos")
+  end
 end
