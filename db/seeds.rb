@@ -45,7 +45,8 @@ livros.each do |dados|
   if File.file?(caminho_capa)
     mesma_capa = livro.capa.attached? &&
       livro.capa.filename.to_s == "capa.jpg" &&
-      livro.capa.blob.byte_size == File.size(caminho_capa)
+      livro.capa.blob.byte_size == File.size(caminho_capa) &&
+      livro.capa.blob.service.exist?(livro.capa.blob.key)
     unless mesma_capa
       File.open(caminho_capa, "rb") do |arquivo|
         livro.capa.attach(io: arquivo, filename: "capa.jpg", content_type: "image/jpeg")
@@ -60,7 +61,8 @@ livros.each do |dados|
     material = ArquivoMaterial.find_or_initialize_by(livro: livro, tipo: tipo)
     mesmo_arquivo = material.arquivo.attached? &&
       material.arquivo.filename.to_s == nome &&
-      material.arquivo.blob.byte_size == File.size(caminho_arquivo)
+      material.arquivo.blob.byte_size == File.size(caminho_arquivo) &&
+      material.arquivo.blob.service.exist?(material.arquivo.blob.key)
     unless mesmo_arquivo
       File.open(caminho_arquivo, "rb") do |arquivo|
         material.arquivo.attach(io: arquivo, filename: nome, content_type: content_type)

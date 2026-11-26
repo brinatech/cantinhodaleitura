@@ -103,6 +103,17 @@ Após iniciar os dois servidores, acesse a aplicação pelo navegador:
 
 > **Importante:** Os dois servidores precisam permanecer em execução durante o desenvolvimento da aplicação.
 
+## Deploy no Render
+
+O arquivo `render.yaml` cria um serviço web Docker e um PostgreSQL no Render. A imagem instala o Node.js e as dependências do Vite antes de compilar os assets; as conexões Solid Cache, Solid Queue e Solid Cable usam o mesmo PostgreSQL. Na inicialização, o sistema roda `db:seed` para cadastrar os dois livros de exemplo e anexar as capas, PDFs e áudios que estão em `db/seeds/arquivos/livros`.
+
+1. Envie o repositório para o GitHub.
+2. No Render, escolha **New > Blueprint**, conecte este repositório e selecione a branch desejada.
+3. Quando solicitado, informe `RAILS_MASTER_KEY` com o conteúdo local de `config/master.key`. Não coloque essa chave no repositório.
+4. Crie os serviços e aguarde o build. O endereço público aparecerá no painel do serviço.
+
+O Blueprint está configurado no plano gratuito para uma demonstração. Nesse plano, o serviço pode dormir após inatividade e o PostgreSQL gratuito expira após 30 dias. Os arquivos de exemplo são recuperados do repositório e anexados novamente na inicialização se o filesystem temporário for limpo; arquivos enviados pelos usuários não são persistidos. Para uso real, escolha planos pagos e configure armazenamento persistente (ou Active Storage em um serviço externo) antes de receber dados importantes. Consulte as [limitações atuais do plano gratuito do Render](https://render.com/docs/free).
+
 ## Autenticação da API
 
 A API usa sessão Rails em cookie assinado e criptografado. O cookie é `HttpOnly`, não
