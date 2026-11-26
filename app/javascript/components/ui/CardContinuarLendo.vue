@@ -16,6 +16,7 @@ import { chaveCategoria } from './categorias.js'
 
 const props = defineProps({
   titulo: { type: String, required: true },
+  nivel: { type: Number, default: 3, validator: (valor) => valor >= 1 && valor <= 6 }, // nível do título: 2 quando a tela não tem um <h2> antes dos cards
   detalhe: { type: String, default: '' },
   categoria: { type: String, default: '' },
   capaUrl: { type: String, default: null },
@@ -67,7 +68,7 @@ const rotuloCategoria = computed(() => props.categoria || 'Diversos')
           <span class="pilula-ponto" aria-hidden="true"></span>
           {{ rotuloCategoria }}
         </span>
-        <h3 class="continuar-titulo">{{ titulo }}</h3>
+        <component :is="`h${nivel}`" class="continuar-titulo">{{ titulo }}</component>
         <p v-if="detalhe" class="continuar-detalhe">{{ detalhe }}</p>
         <BarraProgresso :progresso="progresso" :rotulo="rotuloProgresso" :valor="`${Math.round(progresso)}%`" />
       </div>

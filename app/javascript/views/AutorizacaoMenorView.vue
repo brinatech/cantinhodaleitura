@@ -97,6 +97,7 @@ async function confirmarRecusa() {
 
       <EstadoVazio
         v-else-if="estado === 'invalido'"
+        :nivel="1"
         titulo="Este link não vale mais"
         descricao="Ele pode ter vencido (vale 7 dias) ou já ter sido usado. Se o cadastro venceu, é só fazer de novo."
       >

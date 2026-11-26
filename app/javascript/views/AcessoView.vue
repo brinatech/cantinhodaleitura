@@ -470,7 +470,7 @@ async function enviar() {
   }
 
   .acesso-centro {
-    padding: var(--espaco-24) 0 var(--espaco-64);
+    padding: var(--espaco-24) 0 7rem; /* espaço para os adesivos do canto (90px) não cobrirem o último texto */
   }
 
   .acesso-adesivos {

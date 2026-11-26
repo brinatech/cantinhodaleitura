@@ -53,7 +53,9 @@ defineProps({
   box-shadow: inset 0 0 0 var(--anel-largura) var(--anel-cor);
   color: var(--cor);
   font: var(--fonte-botao);
-  white-space: nowrap;
+  max-width: 100%; /* nome de categoria comprido quebra em linhas em vez de passar da tela */
+  text-align: left;
+  overflow-wrap: anywhere;
   cursor: pointer;
   transition: background-color var(--duracao-rapida) var(--curva);
 }

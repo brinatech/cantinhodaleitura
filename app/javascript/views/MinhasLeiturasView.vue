@@ -336,6 +336,13 @@ onMounted(() => {
   margin: calc(-1 * var(--espaco-16)) calc(-1 * var(--espaco-8)) calc(-1 * var(--espaco-24)); /* tira a folga de cima e de baixo da fileira */
 }
 
+/* Tela estreita: a margem da página é menor que a metade da seta; a seta fica dentro da fileira (senão a página rola de lado) */
+@media (max-width: 900px) {
+  .fileira {
+    --fileira-seta-lado: var(--espaco-8);
+  }
+}
+
 .fileira--continuar {
   --fileira-largura-item: max(260px, calc((100% - 2 * 20px) / 3));
 }

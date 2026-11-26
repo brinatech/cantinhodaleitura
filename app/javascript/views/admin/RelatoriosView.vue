@@ -161,7 +161,7 @@ onMounted(carregar)
       <template v-else-if="resumo">
         <ul class="relatorios-cards" :aria-busy="carregando">
           <li v-for="card in cards" :key="card.rotulo">
-            <IndicadorCard v-bind="card" />
+            <IndicadorCard v-bind="card" :nivel="2" />
           </li>
         </ul>
 
@@ -169,7 +169,7 @@ onMounted(carregar)
           <h2 id="titulo-mais-acessados" class="relatorios-secao-titulo">Livros mais acessados</h2>
           <p v-if="!resumo.mais_acessados.length" class="relatorios-aviso">Nenhum acesso no período.</p>
           <!-- tabindex: no celular a tabela rola para o lado, e quem usa teclado também precisa conseguir rolar -->
-          <div v-else class="tabela-rolagem" tabindex="0" role="region" aria-labelledby="titulo-mais-acessados">
+          <div v-else class="tabela-rolagem" tabindex="0" role="region" aria-label="Tabela dos livros mais acessados">
             <table class="tabela">
               <caption class="so-leitor">Os 10 livros com mais leituras no período</caption>
               <thead>

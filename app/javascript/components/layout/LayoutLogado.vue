@@ -123,7 +123,7 @@ const painel = ref(null)
           <span class="barra-acessibilidade-texto">Acessibilidade</span>
         </Botao>
 
-        <RouterLink class="perfil" to="/meu-perfil" :aria-label="`Meu perfil, ${leitor.nome}${administrador ? ', administrador' : ''}`">
+        <RouterLink class="perfil" to="/meu-perfil" title="Meu perfil"> <!-- sem aria-label: o nome vem do texto visível (WCAG 2.5.3) -->
           <span class="perfil-avatar" aria-hidden="true">{{ leitor.nome[0] }}</span>
           <span class="perfil-textos">
             <span class="perfil-nome">{{ leitor.nome }}</span>

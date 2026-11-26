@@ -16,6 +16,7 @@ import { chaveCategoria } from './categorias.js'
 
 const props = defineProps({
   titulo: { type: String, required: true },
+  nivel: { type: Number, default: 3, validator: (valor) => valor >= 1 && valor <= 6 }, // nível do título: 2 quando a tela não tem um <h2> antes dos cards
   autor: { type: String, default: '' },
   categoria: { type: String, default: '' },
   capaUrl: { type: String, default: null },
@@ -42,7 +43,7 @@ const rotuloCategoria = computed(() => props.categoria || 'Diversos')
 
       <span v-if="mostrarCategoria" class="card-categoria">
         <span class="card-categoria-ponto" aria-hidden="true"></span>
-        {{ rotuloCategoria }}
+        <span class="card-categoria-texto">{{ rotuloCategoria }}</span>
       </span>
 
       <button
@@ -60,10 +61,10 @@ const rotuloCategoria = computed(() => props.categoria || 'Diversos')
     </div>
 
     <div class="card-info">
-      <h3 class="card-titulo">
+      <component :is="`h${nivel}`" class="card-titulo">
         <RouterLink v-if="to" class="card-link" :to="to">{{ titulo }}</RouterLink>
         <template v-else>{{ titulo }}</template>
-      </h3>
+      </component>
       <p v-if="autor" class="card-autor">{{ autor }}</p>
     </div>
 
@@ -164,9 +165,17 @@ const rotuloCategoria = computed(() => props.categoria || 'Diversos')
   letter-spacing: var(--letras-rotulo);
   text-transform: uppercase;
   white-space: nowrap;
+  max-width: calc(100% - 60px); /* deixa o canto do coração livre; categoria muito longa vira "…" */
+}
+
+.card-categoria-texto {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .card-categoria-ponto {
+  flex-shrink: 0;
   width: 10px;
   height: 10px;
   border-radius: 50%;
@@ -231,6 +240,7 @@ const rotuloCategoria = computed(() => props.categoria || 'Diversos')
   -webkit-line-clamp: 2;
   color: var(--texto-principal);
   font: var(--fonte-botao);
+  overflow-wrap: anywhere; /* palavra sem espaço não passa do card */
 }
 
 .card-link {
@@ -249,6 +259,12 @@ const rotuloCategoria = computed(() => props.categoria || 'Diversos')
 }
 
 .card-autor {
+  display: -webkit-box;
+  max-width: 100%;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2; /* autor longo não estica o card */
+  overflow-wrap: anywhere;
   color: var(--texto-secundario);
   font: var(--fonte-legenda);
 }

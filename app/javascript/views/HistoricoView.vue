@@ -107,6 +107,7 @@ onMounted(carregar)
         <ul v-if="itensFiltrados.length" class="historico-lista">
           <li v-for="item in itensFiltrados" :key="item.livro_id">
             <CardContinuarLendo
+              :nivel="2"
               :titulo="item.livro.titulo"
               :detalhe="detalhe(item)"
               :categoria="item.livro.categoria?.nome"
